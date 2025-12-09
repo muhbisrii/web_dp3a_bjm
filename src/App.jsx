@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from './firebase';
-import { AnimatePresence } from 'framer-motion'; // Import untuk transisi halaman
+import { AnimatePresence } from 'framer-motion';
 
-// Import pages
+// Pages
 import Login from './pages/Login';
 import Register from './pages/Register';
 import AdminDashboard from './pages/AdminDashboard';
@@ -19,6 +19,7 @@ function App() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
+
       if (currentUser) {
         const docRef = doc(db, "users", currentUser.uid);
         const docSnap = await getDoc(docRef);
@@ -28,13 +29,13 @@ function App() {
       } else {
         setUserData(null);
       }
+
       setLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
 
-  // Komponen Loading dengan animasi sederhana
   if (loading) {
     return (
       <div className="h-screen flex items-center justify-center bg-slate-50">
@@ -43,33 +44,50 @@ function App() {
     );
   }
 
-  // Fungsi untuk menentukan halaman mana yang dirender
   const renderContent = () => {
     if (!user) {
       if (isRegistering) {
-        // Gunakan key agar Framer Motion tahu ini halaman beda
-        return <Register key="register" onSwitchToLogin={() => setIsRegistering(false)} />;
+        return (
+          <Register
+            key="register"
+            onSwitchToLogin={() => setIsRegistering(false)}
+          />
+        );
       }
-      return <Login key="login" onSwitchToRegister={() => setIsRegistering(true)} />;
+      return (
+        <Login
+          key="login"
+          onSwitchToRegister={() => setIsRegistering(true)}
+        />
+      );
     }
 
-    if (userData?.role === 'admin' || userData?.role === 'Admin') {
+    if (userData?.role === "admin" || userData?.role === "Admin") {
       return <AdminDashboard key="admin" user={userData} />;
     }
 
-    return <UserHome key="user" user={userData || { uid: user.uid, email: user.email, name: user.displayName }} />;
+    return (
+      <UserHome
+        key="user"
+        user={userData || { uid: user.uid, email: user.email }}
+      />
+    );
   };
+
+  // ====== DETEKSI HALAMAN LOGIN / REGISTER ======
+  const isAuthPage = !user; // jika belum login → true
 
   return (
     <>
-      {/* Latar Belakang Bergerak Global */}
-      <div className="bg-blobs-container">
+      {/* Background global hanya muncul jika user SUDAH login */}
+      {!isAuthPage && (
+        <div className="bg-blobs-container">
           <div className="blob blob-1"></div>
           <div className="blob blob-2"></div>
           <div className="blob blob-3"></div>
-      </div>
+        </div>
+      )}
 
-      {/* AnimatePresence memungkinkan animasi saat komponen keluar dari DOM */}
       <AnimatePresence mode="wait">
         {renderContent()}
       </AnimatePresence>
