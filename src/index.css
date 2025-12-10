@@ -5,10 +5,10 @@
 @tailwind utilities;
 
 /* =========================================
-   GLOBAL VARIABLES (Warna Tema Baru)
+   GLOBAL VARIABLES
    ========================================= */
 :root {
-  /* Warna Biru Indigo (Sama seperti Login) */
+  /* Warna Utama (Indigo - Sesuai Login & User Home) */
   --primary-color: #4f46e5; 
   
   /* Warna Hover (Lebih gelap sedikit) */
@@ -29,31 +29,44 @@ body {
   font-family: 'Plus Jakarta Sans', sans-serif;
   margin: 0;
   padding: 0;
-  overflow-x: hidden; /* Mencegah scroll ke samping */
-  background-color: var(--bg-light);
-  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden; /* Mencegah scroll ke samping yang tidak sengaja */
+  background-color: var(--bg-light); /* Menggunakan variabel agar konsisten */
+  -webkit-font-smoothing: antialiased; /* Agar font terlihat tajam di layar */
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* PENTING: Mencegah gambar meledak di HP */
+/* PENTING UNTUK RESPONSIF:
+   Memastikan semua gambar (img), video, dan svg 
+   tidak pernah melebihi lebar layar HP.
+*/
 img, video, canvas, svg {
   max-width: 100%;
   height: auto;
-  display: block;
+  display: block; /* Menghapus celah putih kecil di bawah gambar */
 }
 
+/* Reset Link agar tidak ada garis bawah default */
 a {
   text-decoration: none;
   color: inherit;
 }
 
+/* Memastikan padding tidak menambah lebar elemen */
 *, *::before, *::after {
   box-sizing: border-box;
 }
 
-/* Scrollbar Kustom */
+/* Efek Scroll Halus untuk seluruh halaman */
+html {
+  scroll-behavior: smooth;
+}
+
+/* =========================================
+   CUSTOM SCROLLBAR (Modern Look)
+   ========================================= */
 ::-webkit-scrollbar {
   width: 8px;
+  height: 8px; /* Untuk scrollbar horizontal */
 }
 
 ::-webkit-scrollbar-track {
@@ -61,10 +74,10 @@ a {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #cbd5e1; /* Warna scrollbar abu-abu soft */
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #94a3b8; /* Warna scrollbar saat disentuh */
 }

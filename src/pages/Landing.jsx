@@ -1,19 +1,18 @@
 import React, { useState } from "react";
-import { Menu, X, ChevronRight } from "lucide-react"; // Import ikon
+import { Menu, X, ChevronRight, MapPin, Phone, Mail, Clock } from "lucide-react"; 
 import "./Landing.css";
 
 export default function Landing({ onStart, onAbout, onHelp }) {
-  // State untuk mengatur apakah Sidebar terbuka atau tertutup
   const [isSidebarOpen, setSidebarOpen] = useState(false);
 
   const handleAbout = () => {
     if (onAbout) onAbout();
-    setSidebarOpen(false); // Tutup sidebar setelah klik
+    setSidebarOpen(false);
   };
 
   const handleHelp = () => {
     if (onHelp) onHelp();
-    setSidebarOpen(false); // Tutup sidebar setelah klik
+    setSidebarOpen(false);
   };
 
   const handleLogin = () => {
@@ -23,23 +22,20 @@ export default function Landing({ onStart, onAbout, onHelp }) {
 
   return (
     <div className="landing-container">
-      {/* Navbar */}
+      {/* ===========================
+          NAVBAR SECTION
+      =========================== */}
       <nav className="landing-navbar">
-        
-        {/* Bagian Kiri: Logo & Judul */}
         <div className="nav-left">
           <img src="/pemkot.png" alt="logo" className="logo" />
           <div className="nav-divider"></div>
           <div className="nav-text">
             <h1 className="portal-title">Portal DP3A</h1>
-            <p className="portal-subtitle">
-              Layanan Pengaduan Masyarakat
-            </p>
+            <p className="portal-subtitle">Layanan Pengaduan Masyarakat</p>
           </div>
         </div>
 
-        {/* --- TAMPILAN LAPTOP (Desktop Menu) --- */}
-        {/* Class 'desktop-menu' akan kita sembunyikan di HP via CSS */}
+        {/* Desktop Menu */}
         <div className="nav-right desktop-menu">
           <ul className="nav-links">
             <li className="nav-item" onClick={handleAbout}>Tentang Aplikasi</li>
@@ -50,23 +46,15 @@ export default function Landing({ onStart, onAbout, onHelp }) {
           </button>
         </div>
 
-        {/* --- TAMPILAN HP (Hamburger Button) --- */}
-        {/* Tombol ini hanya muncul di HP */}
-        <button 
-          className="mobile-menu-btn" 
-          onClick={() => setSidebarOpen(true)}
-        >
+        {/* Mobile Menu Button */}
+        <button className="mobile-menu-btn" onClick={() => setSidebarOpen(true)}>
           <Menu size={28} color="#333" />
         </button>
 
-        {/* --- SIDEBAR MOBILE (Overlay & Drawer) --- */}
-        {/* Background gelap transparan */}
-        <div 
-          className={`sidebar-overlay ${isSidebarOpen ? 'active' : ''}`}
-          onClick={() => setSidebarOpen(false)}
-        ></div>
+        {/* Sidebar Overlay */}
+        <div className={`sidebar-overlay ${isSidebarOpen ? 'active' : ''}`} onClick={() => setSidebarOpen(false)}></div>
 
-        {/* Isi Sidebar */}
+        {/* Sidebar Content */}
         <div className={`mobile-sidebar ${isSidebarOpen ? 'active' : ''}`}>
           <div className="sidebar-header">
             <h3 className="sidebar-title">Menu Utama</h3>
@@ -74,50 +62,97 @@ export default function Landing({ onStart, onAbout, onHelp }) {
               <X size={24} />
             </button>
           </div>
-
           <ul className="sidebar-list">
-            <li onClick={handleAbout}>
-              <span>Tentang Aplikasi</span>
-              <ChevronRight size={16} className="text-slate-400"/>
-            </li>
-            <li onClick={handleHelp}>
-              <span>Bantuan</span>
-              <ChevronRight size={16} className="text-slate-400"/>
-            </li>
+            <li onClick={handleAbout}><span>Tentang Aplikasi</span><ChevronRight size={16} className="text-slate-400"/></li>
+            <li onClick={handleHelp}><span>Bantuan</span><ChevronRight size={16} className="text-slate-400"/></li>
             <li className="sidebar-btn-container">
-              <button className="sidebar-login-btn" onClick={handleLogin}>
-                Login / Register
-              </button>
+              <button className="sidebar-login-btn" onClick={handleLogin}>Login / Register</button>
             </li>
           </ul>
-          
           <div className="sidebar-footer">
-            <p>&copy; 2025 DPPPA Banjarmasin</p>
+            <p>© 2025 DPPPA Banjarmasin</p>
           </div>
         </div>
-
       </nav>
 
-      {/* Hero Section */}
+      {/* ===========================
+          HERO SECTION
+      =========================== */}
       <section className="landing-hero">
         <div className="hero-left-img">
-          {/* Pastikan file vektor.jpg ada di folder public */}
           <img src="/vektor.jpg" alt="illustration" className="hero-img" />
         </div>
-
         <div className="hero-right-text">
           <h3 className="hero-subtitle">DPPPA KOTA BANJARMASIN</h3>
           <h2 className="hero-title">
             Portal <span>DP3A</span>
           </h2>
           <p className="hero-desc">
-            Layanan Pengaduan Perempuan & Anak Kota Banjarmasin
+            Layanan Pengaduan Perempuan & Anak Kota Banjarmasin.
+            Bersama kita lindungi perempuan dan anak dari kekerasan.
           </p>
           <button className="hero-btn cta-btn" onClick={onStart}>
             Login / Register
           </button>
         </div>
       </section>
+
+      {/* ===========================
+          FOOTER (KONTAK & MAPS)
+      =========================== */}
+      <footer className="landing-footer">
+        <div className="footer-content">
+          
+          {/* MAPS SECTION DENGAN PIN MERAH */}
+          <div className="footer-map">
+            <iframe 
+              title="Lokasi Kantor DP3A Banjarmasin"
+              /* Link ini menggunakan query pencarian spesifik ke nama dinas agar muncul PIN MERAH */
+              src="https://maps.google.com/maps?q=Dinas%20Pemberdayaan%20Perempuan%20dan%20Perlindungan%20Anak%20Kota%20Banjarmasin&t=&z=15&ie=UTF8&iwloc=&output=embed"
+              
+              width="100%" 
+              height="250" 
+              style={{ border: 0, borderRadius: "12px" }} 
+              allowFullScreen 
+              loading="lazy" 
+              referrerPolicy="no-referrer-when-downgrade"
+            ></iframe>
+          </div>
+
+          {/* INFORMASI KONTAK */}
+          <div className="footer-info">
+            <h3 className="footer-title">KONTAK KAMI</h3>
+            <p className="footer-agency">Dinas Pemberdayaan Perempuan dan Perlindungan Anak (DP3A)</p>
+            
+            <div className="contact-item">
+              <MapPin className="contact-icon" size={20} />
+              {/* Alamat diperjelas sesuai data resmi */}
+              <span>Jl. Sultan Adam No.18 Rt. 28 Rw. 03 Surgi Mufti, Banjarmasin (Gedung Disdukcapil Lt. 3)</span>
+            </div>
+
+            <div className="contact-item">
+              <Phone className="contact-icon" size={20} />
+              <span>(0511) 3307-788 / 0895-0388-6767</span>
+            </div>
+
+            <div className="contact-item">
+              <Mail className="contact-icon" size={20} />
+              <span>dpppa@banjarmasinkota.go.id</span>
+            </div>
+
+            <div className="contact-item">
+              <Clock className="contact-icon" size={20} />
+              <span>Senin - Jumat: 08.00 - 16.00 WITA</span>
+            </div>
+          </div>
+
+        </div>
+        
+        <div className="footer-bottom">
+          <p>© 2025 Pemerintah Kota Banjarmasin - Portal DP3A</p>
+        </div>
+      </footer>
+
     </div>
   );
 }
