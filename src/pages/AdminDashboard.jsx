@@ -118,7 +118,9 @@ export default function AdminDashboard({ user }) {
       {/* Pattern Dot Halus */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#475569 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
 
-      <aside className={`fixed md:relative z-20 w-64 h-full bg-[#0f172a] text-white flex flex-col transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} shadow-2xl`}>
+      {/* --- PERBAIKAN SIDEBAR MOBILE --- */}
+      {/* Z-Index diubah jadi z-50 agar di atas Overlay */}
+      <aside className={`fixed md:relative z-50 w-64 h-full bg-[#0f172a] text-white flex flex-col transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} shadow-2xl`}>
         <div className="p-6 border-b border-slate-800">
            <div className="flex items-center space-x-3 bg-slate-800/50 p-3 rounded-xl border border-slate-700/50 backdrop-blur-sm">
               <div className="h-10 w-10 rounded-full bg-slate-700 flex items-center justify-center text-emerald-400 font-bold border border-slate-600"><User size={20} /></div>
@@ -135,7 +137,9 @@ export default function AdminDashboard({ user }) {
         </div>
       </aside>
 
-      {isSidebarOpen && <div onClick={() => setSidebarOpen(false)} className="fixed inset-0 bg-slate-900/50 z-20 md:hidden backdrop-blur-sm"></div>}
+      {/* --- OVERLAY UNTUK HP --- */}
+      {/* Z-Index Overlay z-40 (di bawah sidebar z-50) */}
+      {isSidebarOpen && <div onClick={() => setSidebarOpen(false)} className="fixed inset-0 bg-slate-900/50 z-40 md:hidden backdrop-blur-sm"></div>}
 
       <div className="flex-1 flex flex-col h-full overflow-hidden relative z-10">
         <header className="h-20 bg-[#0f172a] border-b border-slate-800 flex items-center justify-between px-6 shadow-md z-10 text-white">
@@ -206,7 +210,6 @@ export default function AdminDashboard({ user }) {
                                  <td className="px-6 py-4 text-slate-600"><div className="flex items-center"><MapPin size={14} className="mr-1 text-slate-400"/> {item.lokasi}</div></td>
                                  <td className="px-6 py-4 text-center"><span className={`px-3 py-1 rounded-full text-xs font-bold uppercase inline-block shadow-sm ${getStatusBadge(item.status)}`}>{item.status || "Menunggu"}</span></td>
                                  <td className="px-6 py-4 text-center">
-                                    {/* --- PERBAIKAN TOMBOL AKSI: Diberi w-9 h-9 agar tidak kecil --- */}
                                     <div className="flex justify-center items-center space-x-2">
                                           <button onClick={() => openResponseModal(item.id, item.tanggapanPetugas)} title="Beri Tanggapan" className="w-9 h-9 flex items-center justify-center bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-500 hover:text-white transition-all"><MessageSquare size={16}/></button>
                                           
