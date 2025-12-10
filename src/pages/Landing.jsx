@@ -133,15 +133,24 @@ export default function Landing({ onStart, onAbout, onHelp }) {
         className="landing-navbar"
         initial="hidden" animate="visible" variants={fadeInDown}
       >
-        <div className="nav-left">
-          <img src="/pemkot.png" alt="logo" className="logo" />
-          <div className="nav-divider"></div>
+        <div className="nav-left flex items-center">
+          <img src="/pemkot.png" alt="logo" className="logo w-10 h-10 sm:w-12 sm:h-12 mr-3" />
+          
+          {/* Divider vertikal (Opsional: bisa di-hidden di HP jika terlalu sempit, tapi dibiarkan ada sesuai request) */}
+          <div className="nav-divider h-8 w-[1px] bg-gray-300 mx-2 hidden sm:block"></div> 
+
           <div className="nav-text flex flex-col justify-center">
-            {/* Judul Utama */}
-            <h1 className="portal-title text-base sm:text-xl font-bold leading-tight">Portal DP3A</h1>
+            {/* JUDUL UTAMA */}
+            <h1 className="text-sm font-bold sm:text-xl text-slate-800 dark:text-white leading-tight">
+              Portal DP3A
+            </h1>
             
-            {/* UPDATE: Subtitle dipaksa tampil (block) dengan ukuran font kecil di HP */}
-            <p className="portal-subtitle text-[10px] sm:text-sm font-medium leading-none block text-slate-600 dark:text-slate-300">
+            {/* SUBTITLE (Layanan Pengaduan) */}
+            {/* Menggunakan style={{ display: 'block' }} untuk memaksa tampil menimpa CSS eksternal */}
+            <p 
+              className="text-[10px] sm:text-sm font-medium text-slate-600 dark:text-slate-300 leading-tight mt-0.5 !block"
+              style={{ display: 'block' }}
+            >
               Layanan Pengaduan Masyarakat
             </p>
           </div>
