@@ -28,7 +28,7 @@ export default function Login({ onSwitchToRegister }) {
   };
 
   return (
-    <div className="relative w-full min-h-screen overflow-hidden font-sans">
+    <div className="relative w-full min-h-screen overflow-hidden font-sans bg-slate-100">
 
       {/* ==== BACKGROUND FOTO BLUR RINGAN ==== */}
       <img
@@ -47,9 +47,9 @@ export default function Login({ onSwitchToRegister }) {
       {/* ==== CONTAINER LOGIN ==== */}
       <div className="relative z-40 min-h-screen w-full flex items-center justify-center p-4">
 
-        <div className="bg-white w-full max-w-4xl min-h-[550px] md:h-[550px] rounded-[30px] shadow-2xl overflow-hidden flex flex-col md:flex-row relative">
+        <div className="bg-white w-full max-w-4xl h-[600px] md:h-[550px] rounded-[30px] shadow-2xl overflow-hidden flex flex-row relative">
 
-          {/* PANEL KIRI (KHUSUS LAPTOP) - Hidden di HP */}
+          {/* PANEL KIRI (DESKTOP ONLY) */}
           <motion.div
             initial={{ x: '-100%' }}
             animate={{ x: 0 }}
@@ -66,10 +66,10 @@ export default function Login({ onSwitchToRegister }) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.5 }}
             >
-              <div className="bg-white p-6 rounded-2xl shadow-lg mb-8 flex items-center justify-center space-x-4 w-full max-w-xs mx-auto">
-                {/* Pastikan path gambar sesuai */}
-                <img src="/logo-kiri.png" className="h-12 w-auto" alt="Logo Pemkot" />
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Coat_of_arms_of_South_Kalimantan.svg/1200px-Coat_of_arms_of_South_Kalimantan.svg.png" className="h-14 w-auto" alt="Logo Provinsi" />
+              {/* Logo Desktop (Dua Logo) */}
+              <div className="bg-white p-4 rounded-2xl shadow-lg mb-6 flex items-center justify-center space-x-4 w-full max-w-xs mx-auto">
+                <img src="/pemkot.png" className="h-12 w-auto" alt="Pemkot Logo" />
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Coat_of_arms_of_South_Kalimantan.svg/1200px-Coat_of_arms_of_South_Kalimantan.svg.png" className="h-14 w-auto" alt="Kalsel Logo" />
               </div>
 
               <h2 className="text-3xl font-extrabold mb-3">Portal DP3A</h2>
@@ -81,28 +81,26 @@ export default function Login({ onSwitchToRegister }) {
             </motion.div>
           </motion.div>
 
-          {/* PANEL FORM (KANAN) */}
-          <div className="w-full md:w-[50%] h-full md:absolute md:right-0 md:top-0 flex flex-col justify-center p-8 md:p-12 bg-white z-10">
-            
-            {/* === HEADER MOBILE (Hanya Muncul di HP) === */}
-            {/* Bagian ini menggantikan panel kiri saat di HP */}
-            <div className="md:hidden flex flex-col items-center mb-6 text-center">
-                <div className="flex items-center gap-3 mb-3">
-                    <img src="/pemkot.png" className="h-10 w-auto" alt="Logo Pemkot" />
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Coat_of_arms_of_South_Kalimantan.svg/1200px-Coat_of_arms_of_South_Kalimantan.svg.png" className="h-10 w-auto" alt="Logo Provinsi" />
-                </div>
-                <h2 className="text-2xl font-bold text-[#4f46e5]">Portal DP3A</h2>
-                <p className="text-xs text-slate-500">Layanan Pengaduan Kota Banjarmasin</p>
-            </div>
-            {/* ========================================= */}
-
+          {/* PANEL FORM (MOBILE & DESKTOP KANAN) */}
+          <div className="w-full md:w-[50%] h-full absolute right-0 top-0 flex flex-col justify-center p-8 md:p-12 bg-white z-10">
             <motion.div
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2, duration: 0.5 }}
             >
-              <h2 className="text-3xl font-bold text-slate-800 mb-2">Halo, Warga!</h2>
-              <p className="text-slate-500 mb-6">Silakan masuk ke akun Anda.</p>
+              
+              {/* === HEADER MOBILE BARU (Hanya muncul di HP) === */}
+              <div className="flex flex-col items-center justify-center text-center mb-8 md:hidden">
+                  {/* Ganti dua logo sebelumnya dengan satu logo DP3A */}
+                  <img src="/logo-dp3a.png" alt="Logo DP3A" className="h-16 w-auto mb-3 object-contain" onError={(e) => e.target.src='/pemkot.png'} />
+                  
+                  <h3 className="text-xl font-bold text-[#4f46e5]">Portal DP3A</h3>
+                  <p className="text-sm text-slate-500">Layanan Pengaduan Kota Banjarmasin</p>
+              </div>
+              {/* ================================================ */}
+
+              <h2 className="text-3xl font-bold text-slate-800 mb-2 text-center md:text-left">Halo, Warga!</h2>
+              <p className="text-slate-500 mb-6 text-center md:text-left">Silakan masuk ke akun Anda.</p>
 
               {error && (
                 <div className="mb-4 bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded text-sm">
@@ -117,7 +115,7 @@ export default function Login({ onSwitchToRegister }) {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#4f46e5] outline-none"
+                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#4f46e5] outline-none transition-all"
                     placeholder="Email Pengguna"
                     required
                   />
@@ -129,7 +127,7 @@ export default function Login({ onSwitchToRegister }) {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#4f46e5] outline-none"
+                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#4f46e5] outline-none transition-all"
                     placeholder="Kata Sandi"
                     required
                   />
@@ -146,17 +144,17 @@ export default function Login({ onSwitchToRegister }) {
                   whileTap={{ scale: 0.98 }}
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-[#4f46e5] hover:bg-[#4338ca] text-white font-bold py-3.5 rounded-xl shadow-lg mt-2"
+                  className="w-full bg-[#4f46e5] hover:bg-[#4338ca] text-white font-bold py-3.5 rounded-xl shadow-lg mt-2 transition-all"
                 >
                   {loading ? "Memuat..." : "MASUK"}
                 </motion.button>
               </form>
 
               <div className="mt-8 text-center pt-6 border-t border-slate-100">
-                <p className="text-slate-500 text-sm mb-2">Belum punya akun?</p>
+                <p className="text-slate-500 text-sm mb-3">Belum punya akun?</p>
                 <button
                   onClick={onSwitchToRegister}
-                  className="text-[#4f46e5] font-bold border border-[#4f46e5] px-6 py-2 rounded-lg hover:bg-indigo-50"
+                  className="text-[#4f46e5] font-bold border border-[#4f46e5] px-6 py-2 rounded-lg hover:bg-indigo-50 transition-all w-full md:w-auto"
                 >
                   Daftar Sekarang
                 </button>
