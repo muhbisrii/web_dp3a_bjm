@@ -9,12 +9,16 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import AdminDashboard from './pages/AdminDashboard';
 import UserHome from './pages/UserHome';
+import Landing from './pages/Landing'; // <-- Tambahan
 
 function App() {
   const [user, setUser] = useState(null);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isRegistering, setIsRegistering] = useState(false);
+
+  // Tambahan: show landing page dulu
+  const [showLanding, setShowLanding] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -44,6 +48,16 @@ function App() {
     );
   }
 
+  // =============== RENDER JIKA LANDING PAGE BELUM DITUTUP ===============
+  if (showLanding && !user) {
+    return (
+      <Landing
+        onStart={() => setShowLanding(false)} // tombol "Login/Register" di landing
+      />
+    );
+  }
+
+  // ================= RENDER SETELAH LANDING DITUTUP =================
   const renderContent = () => {
     if (!user) {
       if (isRegistering) {
@@ -62,10 +76,12 @@ function App() {
       );
     }
 
+    // Admin
     if (userData?.role === "admin" || userData?.role === "Admin") {
       return <AdminDashboard key="admin" user={userData} />;
     }
 
+    // User Biasa
     return (
       <UserHome
         key="user"
@@ -74,12 +90,12 @@ function App() {
     );
   };
 
-  // ====== DETEKSI HALAMAN LOGIN / REGISTER ======
-  const isAuthPage = !user; // jika belum login → true
+  // ====== Deteksi halaman login/register ======
+  const isAuthPage = !user;
 
   return (
     <>
-      {/* Background global hanya muncul jika user SUDAH login */}
+      {/* Background global hanya muncul jika SUDAH login (UserHome/Admin) */}
       {!isAuthPage && (
         <div className="bg-blobs-container">
           <div className="blob blob-1"></div>
