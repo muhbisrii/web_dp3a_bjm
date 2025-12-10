@@ -136,23 +136,27 @@ export default function Landing({ onStart, onAbout, onHelp }) {
         <div className="nav-left flex items-center">
           <img src="/pemkot.png" alt="logo" className="logo w-10 h-10 sm:w-12 sm:h-12 mr-3" />
           
-          {/* Divider vertikal (Opsional: bisa di-hidden di HP jika terlalu sempit, tapi dibiarkan ada sesuai request) */}
           <div className="nav-divider h-8 w-[1px] bg-gray-300 mx-2 hidden sm:block"></div> 
 
+          {/* PERBAIKAN UTAMA DI SINI */}
           <div className="nav-text flex flex-col justify-center">
-            {/* JUDUL UTAMA */}
-            <h1 className="text-sm font-bold sm:text-xl text-slate-800 dark:text-white leading-tight">
+            
+            {/* Judul: Dipaksa Tampil */}
+            <h1 
+              className="text-base font-bold sm:text-xl text-slate-800 dark:text-white leading-tight !block"
+              style={{ display: 'block', opacity: 1, visibility: 'visible' }}
+            >
               Portal DP3A
             </h1>
             
-            {/* SUBTITLE (Layanan Pengaduan) */}
-            {/* Menggunakan style={{ display: 'block' }} untuk memaksa tampil menimpa CSS eksternal */}
+            {/* Subtitle: Dipaksa Tampil */}
             <p 
               className="text-[10px] sm:text-sm font-medium text-slate-600 dark:text-slate-300 leading-tight mt-0.5 !block"
-              style={{ display: 'block' }}
+              style={{ display: 'block', opacity: 1, visibility: 'visible' }}
             >
               Layanan Pengaduan Masyarakat
             </p>
+            
           </div>
         </div>
 
