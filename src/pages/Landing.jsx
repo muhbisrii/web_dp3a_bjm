@@ -133,30 +133,12 @@ export default function Landing({ onStart, onAbout, onHelp }) {
         className="landing-navbar"
         initial="hidden" animate="visible" variants={fadeInDown}
       >
-        <div className="nav-left flex items-center">
-          <img src="/pemkot.png" alt="logo" className="logo w-10 h-10 sm:w-12 sm:h-12 mr-3" />
-          
-          <div className="nav-divider h-8 w-[1px] bg-gray-300 mx-2 hidden sm:block"></div> 
-
-          {/* PERBAIKAN UTAMA DI SINI */}
-          <div className="nav-text flex flex-col justify-center">
-            
-            {/* Judul: Dipaksa Tampil */}
-            <h1 
-              className="text-base font-bold sm:text-xl text-slate-800 dark:text-white leading-tight !block"
-              style={{ display: 'block', opacity: 1, visibility: 'visible' }}
-            >
-              Portal DP3A
-            </h1>
-            
-            {/* Subtitle: Dipaksa Tampil */}
-            <p 
-              className="text-[10px] sm:text-sm font-medium text-slate-600 dark:text-slate-300 leading-tight mt-0.5 !block"
-              style={{ display: 'block', opacity: 1, visibility: 'visible' }}
-            >
-              Layanan Pengaduan Masyarakat
-            </p>
-            
+        <div className="nav-left">
+          <img src="/pemkot.png" alt="logo" className="logo" />
+          <div className="nav-divider"></div>
+          <div className="nav-text">
+            <h1 className="portal-title">Portal DP3A</h1>
+            <p className="portal-subtitle">Layanan Pengaduan Masyarakat</p>
           </div>
         </div>
 
@@ -219,11 +201,12 @@ export default function Landing({ onStart, onAbout, onHelp }) {
             <img src="/vektor.png" alt="illustration" className="hero-img" />
           </motion.div>
           
+          {/* Perubahan di sini: Menggunakan flex-col items-center untuk Mobile agar rata tengah */}
           <motion.div 
             className="hero-right-text flex flex-col items-center sm:items-start text-center sm:text-left" 
             variants={fadeInUp}
           >
-            {/* BADGE APLIKASI */}
+            {/* BADGE APLIKASI - Warna diperbaiki agar solid & jelas */}
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-green-100 text-green-800 border border-green-300 dark:bg-green-900 dark:text-green-100 dark:border-green-700 text-sm font-bold mb-4">
               <Smartphone size={16} />
               <span>Tersedia Aplikasi Android</span>
@@ -233,10 +216,10 @@ export default function Landing({ onStart, onAbout, onHelp }) {
             <h2 className="hero-title">Portal <span>DP3A</span></h2>
             <p className="hero-desc">Layanan Pengaduan Perempuan & Anak Kota Banjarmasin. Bersama kita lindungi perempuan dan anak dari kekerasan.</p>
             
-            {/* GROUP TOMBOL */}
+            {/* GROUP TOMBOL: Center di Mobile, Kiri di Desktop */}
             <div className="flex flex-col sm:flex-row gap-4 mt-6 w-full sm:w-auto items-center sm:items-start justify-center sm:justify-start">
               
-              {/* Tombol Login */}
+              {/* Tombol Login - Style disamakan (Pill Shape) agar rapi */}
               <motion.button 
                 className="flex items-center justify-center px-8 py-3 rounded-full font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-lg transition-all w-full sm:w-auto min-w-[200px]"
                 onClick={handleLogin} 
