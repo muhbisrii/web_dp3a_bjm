@@ -3,7 +3,6 @@
   width: 100%;
   min-height: 100vh;
   background: #ffffff;
-  /* Pastikan font sudah di-import di index.css atau index.html */
   font-family: 'Plus Jakarta Sans', sans-serif; 
 }
 
@@ -16,14 +15,13 @@
   align-items: center;
   padding: 15px 5%;
   background: white;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); /* Shadow lebih halus */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   position: sticky;
   top: 0;
   z-index: 1000;
   height: 80px;
 }
 
-/* --- Navbar Kiri --- */
 .nav-left {
   display: flex;
   align-items: center;
@@ -61,7 +59,7 @@
   line-height: 1.2;
 }
 
-/* --- Navbar Kanan (Desktop) --- */
+/* Navbar Kanan (Desktop) */
 .nav-right {
   display: flex;
   align-items: center;
@@ -71,25 +69,24 @@
 .nav-links {
   display: flex;
   list-style: none;
-  gap: 30px; /* Jarak antar menu sedikit diperlebar agar lega */
+  gap: 30px;
   margin: 0;
   padding: 0;
 }
 
-/* --- PERBAIKAN DISINI: TULISAN MENU DIBUAT TIPIS --- */
 .nav-item {
   cursor: pointer;
   font-size: 15px;
-  font-weight: 400; /* UBAH KE 400 AGAR TIPIS (Regular) */
-  color: #555;      /* Warna abu-abu yang lebih lembut, bukan hitam pekat */
+  font-weight: 400; /* Regular/Tipis */
+  color: #555;
   transition: color 0.2s ease;
 }
 
 .nav-item:hover {
-  color: #0099ff; /* Warna biru saat disentuh */
+  color: #0099ff;
 }
 
-/* Tombol Hamburger (Default Sembunyi di Laptop) */
+/* Tombol Hamburger (Mobile) */
 .mobile-menu-btn {
   display: none;
   background: none;
@@ -101,8 +98,6 @@
 /* ===========================
    SIDEBAR MOBILE STYLE
    =========================== */
-   
-/* Overlay Hitam Transparan */
 .sidebar-overlay {
   position: fixed;
   inset: 0;
@@ -118,7 +113,6 @@
   visibility: visible;
 }
 
-/* Kotak Sidebar */
 .mobile-sidebar {
   position: fixed;
   top: 0;
@@ -167,7 +161,6 @@
   flex: 1;
 }
 
-/* --- MENU SIDEBAR MOBILE JUGA DIBUAT TIPIS --- */
 .sidebar-list li {
   padding: 16px 20px;
   border-bottom: 1px solid #f8fafc;
@@ -175,7 +168,7 @@
   justify-content: space-between;
   align-items: center;
   color: #475569;
-  font-weight: 400; /* UBAH KE 400 AGAR TIPIS */
+  font-weight: 400;
   font-size: 15px;
   cursor: pointer;
   transition: background 0.2s;
@@ -209,7 +202,6 @@
   font-size: 12px;
   border-top: 1px solid #f1f5f9;
 }
-
 
 /* ===========================
    HERO SECTION STYLE
@@ -272,11 +264,10 @@
   line-height: 1.6;
 }
 
-/* Style Tombol Hero & Navbar */
 .hero-btn {
   background: #0099ff;
   color: white;
-  border-radius: 6px; /* Radius sedikit dikurangi agar lebih kotak modern */
+  border-radius: 6px;
   border: none;
   cursor: pointer;
   font-weight: 600;
@@ -300,61 +291,155 @@
 }
 
 /* ===========================
-   RESPONSIVE (HP / TABLET)
+   PROFIL & WIDGET SECTION
    =========================== */
-@media (max-width: 900px) {
-  
-  .desktop-menu {
-    display: none;
-  }
+.profile-section {
+  padding: 60px 5%;
+  background-color: #f8fafc;
+}
 
-  .mobile-menu-btn {
-    display: block;
-  }
+.profile-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
 
-  .landing-navbar {
-    padding: 15px 20px;
-  }
-  
-  .nav-divider, .portal-subtitle {
-    display: none; 
-  }
+/* Layout Grid: Kiri (Main) - Kanan (Sidebar) */
+.profile-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr; /* Kiri 2 bagian, Kanan 1 bagian */
+  gap: 40px;
+  align-items: start;
+}
 
-  .portal-title {
-    font-size: 16px;
-  }
+/* --- KOLOM KIRI (Profil Utama) --- */
+.section-header {
+  margin-bottom: 20px;
+}
 
-  .landing-hero {
-    flex-direction: column; 
-    text-align: center;
-    padding: 30px 20px;
-    justify-content: center;
-    gap: 40px;
-  }
+.profile-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: #333;
+  margin-bottom: 8px;
+}
 
-  .hero-right-text {
-    padding-left: 0;
-    align-items: center; 
-  }
+.title-underline {
+  width: 60px;
+  height: 4px;
+  background-color: #4f46e5;
+  border-radius: 2px;
+}
 
-  .hero-title {
-    font-size: 32px;
-  }
+/* Main Video Wrapper (16:9) */
+.video-wrapper {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%;
+  height: 0;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+  background: #000;
+  margin-bottom: 20px;
+}
 
-  .hero-desc {
-    font-size: 16px;
-  }
+.video-wrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
 
-  .hero-img {
-    max-width: 300px;
-  }
+.profile-desc {
+  font-size: 16px;
+  color: #475569;
+  line-height: 1.7;
+  text-align: justify;
+}
+
+/* --- KOLOM KANAN (Sidebar Widgets) --- */
+.profile-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.sidebar-widget {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+}
+
+.widget-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+}
+
+/* --- WIDGET VIDEO YOUTUBE KECIL (BARU) --- */
+.sidebar-video-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.sidebar-video-item {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%; /* Rasio 16:9 agar video thumbnail proporsional */
+  height: 0;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #000;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.sidebar-video-item iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* --- WIDGET TAGS --- */
+.tags-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag-item {
+  font-size: 12px;
+  color: #475569;
+  background-color: #f1f5f9;
+  padding: 6px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.tag-item:hover {
+  background-color: #4f46e5;
+  color: white;
 }
 
 /* ===========================
    FOOTER / CONTACT SECTION
    =========================== */
 .landing-footer {
-  background-color: #1e293b; /* Warna latar gelap (Dark Slate) */
+  background-color: #1e293b;
   color: #ffffff;
   padding: 60px 5% 20px;
   margin-top: 40px;
@@ -370,13 +455,11 @@
   padding-bottom: 40px;
 }
 
-/* Bagian Map (Kiri) */
 .footer-map {
   flex: 1;
   min-width: 300px;
 }
 
-/* Bagian Kontak (Kanan) */
 .footer-info {
   flex: 1;
   min-width: 300px;
@@ -386,7 +469,7 @@
   font-size: 18px;
   font-weight: 700;
   margin-bottom: 10px;
-  color: #0099ff; /* Aksen biru */
+  color: #0099ff;
   letter-spacing: 1px;
 }
 
@@ -401,7 +484,7 @@
   display: flex;
   align-items: flex-start;
   margin-bottom: 15px;
-  color: #cbd5e1; /* Warna teks agak abu terang */
+  color: #cbd5e1;
   font-size: 14px;
   line-height: 1.6;
 }
@@ -409,42 +492,14 @@
 .contact-icon {
   margin-right: 12px;
   color: #0099ff;
-  min-width: 20px; /* Mencegah ikon gepeng */
+  min-width: 20px;
 }
 
-/* Copyright Bawah */
-.footer-bottom {
-  text-align: center;
-  padding-top: 20px;
-  font-size: 12px;
-  color: #64748b;
-}
-
-/* Responsif Footer di HP */
-@media (max-width: 768px) {
-  .landing-footer {
-    padding: 40px 20px 20px;
-  }
-
-  .footer-content {
-    flex-direction: column; /* Map di atas, Teks di bawah */
-    gap: 30px;
-  }
-
-  .footer-map iframe {
-    height: 200px; /* Peta lebih pendek di HP */
-  }
-}
-
-/* ... Kode CSS sebelumnya ... */
-
-/* ===========================
-   SOCIAL MEDIA BUTTONS
-   =========================== */
+/* SOCIAL MEDIA BUTTONS */
 .footer-socials {
   margin-top: 25px;
   padding-top: 20px;
-  border-top: 1px solid #334155; /* Garis pemisah tipis */
+  border-top: 1px solid #334155;
 }
 
 .social-label {
@@ -465,23 +520,74 @@
   justify-content: center;
   width: 45px;
   height: 45px;
-  background-color: rgba(255, 255, 255, 0.1); /* Background transparan */
-  border-radius: 50%; /* Bulat */
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
   color: white;
   transition: all 0.3s ease;
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Efek Hover Instagram */
 .social-link.instagram:hover {
   background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
   border-color: transparent;
-  transform: translateY(-3px); /* Naik sedikit saat dihover */
+  transform: translateY(-3px);
 }
 
-/* Efek Hover YouTube */
 .social-link.youtube:hover {
   background-color: #ff0000;
   border-color: #ff0000;
   transform: translateY(-3px);
+}
+
+.social-link.facebook:hover {
+  background-color: #1877F2;
+  border-color: #1877F2;
+  transform: translateY(-3px);
+}
+
+.footer-bottom {
+  text-align: center;
+  padding-top: 20px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* ===========================
+   RESPONSIVE MEDIA QUERIES
+   =========================== */
+@media (max-width: 900px) {
+  
+  /* Navbar & Sidebar */
+  .desktop-menu { display: none; }
+  .mobile-menu-btn { display: block; }
+  .landing-navbar { padding: 15px 20px; }
+  .nav-divider, .portal-subtitle { display: none; }
+  .portal-title { font-size: 16px; }
+
+  /* Hero Section */
+  .landing-hero {
+    flex-direction: column; 
+    text-align: center;
+    padding: 30px 20px;
+    justify-content: center;
+    gap: 40px;
+  }
+  .hero-right-text { padding-left: 0; align-items: center; }
+  .hero-title { font-size: 32px; }
+  .hero-desc { font-size: 16px; }
+  .hero-img { max-width: 300px; }
+
+  /* Profil Section */
+  .profile-layout {
+    grid-template-columns: 1fr; /* Tumpuk ke bawah di HP */
+    gap: 40px;
+  }
+  .profile-title { font-size: 24px; text-align: center; }
+  .title-underline { margin: 0 auto; }
+  .profile-desc { text-align: left; }
+
+  /* Footer */
+  .landing-footer { padding: 40px 20px 20px; }
+  .footer-content { flex-direction: column; gap: 30px; }
+  .footer-map iframe { height: 200px; }
 }
