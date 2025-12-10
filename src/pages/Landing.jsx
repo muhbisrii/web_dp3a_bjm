@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { Menu, X, ChevronRight, MapPin, Phone, Mail, Clock, Instagram, Youtube } from "lucide-react"; 
+import BannerSlider from "../components/BannerSlider"; // Pastikan path ini benar sesuai lokasi BannerSlider.jsx Anda
 import "./Landing.css";
 
 export default function Landing({ onStart, onAbout, onHelp }) {
+  // State untuk mengatur sidebar mobile
   const [isSidebarOpen, setSidebarOpen] = useState(false);
 
   const handleAbout = () => {
@@ -74,6 +76,12 @@ export default function Landing({ onStart, onAbout, onHelp }) {
           </div>
         </div>
       </nav>
+
+      {/* ===========================
+          BANNER SLIDER (IKLAN)
+      =========================== */}
+      {/* Bagian slider diletakkan di sini, tepat di bawah navbar */}
+      <BannerSlider />
 
       {/* ===========================
           HERO SECTION
