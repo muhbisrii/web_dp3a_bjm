@@ -66,10 +66,14 @@ export default function Login({ onSwitchToRegister }) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.5 }}
             >
-              {/* Logo Desktop (Dua Logo) */}
-              <div className="bg-white p-4 rounded-2xl shadow-lg mb-6 flex items-center justify-center space-x-4 w-full max-w-xs mx-auto">
-                <img src="/pemkot.png" className="h-12 w-auto" alt="Pemkot Logo" />
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Coat_of_arms_of_South_Kalimantan.svg/1200px-Coat_of_arms_of_South_Kalimantan.svg.png" className="h-14 w-auto" alt="Kalsel Logo" />
+              {/* Logo Desktop (Hanya DP3A) */}
+              <div className="bg-white p-4 rounded-2xl shadow-lg mb-6 flex items-center justify-center w-full max-w-[200px] mx-auto">
+                <img 
+                  src="/logo-dp3a.png" 
+                  className="h-20 w-auto object-contain" 
+                  alt="Logo DP3A" 
+                  onError={(e) => e.target.src='/pemkot.png'} 
+                />
               </div>
 
               <h2 className="text-3xl font-extrabold mb-3">Portal DP3A</h2>
@@ -89,13 +93,17 @@ export default function Login({ onSwitchToRegister }) {
               transition={{ delay: 0.2, duration: 0.5 }}
             >
               
-              {/* === HEADER MOBILE BARU (Hanya muncul di HP) === */}
-              <div className="flex flex-col items-center justify-center text-center mb-8 md:hidden">
-                  {/* Ganti dua logo sebelumnya dengan satu logo DP3A */}
-                  <img src="/logo-dp3a.png" alt="Logo DP3A" className="h-16 w-auto mb-3 object-contain" onError={(e) => e.target.src='/pemkot.png'} />
+              {/* === HEADER MOBILE (Hanya muncul di HP) === */}
+              <div className="flex flex-col items-center justify-center text-center mb-6 md:hidden">
+                  <img 
+                    src="/logo-dp3a.png" 
+                    alt="Logo DP3A" 
+                    className="h-10 w-auto mb-2 object-contain" 
+                    onError={(e) => e.target.src='/pemkot.png'} 
+                  />
                   
-                  <h3 className="text-xl font-bold text-[#4f46e5]">Portal DP3A</h3>
-                  <p className="text-sm text-slate-500">Layanan Pengaduan Kota Banjarmasin</p>
+                  <h3 className="text-lg font-bold text-[#4f46e5]">Portal DP3A</h3>
+                  <p className="text-xs text-slate-500">Layanan Pengaduan Kota Banjarmasin</p>
               </div>
               {/* ================================================ */}
 
