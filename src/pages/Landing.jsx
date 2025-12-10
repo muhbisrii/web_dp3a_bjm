@@ -1,26 +1,76 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   Menu, X, ChevronRight, MapPin, Phone, Mail, Clock, 
-  Instagram, Youtube, Facebook, Hash, PlayCircle 
+  Instagram, Youtube, Facebook, Hash, PlayCircle, Loader2,
+  Sun, Moon // Import Icon Sun & Moon
 } from "lucide-react"; 
+import { motion } from "framer-motion"; 
 import BannerSlider from "../components/BannerSlider"; 
 import "./Landing.css";
 
 export default function Landing({ onStart, onAbout, onHelp }) {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // --- LOGIKA DARK MODE ---
+  // Cek apakah user sebelumnya sudah memilih dark mode di localStorage
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    return localStorage.getItem("theme") === "dark";
+  });
 
-  // --- FUNGSI SCROLL OTOMATIS ---
+  // Efek untuk mengubah class di body saat tombol ditekan
+  useEffect(() => {
+    if (isDarkMode) {
+      document.body.classList.add("dark-mode");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.body.classList.remove("dark-mode");
+      localStorage.setItem("theme", "light");
+    }
+  }, [isDarkMode]);
+
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode);
+  };
+  // ------------------------
+
+  // --- VARIAN ANIMASI ---
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 60 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
+  };
+
+  const fadeInDown = {
+    hidden: { opacity: 0, y: -50 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
+  };
+
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.2 } }
+  };
+
+  // --- FUNGSI SCROLL & NAVIGASI ---
   const scrollToSection = (id) => {
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
-      setSidebarOpen(false); // Tutup sidebar jika di mode HP
+      setSidebarOpen(false);
     }
   };
 
-  const handleAbout = () => { if (onAbout) onAbout(); setSidebarOpen(false); };
-  const handleHelp = () => { if (onHelp) onHelp(); setSidebarOpen(false); };
-  const handleLogin = () => { if (onStart) onStart(); setSidebarOpen(false); };
+  const handleNavWithDelay = (action) => {
+    setSidebarOpen(false);
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+      if (action) action();
+    }, 1200);
+  };
+
+  const handleAbout = () => handleNavWithDelay(onAbout);
+  const handleHelp = () => handleNavWithDelay(onHelp);
+  const handleLogin = () => handleNavWithDelay(onStart);
 
   // Data Video Sidebar
   const sidebarVideos = [
@@ -35,11 +85,28 @@ export default function Landing({ onStart, onAbout, onHelp }) {
   ];
 
   return (
-    <div className="landing-container">
+    <div className="landing-container overflow-hidden">
+      
+      {/* LOADING OVERLAY */}
+      {isLoading && (
+        <div className="loading-overlay-screen">
+          <div className="loading-content">
+            <Loader2 size={48} className="animate-spin text-white mb-4" />
+            <p className="text-white font-semibold text-lg">Memuat Halaman...</p>
+            <p className="text-white/70 text-sm">Mohon Tunggu Sebentar</p>
+          </div>
+        </div>
+      )}
+
       {/* ===========================
           NAVBAR SECTION
       =========================== */}
-      <nav className="landing-navbar">
+      <motion.nav 
+        className="landing-navbar"
+        initial="hidden"
+        animate="visible"
+        variants={fadeInDown}
+      >
         <div className="nav-left">
           <img src="/pemkot.png" alt="logo" className="logo" />
           <div className="nav-divider"></div>
@@ -49,32 +116,46 @@ export default function Landing({ onStart, onAbout, onHelp }) {
           </div>
         </div>
 
-        {/* --- DESKTOP MENU (LAPTOP) --- */}
+        {/* Desktop Menu */}
         <div className="nav-right desktop-menu">
           <ul className="nav-links">
-            {/* 1. Tentang Aplikasi */}
             <li className="nav-item" onClick={handleAbout}>Tentang Aplikasi</li>
-            
-            {/* 2. Profil Dinas (Scroll ke bawah) */}
             <li className="nav-item" onClick={() => scrollToSection('profil')}>Profil Dinas</li>
-            
-            {/* 3. Kontak (Scroll ke bawah) */}
             <li className="nav-item" onClick={() => scrollToSection('kontak')}>Kontak</li>
-            
-            {/* 4. Bantuan */}
             <li className="nav-item" onClick={handleHelp}>Bantuan</li>
           </ul>
-          <button className="hero-btn navbar-btn" onClick={onStart}>Login / Register</button>
+
+          {/* TOMBOL TEMA (DESKTOP) */}
+          <button 
+            onClick={toggleTheme} 
+            className="theme-toggle-btn desktop-theme-btn"
+            title={isDarkMode ? "Ganti ke Mode Terang" : "Ganti ke Mode Gelap"}
+          >
+            {isDarkMode ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} />}
+          </button>
+
+          <button className="hero-btn navbar-btn" onClick={handleLogin}>Login / Register</button>
         </div>
 
-        {/* --- MOBILE MENU BUTTON --- */}
-        <button className="mobile-menu-btn" onClick={() => setSidebarOpen(true)}>
-          <Menu size={28} color="#333" />
-        </button>
+        {/* Mobile Menu Button Wrapper */}
+        <div className="flex items-center gap-3 md:hidden">
+          {/* TOMBOL TEMA (MOBILE) */}
+          <button 
+            onClick={toggleTheme} 
+            className="theme-toggle-btn mobile-theme-btn"
+          >
+            {isDarkMode ? <Sun size={22} className="text-yellow-400" /> : <Moon size={22} />}
+          </button>
 
-        {/* --- MOBILE SIDEBAR --- */}
+          <button className="mobile-menu-btn" onClick={() => setSidebarOpen(true)}>
+            <Menu size={28} className="menu-icon-color" />
+          </button>
+        </div>
+
+        {/* Sidebar Overlay */}
         <div className={`sidebar-overlay ${isSidebarOpen ? 'active' : ''}`} onClick={() => setSidebarOpen(false)}></div>
 
+        {/* Sidebar Content */}
         <div className={`mobile-sidebar ${isSidebarOpen ? 'active' : ''}`}>
           <div className="sidebar-header">
             <h3 className="sidebar-title">Menu Utama</h3>
@@ -84,65 +165,84 @@ export default function Landing({ onStart, onAbout, onHelp }) {
             <li onClick={handleAbout}>
               <span>Tentang Aplikasi</span><ChevronRight size={16} className="text-slate-400"/>
             </li>
-            
-            {/* Menu Mobile: Profil Dinas */}
             <li onClick={() => scrollToSection('profil')}>
               <span>Profil Dinas</span><ChevronRight size={16} className="text-slate-400"/>
             </li>
-
-            {/* Menu Mobile: Kontak */}
             <li onClick={() => scrollToSection('kontak')}>
               <span>Kontak</span><ChevronRight size={16} className="text-slate-400"/>
             </li>
-
             <li onClick={handleHelp}>
               <span>Bantuan</span><ChevronRight size={16} className="text-slate-400"/>
             </li>
-            
             <li className="sidebar-btn-container">
               <button className="sidebar-login-btn" onClick={handleLogin}>Login / Register</button>
             </li>
           </ul>
           <div className="sidebar-footer"><p>© 2025 DPPPA Banjarmasin</p></div>
         </div>
-      </nav>
+      </motion.nav>
 
       {/* ===========================
           BANNER SLIDER
       =========================== */}
-      <BannerSlider />
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.8, delay: 0.2 }}
+      >
+        <BannerSlider />
+      </motion.div>
 
       {/* ===========================
           HERO SECTION
       =========================== */}
-      <section className="landing-hero">
-        <div className="hero-left-img">
+      <motion.section 
+        className="landing-hero"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.3 }} 
+        variants={staggerContainer}
+      >
+        <motion.div className="hero-left-img" variants={fadeInUp}>
           <img src="/vektor.jpg" alt="illustration" className="hero-img" />
-        </div>
-        <div className="hero-right-text">
+        </motion.div>
+        
+        <motion.div className="hero-right-text" variants={fadeInUp}>
           <h3 className="hero-subtitle">DPPPA KOTA BANJARMASIN</h3>
           <h2 className="hero-title">Portal <span>DP3A</span></h2>
           <p className="hero-desc">Layanan Pengaduan Perempuan & Anak Kota Banjarmasin. Bersama kita lindungi perempuan dan anak dari kekerasan.</p>
-          <button className="hero-btn cta-btn" onClick={onStart}>Login / Register</button>
-        </div>
-      </section>
+          <motion.button 
+            className="hero-btn cta-btn" 
+            onClick={handleLogin}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            Login / Register
+          </motion.button>
+        </motion.div>
+      </motion.section>
 
       {/* ===========================
           PROFIL & SIDEBAR SECTION
       =========================== */}
-      {/* ID ditambahkan di sini untuk target scroll */}
-      <section className="profile-section" id="profil">
+      <motion.section 
+        className="profile-section" 
+        id="profil"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.2 }} 
+        transition={{ duration: 0.8 }}
+        variants={fadeInUp}
+      >
         <div className="profile-container">
-          
           <div className="profile-layout">
             
-            {/* KOLOM KIRI: PROFIL UTAMA */}
+            {/* Kolom Kiri */}
             <div className="profile-main">
               <div className="section-header">
                 <h2 className="profile-title">Profil DPPPA Kota Banjarmasin</h2>
                 <div className="title-underline"></div>
               </div>
-              
               <div className="video-wrapper">
                 <iframe 
                   src="https://drive.google.com/file/d/1MbKQxv8B4xjPFyl2XIwjAgMjwLPgwCmw/preview" 
@@ -151,7 +251,6 @@ export default function Landing({ onStart, onAbout, onHelp }) {
                   allowFullScreen
                 ></iframe>
               </div>
-
               <p className="profile-desc">
                 Dinas Pemberdayaan Perempuan dan Perlindungan Anak (DPPPA) Kota Banjarmasin merupakan unsur pelaksana urusan pemerintahan yang menjadi kewenangan daerah di bidang pemberdayaan perempuan dan perlindungan anak.
                 <br /><br />
@@ -159,10 +258,8 @@ export default function Landing({ onStart, onAbout, onHelp }) {
               </p>
             </div>
 
-            {/* KOLOM KANAN: SIDEBAR WIDGETS */}
+            {/* Kolom Kanan */}
             <div className="profile-sidebar">
-              
-              {/* WIDGET 1: VIDEO YOUTUBE */}
               <div className="sidebar-widget">
                 <h3 className="widget-title flex items-start">
                   <PlayCircle size={24} className="inline mr-2 text-red-600 mt-1 flex-shrink-0" />
@@ -184,7 +281,6 @@ export default function Landing({ onStart, onAbout, onHelp }) {
                 </div>
               </div>
 
-              {/* WIDGET 2: TAGS */}
               <div className="sidebar-widget">
                 <h3 className="widget-title">
                   <Hash size={20} className="inline mr-2" />
@@ -192,24 +288,33 @@ export default function Landing({ onStart, onAbout, onHelp }) {
                 </h3>
                 <div className="tags-cloud">
                   {mainTags.map((tag, index) => (
-                    <span key={index} className="tag-item">
+                    <motion.span 
+                      key={index} 
+                      className="tag-item"
+                      whileHover={{ scale: 1.1, backgroundColor: "#4f46e5", color: "#fff" }}
+                    >
                       {tag}
-                    </span>
+                    </motion.span>
                   ))}
                 </div>
               </div>
-
             </div>
 
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* ===========================
           FOOTER
       =========================== */}
-      {/* ID ditambahkan di sini untuk target scroll */}
-      <footer className="landing-footer" id="kontak">
+      <motion.footer 
+        className="landing-footer" 
+        id="kontak"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.1 }}
+        variants={fadeInUp}
+      >
         <div className="footer-content">
           <div className="footer-map">
             <iframe 
@@ -236,7 +341,7 @@ export default function Landing({ onStart, onAbout, onHelp }) {
           </div>
         </div>
         <div className="footer-bottom"><p>© 2025 Pemerintah Kota Banjarmasin - Portal DP3A</p></div>
-      </footer>
+      </motion.footer>
     </div>
   );
 }
