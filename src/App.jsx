@@ -9,7 +9,9 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import AdminDashboard from './pages/AdminDashboard';
 import UserHome from './pages/UserHome';
-import Landing from './pages/Landing'; // <-- Tambahan
+import Landing from './pages/Landing';
+import Help from './pages/Help';   // <-- Import Baru
+import About from './pages/About'; // <-- Import Baru
 
 function App() {
   const [user, setUser] = useState(null);
@@ -17,8 +19,9 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [isRegistering, setIsRegistering] = useState(false);
 
-  // Tambahan: show landing page dulu
-  const [showLanding, setShowLanding] = useState(true);
+  // STATE BARU: Mengatur tampilan halaman publik
+  // Nilai: 'landing' | 'help' | 'about' | 'auth' (masuk ke login/register)
+  const [publicView, setPublicView] = useState('landing');
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -30,6 +33,8 @@ function App() {
         if (docSnap.exists()) {
           setUserData(docSnap.data());
         }
+        // Jika user sudah login, otomatis set view ke mode auth/dashboard
+        setPublicView('auth');
       } else {
         setUserData(null);
       }
@@ -48,23 +53,38 @@ function App() {
     );
   }
 
-  // =============== RENDER JIKA LANDING PAGE BELUM DITUTUP ===============
-  if (showLanding && !user) {
+  // =============== LOGIKA HALAMAN PUBLIK (Sebelum Login) ===============
+  // Jika user belum login DAN publicView bukan 'auth', tampilkan halaman info
+  if (!user && publicView !== 'auth') {
+    if (publicView === 'help') {
+      return <Help onBack={() => setPublicView('landing')} />;
+    }
+    
+    if (publicView === 'about') {
+      return <About onBack={() => setPublicView('landing')} />;
+    }
+
+    // Default: Tampilkan Landing Page
     return (
       <Landing
-        onStart={() => setShowLanding(false)} // tombol "Login/Register" di landing
+        onStart={() => setPublicView('auth')}  // Menuju Login/Register
+        onHelp={() => setPublicView('help')}   // Menuju Halaman Bantuan
+        onAbout={() => setPublicView('about')} // Menuju Halaman Tentang
       />
     );
   }
 
-  // ================= RENDER SETELAH LANDING DITUTUP =================
+  // ================= LOGIKA UTAMA (Login/Register/Dashboard) =================
   const renderContent = () => {
+    // 1. Jika User Belum Login (Tampilkan Login / Register)
     if (!user) {
       if (isRegistering) {
         return (
           <Register
             key="register"
             onSwitchToLogin={() => setIsRegistering(false)}
+            // Opsional: Tambah tombol kembali ke Landing dari Register
+            // onBack={() => setPublicView('landing')} 
           />
         );
       }
@@ -72,16 +92,18 @@ function App() {
         <Login
           key="login"
           onSwitchToRegister={() => setIsRegistering(true)}
+          // Opsional: Jika di Login.jsx Anda punya tombol back
+          // onBack={() => setPublicView('landing')} 
         />
       );
     }
 
-    // Admin
+    // 2. Jika User Login sebagai ADMIN
     if (userData?.role === "admin" || userData?.role === "Admin") {
       return <AdminDashboard key="admin" user={userData} />;
     }
 
-    // User Biasa
+    // 3. Jika User Login sebagai USER BIASA
     return (
       <UserHome
         key="user"
@@ -90,12 +112,13 @@ function App() {
     );
   };
 
-  // ====== Deteksi halaman login/register ======
+  // Deteksi apakah sedang di halaman auth (Login/Register) untuk background
   const isAuthPage = !user;
 
   return (
     <>
-      {/* Background global hanya muncul jika SUDAH login (UserHome/Admin) */}
+      {/* Background global blobs hanya muncul jika SUDAH login (UserHome/Admin) 
+          atau jika ingin ditampilkan di login page juga, sesuaikan kondisinya. */}
       {!isAuthPage && (
         <div className="bg-blobs-container">
           <div className="blob blob-1"></div>

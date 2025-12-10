@@ -1,117 +1,42 @@
+/* Container Utama */
 .landing-container {
   width: 100%;
   min-height: 100vh;
   background: #ffffff;
+  font-family: sans-serif;
 }
 
-/* Navbar */
+/* ===========================
+   NAVBAR SECTION
+   =========================== */
 .landing-navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 15px 40px;
   background: white;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
-.nav-left {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.logo {
-  width: 55px;
-}
-
-.app-title {
-  font-size: 20px;
-  font-weight: bold;
-  color: #333;
-}
-
-.nav-button {
-  background: #0099ff;
-  color: white;
-  padding: 10px 18px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-.nav-button:hover {
-  background: #007acc;
-}
-
-/* Hero Section */
-.landing-hero {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  padding: 60px 40px;
-}
-
-.hero-left {
-  width: 50%;
-  min-width: 320px;
-}
-
-.hero-title {
-  font-size: 40px;
-  font-weight: bold;
-  color: #333;
-}
-
-.hero-title span {
-  color: #0099ff;
-}
-
-.hero-desc {
-  margin-top: 15px;
-  font-size: 18px;
-  color: #555;
-  max-width: 450px;
-}
-
-.hero-btn {
-  margin-top: 25px;
-  background: #0099ff;
-  color: white;
-  padding: 13px 24px;
-  border-radius: 7px;
-  border: none;
-  cursor: pointer;
-  font-size: 18px;
-}
-
-.hero-btn:hover {
-  background: #007acc;
-}
-
-.hero-right {
-  width: 45%;
-  display: flex;
-  justify-content: center;
-  min-width: 320px;
-}
-
-.hero-img {
-  width: 90%;
-  max-width: 400px;
-  border-radius: 12px;
-}
-
+/* --- Navbar Kiri (Logo & Judul) --- */
 .nav-left {
   display: flex;
   align-items: center;
   gap: 16px;
 }
 
+.logo {
+  width: 50px;
+  height: auto;
+}
+
 .nav-divider {
   width: 2px;
-  height: 48px;
-  background-color: #d1d5db;
+  height: 40px;
+  background-color: #e5e7eb;
 }
 
 .nav-text {
@@ -120,14 +45,180 @@
 }
 
 .portal-title {
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 700;
+  color: #333;
   margin: 0;
 }
 
 .portal-subtitle {
   margin: 0;
-  margin-top: -4px;
-  font-size: 14px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* --- Navbar Kanan (Menu & Tombol) --- */
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.nav-links {
+  display: flex;
+  list-style: none;
+  gap: 25px;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-item {
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
   color: #4b5563;
+  transition: color 0.3s ease;
+}
+
+.nav-item:hover {
+  color: #0099ff;
+}
+
+/* ===========================
+   HERO SECTION
+   =========================== */
+.landing-hero {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  padding: 60px 80px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* --- Bagian Kiri: Gambar Vektor --- */
+.hero-left-img {
+  flex: 1;
+  display: flex;
+  justify-content: flex-start;
+  min-width: 300px;
+}
+
+.hero-img {
+  width: 100%;
+  max-width: 450px;
+  height: auto;
+}
+
+/* --- Bagian Kanan: Teks & Tombol --- */
+.hero-right-text {
+  flex: 1;
+  padding-left: 40px;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start; /* Agar tombol tidak stretch full width */
+}
+
+/* Subtitle Kecil */
+.hero-subtitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0099ff;
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* Judul Utama */
+.hero-title {
+  font-size: 48px;
+  font-weight: 400;
+  color: #333;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.hero-title span {
+  font-weight: 700;
+  color: #333;
+}
+
+/* Deskripsi Bawah */
+.hero-desc {
+  margin-top: 20px;
+  font-size: 20px;
+  color: #6b7280;
+  max-width: 500px;
+  line-height: 1.5;
+  font-weight: 400;
+  margin-bottom: 30px; /* Jarak ke tombol */
+}
+
+/* --- Tombol (Shared Style) --- */
+.hero-btn {
+  background: #0099ff;
+  color: white;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s ease;
+}
+
+.hero-btn:hover {
+  background: #007acc;
+}
+
+/* Khusus Tombol di Navbar */
+.navbar-btn {
+  padding: 10px 24px;
+  font-size: 15px;
+}
+
+/* Khusus Tombol di Hero (Call to Action) */
+.cta-btn {
+  padding: 12px 32px; /* Lebih besar sedikit dari navbar */
+  font-size: 16px;
+}
+
+/* Responsif Mobile */
+@media (max-width: 900px) {
+  .landing-hero {
+    flex-direction: column-reverse;
+    padding: 40px 30px;
+    text-align: center;
+    gap: 40px;
+  }
+
+  .hero-right-text {
+    padding-left: 0;
+    align-items: center; /* Tombol jadi di tengah saat mobile */
+  }
+
+  .hero-left-img {
+    justify-content: center;
+  }
+  
+  .hero-title {
+    font-size: 36px;
+  }
+  
+  .hero-desc {
+    font-size: 18px;
+  }
+
+  .landing-navbar {
+    padding: 15px 20px;
+  }
+
+  .nav-right {
+    gap: 15px;
+  }
+  
+  .nav-links {
+    display: none; 
+  }
 }
