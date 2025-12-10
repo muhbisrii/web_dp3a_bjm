@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { 
   Menu, X, ChevronRight, MapPin, Phone, Mail, Clock, 
   Instagram, Youtube, Facebook, Hash, PlayCircle, Loader2,
-  Sun, Moon // Import Icon Sun & Moon
+  Sun, Moon 
 } from "lucide-react"; 
 import { motion } from "framer-motion"; 
 import BannerSlider from "../components/BannerSlider"; 
@@ -13,12 +13,10 @@ export default function Landing({ onStart, onAbout, onHelp }) {
   const [isLoading, setIsLoading] = useState(false);
   
   // --- LOGIKA DARK MODE ---
-  // Cek apakah user sebelumnya sudah memilih dark mode di localStorage
   const [isDarkMode, setIsDarkMode] = useState(() => {
     return localStorage.getItem("theme") === "dark";
   });
 
-  // Efek untuk mengubah class di body saat tombol ditekan
   useEffect(() => {
     if (isDarkMode) {
       document.body.classList.add("dark-mode");
@@ -32,22 +30,34 @@ export default function Landing({ onStart, onAbout, onHelp }) {
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
   };
-  // ------------------------
 
-  // --- VARIAN ANIMASI ---
+  // --- VARIAN ANIMASI (Modern & Simple) ---
   const fadeInUp = {
     hidden: { opacity: 0, y: 60 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      transition: { duration: 0.8, ease: "easeOut" } 
+    }
   };
 
   const fadeInDown = {
     hidden: { opacity: 0, y: -50 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      transition: { duration: 0.6, ease: "easeOut" } 
+    }
   };
 
   const staggerContainer = {
     hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.2 } }
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2
+      }
+    }
   };
 
   // --- FUNGSI SCROLL & NAVIGASI ---
@@ -125,7 +135,6 @@ export default function Landing({ onStart, onAbout, onHelp }) {
             <li className="nav-item" onClick={handleHelp}>Bantuan</li>
           </ul>
 
-          {/* TOMBOL TEMA (DESKTOP) */}
           <button 
             onClick={toggleTheme} 
             className="theme-toggle-btn desktop-theme-btn"
@@ -139,7 +148,6 @@ export default function Landing({ onStart, onAbout, onHelp }) {
 
         {/* Mobile Menu Button Wrapper */}
         <div className="flex items-center gap-3 md:hidden">
-          {/* TOMBOL TEMA (MOBILE) */}
           <button 
             onClick={toggleTheme} 
             className="theme-toggle-btn mobile-theme-btn"
@@ -183,28 +191,30 @@ export default function Landing({ onStart, onAbout, onHelp }) {
       </motion.nav>
 
       {/* ===========================
-          BANNER SLIDER
+          BANNER SLIDER (Fade In)
       =========================== */}
       <motion.div 
         initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.8, delay: 0.2 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: false }} // Animasi berulang saat scroll
+        transition={{ duration: 0.8 }}
       >
         <BannerSlider />
       </motion.div>
 
       {/* ===========================
-          HERO SECTION
+          HERO SECTION (Naik dari bawah)
       =========================== */}
       <motion.section 
         className="landing-hero"
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.3 }} 
+        viewport={{ once: false, amount: 0.3 }} // once: false agar animasi berulang
         variants={staggerContainer}
       >
         <motion.div className="hero-left-img" variants={fadeInUp}>
-          <img src="/vektor.jpg" alt="illustration" className="hero-img" />
+          {/* UPDATED: Menggunakan vektor.png */}
+          <img src="/vektor.png" alt="illustration" className="hero-img" />
         </motion.div>
         
         <motion.div className="hero-right-text" variants={fadeInUp}>
@@ -223,14 +233,14 @@ export default function Landing({ onStart, onAbout, onHelp }) {
       </motion.section>
 
       {/* ===========================
-          PROFIL & SIDEBAR SECTION
+          PROFIL & SIDEBAR SECTION (Scroll Reveal)
       =========================== */}
       <motion.section 
         className="profile-section" 
         id="profil"
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.2 }} 
+        viewport={{ once: false, amount: 0.2 }} // once: false agar animasi berulang
         transition={{ duration: 0.8 }}
         variants={fadeInUp}
       >
@@ -305,14 +315,14 @@ export default function Landing({ onStart, onAbout, onHelp }) {
       </motion.section>
 
       {/* ===========================
-          FOOTER
+          FOOTER (Scroll Reveal)
       =========================== */}
       <motion.footer 
         className="landing-footer" 
         id="kontak"
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.1 }}
+        viewport={{ once: false, amount: 0.1 }} // once: false agar animasi berulang
         variants={fadeInUp}
       >
         <div className="footer-content">
