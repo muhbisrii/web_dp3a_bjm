@@ -47,9 +47,9 @@ export default function Login({ onSwitchToRegister }) {
       {/* ==== CONTAINER LOGIN ==== */}
       <div className="relative z-40 min-h-screen w-full flex items-center justify-center p-4">
 
-        <div className="bg-white w-full max-w-4xl h-[550px] rounded-[30px] shadow-2xl overflow-hidden flex flex-row relative">
+        <div className="bg-white w-full max-w-4xl min-h-[550px] md:h-[550px] rounded-[30px] shadow-2xl overflow-hidden flex flex-col md:flex-row relative">
 
-          {/* PANEL KIRI */}
+          {/* PANEL KIRI (KHUSUS LAPTOP) - Hidden di HP */}
           <motion.div
             initial={{ x: '-100%' }}
             animate={{ x: 0 }}
@@ -67,8 +67,9 @@ export default function Login({ onSwitchToRegister }) {
               transition={{ delay: 0.3, duration: 0.5 }}
             >
               <div className="bg-white p-6 rounded-2xl shadow-lg mb-8 flex items-center justify-center space-x-4 w-full max-w-xs mx-auto">
-                <img src="/logo-kiri.png" className="h-12 w-auto" />
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Coat_of_arms_of_South_Kalimantan.svg/1200px-Coat_of_arms_of_South_Kalimantan.svg.png" className="h-14 w-auto" />
+                {/* Pastikan path gambar sesuai */}
+                <img src="/logo-kiri.png" className="h-12 w-auto" alt="Logo Pemkot" />
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Coat_of_arms_of_South_Kalimantan.svg/1200px-Coat_of_arms_of_South_Kalimantan.svg.png" className="h-14 w-auto" alt="Logo Provinsi" />
               </div>
 
               <h2 className="text-3xl font-extrabold mb-3">Portal DP3A</h2>
@@ -80,8 +81,21 @@ export default function Login({ onSwitchToRegister }) {
             </motion.div>
           </motion.div>
 
-          {/* PANEL FORM */}
-          <div className="w-full md:w-[50%] h-full absolute right-0 top-0 flex flex-col justify-center p-8 md:p-12 bg-white z-10">
+          {/* PANEL FORM (KANAN) */}
+          <div className="w-full md:w-[50%] h-full md:absolute md:right-0 md:top-0 flex flex-col justify-center p-8 md:p-12 bg-white z-10">
+            
+            {/* === HEADER MOBILE (Hanya Muncul di HP) === */}
+            {/* Bagian ini menggantikan panel kiri saat di HP */}
+            <div className="md:hidden flex flex-col items-center mb-6 text-center">
+                <div className="flex items-center gap-3 mb-3">
+                    <img src="/pemkot.png" className="h-10 w-auto" alt="Logo Pemkot" />
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Coat_of_arms_of_South_Kalimantan.svg/1200px-Coat_of_arms_of_South_Kalimantan.svg.png" className="h-10 w-auto" alt="Logo Provinsi" />
+                </div>
+                <h2 className="text-2xl font-bold text-[#4f46e5]">Portal DP3A</h2>
+                <p className="text-xs text-slate-500">Layanan Pengaduan Kota Banjarmasin</p>
+            </div>
+            {/* ========================================= */}
+
             <motion.div
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
@@ -103,7 +117,7 @@ export default function Login({ onSwitchToRegister }) {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl"
+                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#4f46e5] outline-none"
                     placeholder="Email Pengguna"
                     required
                   />
@@ -115,7 +129,7 @@ export default function Login({ onSwitchToRegister }) {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl"
+                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#4f46e5] outline-none"
                     placeholder="Kata Sandi"
                     required
                   />
