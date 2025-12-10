@@ -136,9 +136,14 @@ export default function Landing({ onStart, onAbout, onHelp }) {
         <div className="nav-left">
           <img src="/pemkot.png" alt="logo" className="logo" />
           <div className="nav-divider"></div>
-          <div className="nav-text">
-            <h1 className="portal-title">Portal DP3A</h1>
-            <p className="portal-subtitle">Layanan Pengaduan Masyarakat</p>
+          <div className="nav-text flex flex-col justify-center">
+            {/* Judul Utama */}
+            <h1 className="portal-title text-base sm:text-xl font-bold leading-tight">Portal DP3A</h1>
+            
+            {/* UPDATE: Subtitle dipaksa tampil (block) dengan ukuran font kecil di HP */}
+            <p className="portal-subtitle text-[10px] sm:text-sm font-medium leading-none block text-slate-600 dark:text-slate-300">
+              Layanan Pengaduan Masyarakat
+            </p>
           </div>
         </div>
 
@@ -201,12 +206,11 @@ export default function Landing({ onStart, onAbout, onHelp }) {
             <img src="/vektor.png" alt="illustration" className="hero-img" />
           </motion.div>
           
-          {/* Perubahan di sini: Menggunakan flex-col items-center untuk Mobile agar rata tengah */}
           <motion.div 
             className="hero-right-text flex flex-col items-center sm:items-start text-center sm:text-left" 
             variants={fadeInUp}
           >
-            {/* BADGE APLIKASI - Warna diperbaiki agar solid & jelas */}
+            {/* BADGE APLIKASI */}
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-green-100 text-green-800 border border-green-300 dark:bg-green-900 dark:text-green-100 dark:border-green-700 text-sm font-bold mb-4">
               <Smartphone size={16} />
               <span>Tersedia Aplikasi Android</span>
@@ -216,10 +220,10 @@ export default function Landing({ onStart, onAbout, onHelp }) {
             <h2 className="hero-title">Portal <span>DP3A</span></h2>
             <p className="hero-desc">Layanan Pengaduan Perempuan & Anak Kota Banjarmasin. Bersama kita lindungi perempuan dan anak dari kekerasan.</p>
             
-            {/* GROUP TOMBOL: Center di Mobile, Kiri di Desktop */}
+            {/* GROUP TOMBOL */}
             <div className="flex flex-col sm:flex-row gap-4 mt-6 w-full sm:w-auto items-center sm:items-start justify-center sm:justify-start">
               
-              {/* Tombol Login - Style disamakan (Pill Shape) agar rapi */}
+              {/* Tombol Login */}
               <motion.button 
                 className="flex items-center justify-center px-8 py-3 rounded-full font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-lg transition-all w-full sm:w-auto min-w-[200px]"
                 onClick={handleLogin} 
