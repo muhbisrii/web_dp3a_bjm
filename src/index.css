@@ -4,10 +4,67 @@
 @tailwind components;
 @tailwind utilities;
 
+/* =========================================
+   GLOBAL VARIABLES (Warna Tema Baru)
+   ========================================= */
+:root {
+  /* Warna Biru Indigo (Sama seperti Login) */
+  --primary-color: #4f46e5; 
+  
+  /* Warna Hover (Lebih gelap sedikit) */
+  --primary-hover: #4338ca; 
+  
+  /* Warna Background Muda (Untuk tombol view/edit) */
+  --primary-light: #e0e7ff; 
+  
+  --text-dark: #1e293b;
+  --bg-light: #f1f5f9;
+}
+
+/* =========================================
+   GLOBAL STYLES & RESETS
+   ========================================= */
+
 body {
   font-family: 'Plus Jakarta Sans', sans-serif;
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
-  background-color: #f1f5f9; /* Slate-100 sebagai fallback */
+  overflow-x: hidden; /* Mencegah scroll ke samping */
+  background-color: var(--bg-light);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* PENTING: Mencegah gambar meledak di HP */
+img, video, canvas, svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Scrollbar Kustom */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }

@@ -115,12 +115,11 @@ export default function AdminDashboard({ user }) {
   return (
     <div className="flex h-screen bg-gradient-to-br from-slate-50 to-slate-200 font-sans overflow-hidden relative">
       
-      {/* Pattern Dot Halus (Tanpa Foto Gedung) */}
+      {/* Pattern Dot Halus */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#475569 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
 
       <aside className={`fixed md:relative z-20 w-64 h-full bg-[#0f172a] text-white flex flex-col transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} shadow-2xl`}>
         <div className="p-6 border-b border-slate-800">
-           {/* LOGO & BRANDING DIHAPUS (Hanya Profil Petugas) */}
            <div className="flex items-center space-x-3 bg-slate-800/50 p-3 rounded-xl border border-slate-700/50 backdrop-blur-sm">
               <div className="h-10 w-10 rounded-full bg-slate-700 flex items-center justify-center text-emerald-400 font-bold border border-slate-600"><User size={20} /></div>
               <div className="overflow-hidden"><p className="text-white text-sm font-semibold truncate">{user.name || "Petugas"}</p><p className="text-[10px] text-emerald-400 font-medium uppercase tracking-wider">Administrator</p></div>
@@ -143,7 +142,6 @@ export default function AdminDashboard({ user }) {
            <div className="flex items-center gap-4">
              <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="md:hidden text-white hover:text-emerald-400"><Menu/></button>
              <div className="flex items-center gap-3">
-                {/* LOGO DI HEADER TETAP ADA */}
                 <img src="/logo-dp3a.png" alt="Logo" onError={(e) => e.target.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Coat_of_arms_of_South_Kalimantan.svg/1200px-Coat_of_arms_of_South_Kalimantan.svg.png"} className="h-10 w-auto object-contain hidden sm:block" />
                 <div><h1 className="text-sm font-bold text-white hidden sm:block leading-tight">Dinas Pemberdayaan Perempuan dan Perlindungan Anak</h1><h1 className="text-sm font-bold text-white sm:hidden">Admin Panel DP3A</h1><p className="text-xs text-slate-400 hidden sm:block mt-0.5">Kota Banjarmasin - Panel Manajemen Petugas</p></div>
              </div>
@@ -208,14 +206,19 @@ export default function AdminDashboard({ user }) {
                                  <td className="px-6 py-4 text-slate-600"><div className="flex items-center"><MapPin size={14} className="mr-1 text-slate-400"/> {item.lokasi}</div></td>
                                  <td className="px-6 py-4 text-center"><span className={`px-3 py-1 rounded-full text-xs font-bold uppercase inline-block shadow-sm ${getStatusBadge(item.status)}`}>{item.status || "Menunggu"}</span></td>
                                  <td className="px-6 py-4 text-center">
-                                    <div className="flex justify-center items-center space-x-1">
-                                          <button onClick={() => openResponseModal(item.id, item.tanggapanPetugas)} title="Beri Tanggapan" className="p-1.5 bg-amber-50 text-amber-600 rounded hover:bg-amber-500 hover:text-white transition-all"><MessageSquare size={16}/></button>
-                                          <div className="w-px h-4 bg-slate-300 mx-1"></div>
-                                          <button onClick={() => requestUpdateStatus(item.id, 'Diproses')} title="Proses" className="p-1.5 bg-blue-50 text-blue-600 rounded hover:bg-blue-600 hover:text-white transition-all"><Settings size={16}/></button>
-                                          <button onClick={() => requestUpdateStatus(item.id, 'Selesai')} title="Selesai" className="p-1.5 bg-emerald-50 text-emerald-600 rounded hover:bg-emerald-600 hover:text-white transition-all"><CheckCircle size={16}/></button>
-                                          <button onClick={() => requestUpdateStatus(item.id, 'Ditolak')} title="Tolak" className="p-1.5 bg-red-50 text-red-600 rounded hover:bg-red-600 hover:text-white transition-all"><XCircle size={16}/></button>
-                                          <div className="w-px h-4 bg-slate-300 mx-1"></div>
-                                          <button onClick={() => requestDelete(item.id)} title="Hapus" className="p-1.5 text-slate-400 hover:text-red-600 transition-all"><Trash2 size={16}/></button>
+                                    {/* --- PERBAIKAN TOMBOL AKSI: Diberi w-9 h-9 agar tidak kecil --- */}
+                                    <div className="flex justify-center items-center space-x-2">
+                                          <button onClick={() => openResponseModal(item.id, item.tanggapanPetugas)} title="Beri Tanggapan" className="w-9 h-9 flex items-center justify-center bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-500 hover:text-white transition-all"><MessageSquare size={16}/></button>
+                                          
+                                          <div className="w-px h-6 bg-slate-300"></div>
+                                          
+                                          <button onClick={() => requestUpdateStatus(item.id, 'Diproses')} title="Proses" className="w-9 h-9 flex items-center justify-center bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-all"><Settings size={16}/></button>
+                                          <button onClick={() => requestUpdateStatus(item.id, 'Selesai')} title="Selesai" className="w-9 h-9 flex items-center justify-center bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-600 hover:text-white transition-all"><CheckCircle size={16}/></button>
+                                          <button onClick={() => requestUpdateStatus(item.id, 'Ditolak')} title="Tolak" className="w-9 h-9 flex items-center justify-center bg-red-50 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition-all"><XCircle size={16}/></button>
+                                          
+                                          <div className="w-px h-6 bg-slate-300"></div>
+                                          
+                                          <button onClick={() => requestDelete(item.id)} title="Hapus" className="w-9 h-9 flex items-center justify-center text-slate-400 hover:bg-red-50 hover:text-red-600 rounded-lg transition-all"><Trash2 size={16}/></button>
                                     </div>
                                  </td>
                               </tr>
