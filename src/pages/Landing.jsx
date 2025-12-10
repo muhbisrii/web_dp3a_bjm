@@ -75,7 +75,7 @@ export default function Landing({ onStart, onAbout, onHelp }) {
       id: 1,
       image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj20v8yoRstj0ilYUFdsD4loc1CtBU1ByrKSpqCoKGPGOofhG6SLycEzaMGyT2Ttf8LZ_5dQXbiXTXX53xU9k106H1v7r6_fEUwl801XLLII4odZBS1heQj2krmxLMi2sN1T8f8RQF-unT72tUQS052sAxFwTlwBsQYK5S_oXjMBwUjFfNLymKq-W_7edo/w640-h480-rw/IMG_1178.HEIC",
       title: "Kampanye 16 Hari Anti Kekerasan",
-      date: "Desember 2025",
+      date: "Desember 02, 2025",
       desc: "DPPPA Kota Banjarmasin menggelar kampanye serentak sebagai bentuk komitmen mengakhiri kekerasan terhadap perempuan dan anak.",
       link: "https://dpppa.banjarmasinkota.go.id/2025/12/kampanye-16-hari-anti-kekerasan.html"
     },
@@ -83,7 +83,7 @@ export default function Landing({ onStart, onAbout, onHelp }) {
       id: 2,
       image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgTAPaBvpAkHgDWXQgvlNgkcFOvQw40xa44c92AoFz5bNVb5BYApdPMl469VUr9BvyiWmWa1gwvyZoa3oxGYlZzq-9wYlsAxS7NhwJVyRWGhSsuSRn8NDLjIAxWH5F59DhIeqtXykHz1aoFB4PpMAU_6M46dDUim3IVE2Zp3I-rWtr4oTGsBIlBe-LJymg/w512-h640-rw/SnapInsta.to_588512863_18175237591367406_4792646108763604928_n.jpg",
       title: "Pendampingan Unit Penyedia Layanan",
-      date: "November 2025",
+      date: "November 28, 2025",
       desc: "Optimalisasi peran unit layanan dalam penanganan kasus melalui pendampingan teknis yang berkelanjutan.",
       link: "https://dpppa.banjarmasinkota.go.id/2025/11/pendampingan-unit-penyedia-layanan.html"
     },
@@ -91,7 +91,7 @@ export default function Landing({ onStart, onAbout, onHelp }) {
       id: 3,
       image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhvumMWDBTpXCnXcdl09GwmGNnFkKzCy9NM7NI1IIXMFFKrhgrGsIOwNxR3X6Nw4KMchCI9oBaHSZmyPtzFXICGPNLTzIWzclMCCEghc__8-7lV1Eq-MeYOrMuhzhVAERFcXBWUvlPhqcXg4Z1lnvpygeCJTZU3ZyTCmgrv_4fhUkR0dJ7kTN9wevWZ_UQ/w640-h428-rw/WhatsApp%20Image%202025-11-26%20at%2013.32.07.jpeg",
       title: "Penetapan Peraturan Daerah Kota",
-      date: "November 2025",
+      date: "November 28, 2025",
       desc: "Penetapan regulasi daerah terbaru untuk memperkuat landasan hukum perlindungan anak dan pemberdayaan perempuan di Banjarmasin.",
       link: "https://dpppa.banjarmasinkota.go.id/2025/11/penetapan-peraturan-daerah-kota.html"
     },
@@ -99,7 +99,7 @@ export default function Landing({ onStart, onAbout, onHelp }) {
       id: 4,
       image: "https://blogger.googleusercontent.com/img/a/AVvXsEi0FZHQJsvepzuR_FKi9bZK70KxoxfSbB51nRnv1cE1XKXbCqJC4z4opIdnH38VNtm8IyAT9b2cqxSkRvJ-tP7MxKnmBrKAbCC6W6nkYrsFaqjS9_UjZgw44n3FUqemYtQfsD3OJl8xmxvm-yFqlCj-vS-b5WYx4rPb9C9v6-BKTkKrYAFYPs6q0if0gH8=w600-h640-rw",
       title: "Bimbingan Teknis Anggaran Responsif",
-      date: "November 2025",
+      date: "November 28, 2025",
       desc: "Pelaksanaan Bimtek penyusunan anggaran responsif gender (ARG) guna memastikan pembangunan yang inklusif dan tepat sasaran.",
       link: "https://dpppa.banjarmasinkota.go.id/2025/11/bimbingan-teknis-anggaran-responsif.html"
     }
