@@ -1128,3 +1128,23 @@ body.dark-mode .hero-box-container {
   border: 1px solid #334155; /* Garis tipis di mode gelap */
   box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.3);
 }
+
+/* Tambahkan di Landing.css jika layout tombol berantakan */
+.hero-right-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Atau center jika ingin rata tengah */
+}
+
+/* Container untuk tombol */
+.hero-right-text > div.flex {
+  display: flex;
+  gap: 15px;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .hero-right-text > div.flex {
+    flex-direction: column;
+  }
+}

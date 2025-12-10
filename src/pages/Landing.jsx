@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { 
   Menu, X, ChevronRight, MapPin, Phone, Mail, Clock, 
   Instagram, Youtube, Facebook, Hash, PlayCircle, Loader2,
-  Sun, Moon, Calendar, ArrowRight 
+  Sun, Moon, Calendar, ArrowRight,
+  Download, Smartphone // <-- Ikon baru ditambahkan
 } from "lucide-react"; 
 import { motion } from "framer-motion"; 
 import BannerSlider from "../components/BannerSlider"; 
@@ -144,7 +145,6 @@ export default function Landing({ onStart, onAbout, onHelp }) {
         <div className="nav-right desktop-menu">
           <ul className="nav-links">
             <li className="nav-item" onClick={handleAbout}>Tentang Aplikasi</li>
-            {/* --- MENU BERITA DITAMBAHKAN DISINI --- */}
             <li className="nav-item" onClick={() => scrollToSection('berita')}>Berita</li>
             <li className="nav-item" onClick={() => scrollToSection('profil')}>Profil Dinas</li>
             <li className="nav-item" onClick={() => scrollToSection('kontak')}>Kontak</li>
@@ -174,7 +174,6 @@ export default function Landing({ onStart, onAbout, onHelp }) {
           </div>
           <ul className="sidebar-list">
             <li onClick={handleAbout}><span>Tentang Aplikasi</span><ChevronRight size={16} className="text-slate-400"/></li>
-            {/* --- MENU BERITA SIDEBAR DITAMBAHKAN DISINI --- */}
             <li onClick={() => scrollToSection('berita')}><span>Berita</span><ChevronRight size={16} className="text-slate-400"/></li>
             <li onClick={() => scrollToSection('profil')}><span>Profil Dinas</span><ChevronRight size={16} className="text-slate-400"/></li>
             <li onClick={() => scrollToSection('kontak')}><span>Kontak</span><ChevronRight size={16} className="text-slate-400"/></li>
@@ -190,7 +189,9 @@ export default function Landing({ onStart, onAbout, onHelp }) {
         <BannerSlider />
       </motion.div>
 
-      {/* HERO SECTION */}
+      {/* ===========================
+          HERO SECTION (UPDATED)
+      =========================== */}
       <section className="landing-hero">
         <motion.div 
           className="hero-box-container"
@@ -199,11 +200,49 @@ export default function Landing({ onStart, onAbout, onHelp }) {
           <motion.div className="hero-left-img" variants={fadeInUp}>
             <img src="/vektor.png" alt="illustration" className="hero-img" />
           </motion.div>
+          
           <motion.div className="hero-right-text" variants={fadeInUp}>
+            {/* BADGE APLIKASI */}
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-sm font-semibold mb-4 border border-green-200 dark:border-green-800">
+              <Smartphone size={16} />
+              <span>Tersedia Aplikasi Android</span>
+            </div>
+
             <h3 className="hero-subtitle">DPPPA KOTA BANJARMASIN</h3>
             <h2 className="hero-title">Portal <span>DP3A</span></h2>
             <p className="hero-desc">Layanan Pengaduan Perempuan & Anak Kota Banjarmasin. Bersama kita lindungi perempuan dan anak dari kekerasan.</p>
-            <motion.button className="hero-btn cta-btn" onClick={handleLogin} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>Login / Register</motion.button>
+            
+            {/* GROUP TOMBOL (LOGIN & DOWNLOAD) */}
+            <div className="flex flex-col sm:flex-row gap-4 mt-6 w-full sm:w-auto">
+              {/* Tombol Login */}
+              <motion.button 
+                className="hero-btn cta-btn" 
+                onClick={handleLogin} 
+                whileHover={{ scale: 1.05 }} 
+                whileTap={{ scale: 0.95 }}
+              >
+                Login / Register
+              </motion.button>
+
+              {/* Tombol Download APK Drive */}
+              <motion.a 
+                href="https://drive.google.com/file/d/1pt5h3CA_VBF-TZazCutiNt4MqSS-UPl2/view?usp=drivesdk"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 px-6 py-3 rounded-full font-semibold transition-all shadow-lg bg-green-600 hover:bg-green-700 text-white"
+                whileHover={{ scale: 1.05 }} 
+                whileTap={{ scale: 0.95 }}
+                style={{ textDecoration: 'none' }}
+              >
+                <Download size={20} />
+                Download APK
+              </motion.a>
+            </div>
+            
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-3 italic">
+              *Klik "Download APK" untuk mengunduh & instal manual di Android.
+            </p>
+
           </motion.div>
         </motion.div>
       </section>
@@ -213,7 +252,7 @@ export default function Landing({ onStart, onAbout, onHelp }) {
       =========================== */}
       <motion.section 
         className="news-section"
-        id="berita" // <--- ID DITAMBAHKAN DISINI AGAR BISA DISKROLL
+        id="berita" 
         initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.2 }} variants={fadeInUp}
       >
         <div className="profile-container">
