@@ -928,3 +928,203 @@ body.dark-mode .landing-footer { background-color: #0f172a; border-top: 1px soli
   .footer-content { flex-direction: column; gap: 30px; }
   .footer-map iframe { height: 200px; }
 }
+
+/* ... Kode CSS sebelumnya biarkan saja ... */
+
+/* ===========================
+   BERITA TERKINI SECTION
+   =========================== */
+.news-section {
+  padding: 60px 5%;
+  background-color: var(--bg-main); /* Mengikuti tema */
+}
+
+/* Grid Layout (3 Kolom di Laptop, 1 di HP) */
+.news-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+}
+
+/* Kartu Berita */
+.news-card {
+  background: var(--bg-card);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px var(--shadow-color);
+  border: 1px solid var(--border-color);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.news-card:hover {
+  box-shadow: 0 10px 25px rgba(79, 70, 229, 0.15);
+}
+
+/* Gambar Berita */
+.news-image-wrapper {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+}
+
+.news-image {
+  width: 100%;
+  height: 100%;
+  object-cover: cover;
+  transition: transform 0.5s ease;
+}
+
+.news-card:hover .news-image {
+  transform: scale(1.1); /* Zoom effect */
+}
+
+/* Overlay di Gambar */
+.news-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.news-card:hover .news-overlay {
+  opacity: 1;
+}
+
+.read-more-btn {
+  background: #4f46e5;
+  color: white;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* Konten Berita */
+.news-content {
+  padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.news-date {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.news-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0 0 10px;
+  line-height: 1.4;
+}
+
+.news-title a {
+  text-decoration: none;
+  color: inherit;
+  transition: color 0.2s;
+}
+
+.news-title a:hover {
+  color: var(--primary-color);
+}
+
+.news-desc {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 20px;
+  /* Batasi teks jadi 3 baris */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex: 1;
+}
+
+.news-link {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--primary-color);
+  display: flex;
+  align-items: center;
+  margin-top: auto;
+  text-decoration: none;
+}
+
+.news-link:hover {
+  text-decoration: underline;
+}
+
+/* Responsif HP */
+@media (max-width: 768px) {
+  .news-section {
+    padding: 40px 20px;
+  }
+  .news-grid {
+    grid-template-columns: 1fr; /* 1 Kolom di HP */
+  }
+}
+
+/* --- Tambahkan ini di akhir file Landing.css Anda --- */
+
+/* Pastikan section utama memusatkan kotak */
+.landing-hero {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 20px; /* Beri jarak atas bawah */
+}
+
+/* Style untuk KOTAK baru */
+.hero-box-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  
+  background-color: #ffffff; /* Warna latar belakang kotak (putih) */
+  padding: 3rem; /* Jarak dalam kotak */
+  border-radius: 24px; /* Sudut membulat */
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.1); /* Efek bayangan agar timbul */
+  
+  max-width: 1100px; /* Lebar maksimal kotak */
+  width: 100%;
+}
+
+/* Penyesuaian Responsif untuk Mobile */
+@media (max-width: 968px) {
+  .hero-box-container {
+    flex-direction: column; /* Tumpuk vertikal di layar kecil */
+    padding: 2rem 1.5rem;
+    text-align: center;
+  }
+
+  .hero-left-img {
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .hero-right-text {
+    align-items: center; /* Pusatkan tombol di mobile */
+  }
+}
+
+/* Dukungan Dark Mode untuk Kotak */
+body.dark-mode .hero-box-container {
+  background-color: #1e293b; /* Warna latar gelap (slate-800) */
+  border: 1px solid #334155; /* Garis tipis di mode gelap */
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.3);
+}

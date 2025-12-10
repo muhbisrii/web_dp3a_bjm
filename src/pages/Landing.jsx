@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { 
   Menu, X, ChevronRight, MapPin, Phone, Mail, Clock, 
   Instagram, Youtube, Facebook, Hash, PlayCircle, Loader2,
-  Sun, Moon 
+  Sun, Moon, Calendar, ArrowRight 
 } from "lucide-react"; 
 import { motion } from "framer-motion"; 
 import BannerSlider from "../components/BannerSlider"; 
@@ -31,36 +31,22 @@ export default function Landing({ onStart, onAbout, onHelp }) {
     setIsDarkMode(!isDarkMode);
   };
 
-  // --- VARIAN ANIMASI (Modern & Simple) ---
+  // --- VARIAN ANIMASI ---
   const fadeInUp = {
     hidden: { opacity: 0, y: 60 },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
-      transition: { duration: 0.8, ease: "easeOut" } 
-    }
+    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
   };
 
   const fadeInDown = {
     hidden: { opacity: 0, y: -50 },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
-      transition: { duration: 0.6, ease: "easeOut" } 
-    }
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
   };
 
   const staggerContainer = {
     hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2
-      }
-    }
+    visible: { opacity: 1, transition: { staggerChildren: 0.2 } }
   };
 
-  // --- FUNGSI SCROLL & NAVIGASI ---
   const scrollToSection = (id) => {
     const element = document.getElementById(id);
     if (element) {
@@ -82,13 +68,47 @@ export default function Landing({ onStart, onAbout, onHelp }) {
   const handleHelp = () => handleNavWithDelay(onHelp);
   const handleLogin = () => handleNavWithDelay(onStart);
 
-  // Data Video Sidebar
+  // --- DATA BERITA (Dari Website DPPPA) ---
+  const newsData = [
+    {
+      id: 1,
+      image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj20v8yoRstj0ilYUFdsD4loc1CtBU1ByrKSpqCoKGPGOofhG6SLycEzaMGyT2Ttf8LZ_5dQXbiXTXX53xU9k106H1v7r6_fEUwl801XLLII4odZBS1heQj2krmxLMi2sN1T8f8RQF-unT72tUQS052sAxFwTlwBsQYK5S_oXjMBwUjFfNLymKq-W_7edo/w640-h480-rw/IMG_1178.HEIC",
+      title: "Kampanye 16 Hari Anti Kekerasan",
+      date: "Desember 2025",
+      desc: "DPPPA Kota Banjarmasin menggelar kampanye serentak sebagai bentuk komitmen mengakhiri kekerasan terhadap perempuan dan anak.",
+      link: "https://dpppa.banjarmasinkota.go.id/2025/12/kampanye-16-hari-anti-kekerasan.html"
+    },
+    {
+      id: 2,
+      image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgTAPaBvpAkHgDWXQgvlNgkcFOvQw40xa44c92AoFz5bNVb5BYApdPMl469VUr9BvyiWmWa1gwvyZoa3oxGYlZzq-9wYlsAxS7NhwJVyRWGhSsuSRn8NDLjIAxWH5F59DhIeqtXykHz1aoFB4PpMAU_6M46dDUim3IVE2Zp3I-rWtr4oTGsBIlBe-LJymg/w512-h640-rw/SnapInsta.to_588512863_18175237591367406_4792646108763604928_n.jpg",
+      title: "Pendampingan Unit Penyedia Layanan",
+      date: "November 2025",
+      desc: "Optimalisasi peran unit layanan dalam penanganan kasus melalui pendampingan teknis yang berkelanjutan.",
+      link: "https://dpppa.banjarmasinkota.go.id/2025/11/pendampingan-unit-penyedia-layanan.html"
+    },
+    {
+      id: 3,
+      image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhvumMWDBTpXCnXcdl09GwmGNnFkKzCy9NM7NI1IIXMFFKrhgrGsIOwNxR3X6Nw4KMchCI9oBaHSZmyPtzFXICGPNLTzIWzclMCCEghc__8-7lV1Eq-MeYOrMuhzhVAERFcXBWUvlPhqcXg4Z1lnvpygeCJTZU3ZyTCmgrv_4fhUkR0dJ7kTN9wevWZ_UQ/w640-h428-rw/WhatsApp%20Image%202025-11-26%20at%2013.32.07.jpeg",
+      title: "Penetapan Peraturan Daerah Kota",
+      date: "November 2025",
+      desc: "Penetapan regulasi daerah terbaru untuk memperkuat landasan hukum perlindungan anak dan pemberdayaan perempuan di Banjarmasin.",
+      link: "https://dpppa.banjarmasinkota.go.id/2025/11/penetapan-peraturan-daerah-kota.html"
+    },
+    {
+      id: 4,
+      image: "https://blogger.googleusercontent.com/img/a/AVvXsEi0FZHQJsvepzuR_FKi9bZK70KxoxfSbB51nRnv1cE1XKXbCqJC4z4opIdnH38VNtm8IyAT9b2cqxSkRvJ-tP7MxKnmBrKAbCC6W6nkYrsFaqjS9_UjZgw44n3FUqemYtQfsD3OJl8xmxvm-yFqlCj-vS-b5WYx4rPb9C9v6-BKTkKrYAFYPs6q0if0gH8=w600-h640-rw",
+      title: "Bimbingan Teknis Anggaran Responsif",
+      date: "November 2025",
+      desc: "Pelaksanaan Bimtek penyusunan anggaran responsif gender (ARG) guna memastikan pembangunan yang inklusif dan tepat sasaran.",
+      link: "https://dpppa.banjarmasinkota.go.id/2025/11/bimbingan-teknis-anggaran-responsif.html"
+    }
+  ];
+
   const sidebarVideos = [
     { id: "qOep768DpOg", title: "Kegiatan DP3A" },
     { id: "Qc5l3FLxzF0", title: "Sosialisasi" }
   ];
 
-  // Data Tags
   const mainTags = [
     "Kekerasan Anak", "KDRT", "Perempuan", "Konseling", 
     "Hukum", "Banjarmasin", "Pengaduan", "Sosialisasi", "Edukasi"
@@ -97,7 +117,6 @@ export default function Landing({ onStart, onAbout, onHelp }) {
   return (
     <div className="landing-container overflow-hidden">
       
-      {/* LOADING OVERLAY */}
       {isLoading && (
         <div className="loading-overlay-screen">
           <div className="loading-content">
@@ -108,14 +127,10 @@ export default function Landing({ onStart, onAbout, onHelp }) {
         </div>
       )}
 
-      {/* ===========================
-          NAVBAR SECTION
-      =========================== */}
+      {/* NAVBAR */}
       <motion.nav 
         className="landing-navbar"
-        initial="hidden"
-        animate="visible"
-        variants={fadeInDown}
+        initial="hidden" animate="visible" variants={fadeInDown}
       >
         <div className="nav-left">
           <img src="/pemkot.png" alt="logo" className="logo" />
@@ -126,140 +141,144 @@ export default function Landing({ onStart, onAbout, onHelp }) {
           </div>
         </div>
 
-        {/* Desktop Menu */}
         <div className="nav-right desktop-menu">
           <ul className="nav-links">
             <li className="nav-item" onClick={handleAbout}>Tentang Aplikasi</li>
+            {/* --- MENU BERITA DITAMBAHKAN DISINI --- */}
+            <li className="nav-item" onClick={() => scrollToSection('berita')}>Berita</li>
             <li className="nav-item" onClick={() => scrollToSection('profil')}>Profil Dinas</li>
             <li className="nav-item" onClick={() => scrollToSection('kontak')}>Kontak</li>
             <li className="nav-item" onClick={handleHelp}>Bantuan</li>
           </ul>
-
-          <button 
-            onClick={toggleTheme} 
-            className="theme-toggle-btn desktop-theme-btn"
-            title={isDarkMode ? "Ganti ke Mode Terang" : "Ganti ke Mode Gelap"}
-          >
+          <button onClick={toggleTheme} className="theme-toggle-btn desktop-theme-btn" title={isDarkMode ? "Mode Terang" : "Mode Gelap"}>
             {isDarkMode ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} />}
           </button>
-
           <button className="hero-btn navbar-btn" onClick={handleLogin}>Login / Register</button>
         </div>
 
-        {/* Mobile Menu Button Wrapper */}
         <div className="flex items-center gap-3 md:hidden">
-          <button 
-            onClick={toggleTheme} 
-            className="theme-toggle-btn mobile-theme-btn"
-          >
+          <button onClick={toggleTheme} className="theme-toggle-btn mobile-theme-btn">
             {isDarkMode ? <Sun size={22} className="text-yellow-400" /> : <Moon size={22} />}
           </button>
-
           <button className="mobile-menu-btn" onClick={() => setSidebarOpen(true)}>
             <Menu size={28} className="menu-icon-color" />
           </button>
         </div>
 
-        {/* Sidebar Overlay */}
         <div className={`sidebar-overlay ${isSidebarOpen ? 'active' : ''}`} onClick={() => setSidebarOpen(false)}></div>
 
-        {/* Sidebar Content */}
         <div className={`mobile-sidebar ${isSidebarOpen ? 'active' : ''}`}>
           <div className="sidebar-header">
             <h3 className="sidebar-title">Menu Utama</h3>
             <button onClick={() => setSidebarOpen(false)} className="close-btn"><X size={24} /></button>
           </div>
           <ul className="sidebar-list">
-            <li onClick={handleAbout}>
-              <span>Tentang Aplikasi</span><ChevronRight size={16} className="text-slate-400"/>
-            </li>
-            <li onClick={() => scrollToSection('profil')}>
-              <span>Profil Dinas</span><ChevronRight size={16} className="text-slate-400"/>
-            </li>
-            <li onClick={() => scrollToSection('kontak')}>
-              <span>Kontak</span><ChevronRight size={16} className="text-slate-400"/>
-            </li>
-            <li onClick={handleHelp}>
-              <span>Bantuan</span><ChevronRight size={16} className="text-slate-400"/>
-            </li>
-            <li className="sidebar-btn-container">
-              <button className="sidebar-login-btn" onClick={handleLogin}>Login / Register</button>
-            </li>
+            <li onClick={handleAbout}><span>Tentang Aplikasi</span><ChevronRight size={16} className="text-slate-400"/></li>
+            {/* --- MENU BERITA SIDEBAR DITAMBAHKAN DISINI --- */}
+            <li onClick={() => scrollToSection('berita')}><span>Berita</span><ChevronRight size={16} className="text-slate-400"/></li>
+            <li onClick={() => scrollToSection('profil')}><span>Profil Dinas</span><ChevronRight size={16} className="text-slate-400"/></li>
+            <li onClick={() => scrollToSection('kontak')}><span>Kontak</span><ChevronRight size={16} className="text-slate-400"/></li>
+            <li onClick={handleHelp}><span>Bantuan</span><ChevronRight size={16} className="text-slate-400"/></li>
+            <li className="sidebar-btn-container"><button className="sidebar-login-btn" onClick={handleLogin}>Login / Register</button></li>
           </ul>
           <div className="sidebar-footer"><p>© 2025 DPPPA Banjarmasin</p></div>
         </div>
       </motion.nav>
 
-      {/* ===========================
-          BANNER SLIDER (Fade In)
-      =========================== */}
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.95 }}
-        whileInView={{ opacity: 1, scale: 1 }}
-        viewport={{ once: false }} // Animasi berulang saat scroll
-        transition={{ duration: 0.8 }}
-      >
+      {/* BANNER SLIDER */}
+      <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: false }} transition={{ duration: 0.8 }}>
         <BannerSlider />
       </motion.div>
 
-      {/* ===========================
-          HERO SECTION (Naik dari bawah)
-      =========================== */}
-      <motion.section 
-        className="landing-hero"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: false, amount: 0.3 }} // once: false agar animasi berulang
-        variants={staggerContainer}
-      >
-        <motion.div className="hero-left-img" variants={fadeInUp}>
-          {/* UPDATED: Menggunakan vektor.png */}
-          <img src="/vektor.png" alt="illustration" className="hero-img" />
+      {/* HERO SECTION */}
+      <section className="landing-hero">
+        <motion.div 
+          className="hero-box-container"
+          initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.3 }} variants={staggerContainer}
+        >
+          <motion.div className="hero-left-img" variants={fadeInUp}>
+            <img src="/vektor.png" alt="illustration" className="hero-img" />
+          </motion.div>
+          <motion.div className="hero-right-text" variants={fadeInUp}>
+            <h3 className="hero-subtitle">DPPPA KOTA BANJARMASIN</h3>
+            <h2 className="hero-title">Portal <span>DP3A</span></h2>
+            <p className="hero-desc">Layanan Pengaduan Perempuan & Anak Kota Banjarmasin. Bersama kita lindungi perempuan dan anak dari kekerasan.</p>
+            <motion.button className="hero-btn cta-btn" onClick={handleLogin} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>Login / Register</motion.button>
+          </motion.div>
         </motion.div>
-        
-        <motion.div className="hero-right-text" variants={fadeInUp}>
-          <h3 className="hero-subtitle">DPPPA KOTA BANJARMASIN</h3>
-          <h2 className="hero-title">Portal <span>DP3A</span></h2>
-          <p className="hero-desc">Layanan Pengaduan Perempuan & Anak Kota Banjarmasin. Bersama kita lindungi perempuan dan anak dari kekerasan.</p>
-          <motion.button 
-            className="hero-btn cta-btn" 
-            onClick={handleLogin}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            Login / Register
-          </motion.button>
-        </motion.div>
-      </motion.section>
+      </section>
 
       {/* ===========================
-          PROFIL & SIDEBAR SECTION (Scroll Reveal)
+          BERITA TERKINI SECTION
       =========================== */}
       <motion.section 
-        className="profile-section" 
-        id="profil"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: false, amount: 0.2 }} // once: false agar animasi berulang
-        transition={{ duration: 0.8 }}
-        variants={fadeInUp}
+        className="news-section"
+        id="berita" // <--- ID DITAMBAHKAN DISINI AGAR BISA DISKROLL
+        initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.2 }} variants={fadeInUp}
+      >
+        <div className="profile-container">
+          <div className="section-header text-center mb-10">
+            <h2 className="profile-title">Berita Terkini</h2>
+            <div className="title-underline mx-auto"></div>
+            <p className="text-slate-500 mt-2 text-sm dark:text-slate-400">Informasi terbaru seputar kegiatan dan layanan DPPPA</p>
+          </div>
+
+          <div className="news-grid">
+            {newsData.map((item) => (
+              <motion.div 
+                key={item.id} 
+                className="news-card group"
+                whileHover={{ y: -5 }}
+              >
+                <div className="news-image-wrapper">
+                  <img 
+                    src={item.image} 
+                    alt={item.title} 
+                    className="news-image" 
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      objectPosition: "top"
+                    }}
+                  />
+                  <div className="news-overlay">
+                    <a href={item.link} target="_blank" rel="noreferrer" className="read-more-btn">Baca Berita</a>
+                  </div>
+                </div>
+                <div className="news-content">
+                  <div className="news-date">
+                    <Calendar size={14} className="mr-1" />
+                    {item.date}
+                  </div>
+                  <h3 className="news-title">
+                    <a href={item.link} target="_blank" rel="noreferrer">{item.title}</a>
+                  </h3>
+                  <p className="news-desc">{item.desc}</p>
+                  <a href={item.link} target="_blank" rel="noreferrer" className="news-link">
+                    Selengkapnya <ArrowRight size={14} className="ml-1" />
+                  </a>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </motion.section>
+
+      {/* PROFIL & SIDEBAR SECTION */}
+      <motion.section 
+        className="profile-section" id="profil"
+        initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.2 }} transition={{ duration: 0.8 }} variants={fadeInUp}
       >
         <div className="profile-container">
           <div className="profile-layout">
-            
-            {/* Kolom Kiri */}
             <div className="profile-main">
               <div className="section-header">
                 <h2 className="profile-title">Profil DPPPA Kota Banjarmasin</h2>
                 <div className="title-underline"></div>
               </div>
               <div className="video-wrapper">
-                <iframe 
-                  src="https://drive.google.com/file/d/1MbKQxv8B4xjPFyl2XIwjAgMjwLPgwCmw/preview" 
-                  title="Video Profil DPPPA"
-                  allow="autoplay"
-                  allowFullScreen
-                ></iframe>
+                <iframe src="https://drive.google.com/file/d/1MbKQxv8B4xjPFyl2XIwjAgMjwLPgwCmw/preview" title="Video Profil DPPPA" allow="autoplay" allowFullScreen></iframe>
               </div>
               <p className="profile-desc">
                 Dinas Pemberdayaan Perempuan dan Perlindungan Anak (DPPPA) Kota Banjarmasin merupakan unsur pelaksana urusan pemerintahan yang menjadi kewenangan daerah di bidang pemberdayaan perempuan dan perlindungan anak.
@@ -268,70 +287,41 @@ export default function Landing({ onStart, onAbout, onHelp }) {
               </p>
             </div>
 
-            {/* Kolom Kanan */}
             <div className="profile-sidebar">
               <div className="sidebar-widget">
                 <h3 className="widget-title flex items-start">
                   <PlayCircle size={24} className="inline mr-2 text-red-600 mt-1 flex-shrink-0" />
-                  <span className="text-sm md:text-base leading-tight">
-                    Komunikasi FISIP ULM x DPPPA Kota Banjarmasin
-                  </span>
+                  <span className="text-sm md:text-base leading-tight">Komunikasi FISIP ULM x DPPPA Kota Banjarmasin</span>
                 </h3>
                 <div className="sidebar-video-list">
                   {sidebarVideos.map((video, index) => (
                     <div key={index} className="sidebar-video-item">
-                      <iframe 
-                        src={`https://www.youtube.com/embed/${video.id}`} 
-                        title={video.title}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                        allowFullScreen
-                      ></iframe>
+                      <iframe src={`https://www.youtube.com/embed/${video.id}`} title={video.title} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
                     </div>
                   ))}
                 </div>
               </div>
-
               <div className="sidebar-widget">
-                <h3 className="widget-title">
-                  <Hash size={20} className="inline mr-2" />
-                  Tag Utama
-                </h3>
+                <h3 className="widget-title"><Hash size={20} className="inline mr-2" />Tag Utama</h3>
                 <div className="tags-cloud">
                   {mainTags.map((tag, index) => (
-                    <motion.span 
-                      key={index} 
-                      className="tag-item"
-                      whileHover={{ scale: 1.1, backgroundColor: "#4f46e5", color: "#fff" }}
-                    >
-                      {tag}
-                    </motion.span>
+                    <motion.span key={index} className="tag-item" whileHover={{ scale: 1.1, backgroundColor: "#4f46e5", color: "#fff" }}>{tag}</motion.span>
                   ))}
                 </div>
               </div>
             </div>
-
           </div>
         </div>
       </motion.section>
 
-      {/* ===========================
-          FOOTER (Scroll Reveal)
-      =========================== */}
+      {/* FOOTER */}
       <motion.footer 
-        className="landing-footer" 
-        id="kontak"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: false, amount: 0.1 }} // once: false agar animasi berulang
-        variants={fadeInUp}
+        className="landing-footer" id="kontak"
+        initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.1 }} variants={fadeInUp}
       >
         <div className="footer-content">
           <div className="footer-map">
-            <iframe 
-              title="Lokasi Kantor DP3A Banjarmasin"
-              src="https://maps.google.com/maps?q=Dinas%20Pemberdayaan%20Perempuan%20dan%20Perlindungan%20Anak%20Kota%20Banjarmasin&t=&z=15&ie=UTF8&iwloc=&output=embed"
-              width="100%" height="250" style={{ border: 0, borderRadius: "12px" }} allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade"
-            ></iframe>
+            <iframe title="Lokasi Kantor DP3A Banjarmasin" src="https://maps.google.com/maps?q=Dinas%20Pemberdayaan%20Perempuan%20dan%20Perlindungan%20Anak%20Kota%20Banjarmasin&t=&z=15&ie=UTF8&iwloc=&output=embed" width="100%" height="250" style={{ border: 0, borderRadius: "12px" }} allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade"></iframe>
           </div>
           <div className="footer-info">
             <h3 className="footer-title">KONTAK KAMI</h3>
