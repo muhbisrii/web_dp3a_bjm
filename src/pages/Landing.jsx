@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Menu, X, ChevronRight, MapPin, Phone, Mail, Clock } from "lucide-react"; 
+import { Menu, X, ChevronRight, MapPin, Phone, Mail, Clock, Instagram, Youtube } from "lucide-react"; 
 import "./Landing.css";
 
 export default function Landing({ onStart, onAbout, onHelp }) {
@@ -98,18 +98,16 @@ export default function Landing({ onStart, onAbout, onHelp }) {
       </section>
 
       {/* ===========================
-          FOOTER (KONTAK & MAPS)
+          FOOTER (KONTAK, MAPS & SOSMED)
       =========================== */}
       <footer className="landing-footer">
         <div className="footer-content">
           
-          {/* MAPS SECTION DENGAN PIN MERAH */}
+          {/* MAPS SECTION */}
           <div className="footer-map">
             <iframe 
               title="Lokasi Kantor DP3A Banjarmasin"
-              /* Link ini menggunakan query pencarian spesifik ke nama dinas agar muncul PIN MERAH */
               src="https://maps.google.com/maps?q=Dinas%20Pemberdayaan%20Perempuan%20dan%20Perlindungan%20Anak%20Kota%20Banjarmasin&t=&z=15&ie=UTF8&iwloc=&output=embed"
-              
               width="100%" 
               height="250" 
               style={{ border: 0, borderRadius: "12px" }} 
@@ -126,7 +124,6 @@ export default function Landing({ onStart, onAbout, onHelp }) {
             
             <div className="contact-item">
               <MapPin className="contact-icon" size={20} />
-              {/* Alamat diperjelas sesuai data resmi */}
               <span>Jl. Sultan Adam No.18 Rt. 28 Rw. 03 Surgi Mufti, Banjarmasin (Gedung Disdukcapil Lt. 3)</span>
             </div>
 
@@ -144,6 +141,33 @@ export default function Landing({ onStart, onAbout, onHelp }) {
               <Clock className="contact-icon" size={20} />
               <span>Senin - Jumat: 08.00 - 16.00 WITA</span>
             </div>
+
+            {/* --- SOSIAL MEDIA --- */}
+            <div className="footer-socials">
+              <p className="social-label">Ikuti Kami:</p>
+              <div className="social-icons">
+                <a 
+                  href="https://www.instagram.com/dpppa.banjarmasin?igsh=MWM1bTNzNXI2cjllZg==" 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  className="social-link instagram"
+                  aria-label="Instagram DPPPA Banjarmasin"
+                >
+                  <Instagram size={22} />
+                </a>
+                
+                <a 
+                  href="https://youtube.com/@dpppakotabanjarmasin?si=MY5B0asTqG1Pp8Tr" 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  className="social-link youtube"
+                  aria-label="YouTube DPPPA Banjarmasin"
+                >
+                  <Youtube size={22} />
+                </a>
+              </div>
+            </div>
+
           </div>
 
         </div>

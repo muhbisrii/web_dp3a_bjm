@@ -435,3 +435,53 @@
     height: 200px; /* Peta lebih pendek di HP */
   }
 }
+
+/* ... Kode CSS sebelumnya ... */
+
+/* ===========================
+   SOCIAL MEDIA BUTTONS
+   =========================== */
+.footer-socials {
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px solid #334155; /* Garis pemisah tipis */
+}
+
+.social-label {
+  font-size: 14px;
+  color: #94a3b8;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.social-icons {
+  display: flex;
+  gap: 15px;
+}
+
+.social-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 45px;
+  height: 45px;
+  background-color: rgba(255, 255, 255, 0.1); /* Background transparan */
+  border-radius: 50%; /* Bulat */
+  color: white;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Efek Hover Instagram */
+.social-link.instagram:hover {
+  background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
+  border-color: transparent;
+  transform: translateY(-3px); /* Naik sedikit saat dihover */
+}
+
+/* Efek Hover YouTube */
+.social-link.youtube:hover {
+  background-color: #ff0000;
+  border-color: #ff0000;
+  transform: translateY(-3px);
+}
