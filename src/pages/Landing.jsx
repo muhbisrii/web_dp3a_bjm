@@ -3,7 +3,7 @@ import {
   Menu, X, ChevronRight, MapPin, Phone, Mail, Clock, 
   Instagram, Youtube, Facebook, Hash, PlayCircle, Loader2,
   Sun, Moon, Calendar, ArrowRight,
-  Download, Smartphone // <-- Ikon baru ditambahkan
+  Download, Smartphone 
 } from "lucide-react"; 
 import { motion } from "framer-motion"; 
 import BannerSlider from "../components/BannerSlider"; 
@@ -69,7 +69,7 @@ export default function Landing({ onStart, onAbout, onHelp }) {
   const handleHelp = () => handleNavWithDelay(onHelp);
   const handleLogin = () => handleNavWithDelay(onStart);
 
-  // --- DATA BERITA (Dari Website DPPPA) ---
+  // --- DATA BERITA ---
   const newsData = [
     {
       id: 1,
@@ -190,7 +190,7 @@ export default function Landing({ onStart, onAbout, onHelp }) {
       </motion.div>
 
       {/* ===========================
-          HERO SECTION (UPDATED)
+          HERO SECTION (UPDATED FOR MOBILE)
       =========================== */}
       <section className="landing-hero">
         <motion.div 
@@ -201,9 +201,13 @@ export default function Landing({ onStart, onAbout, onHelp }) {
             <img src="/vektor.png" alt="illustration" className="hero-img" />
           </motion.div>
           
-          <motion.div className="hero-right-text" variants={fadeInUp}>
-            {/* BADGE APLIKASI */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-sm font-semibold mb-4 border border-green-200 dark:border-green-800">
+          {/* Perubahan di sini: Menggunakan flex-col items-center untuk Mobile agar rata tengah */}
+          <motion.div 
+            className="hero-right-text flex flex-col items-center sm:items-start text-center sm:text-left" 
+            variants={fadeInUp}
+          >
+            {/* BADGE APLIKASI - Warna diperbaiki agar solid & jelas */}
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-green-100 text-green-800 border border-green-300 dark:bg-green-900 dark:text-green-100 dark:border-green-700 text-sm font-bold mb-4">
               <Smartphone size={16} />
               <span>Tersedia Aplikasi Android</span>
             </div>
@@ -212,11 +216,12 @@ export default function Landing({ onStart, onAbout, onHelp }) {
             <h2 className="hero-title">Portal <span>DP3A</span></h2>
             <p className="hero-desc">Layanan Pengaduan Perempuan & Anak Kota Banjarmasin. Bersama kita lindungi perempuan dan anak dari kekerasan.</p>
             
-            {/* GROUP TOMBOL (LOGIN & DOWNLOAD) */}
-            <div className="flex flex-col sm:flex-row gap-4 mt-6 w-full sm:w-auto">
-              {/* Tombol Login */}
+            {/* GROUP TOMBOL: Center di Mobile, Kiri di Desktop */}
+            <div className="flex flex-col sm:flex-row gap-4 mt-6 w-full sm:w-auto items-center sm:items-start justify-center sm:justify-start">
+              
+              {/* Tombol Login - Style disamakan (Pill Shape) agar rapi */}
               <motion.button 
-                className="hero-btn cta-btn" 
+                className="flex items-center justify-center px-8 py-3 rounded-full font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-lg transition-all w-full sm:w-auto min-w-[200px]"
                 onClick={handleLogin} 
                 whileHover={{ scale: 1.05 }} 
                 whileTap={{ scale: 0.95 }}
@@ -224,12 +229,12 @@ export default function Landing({ onStart, onAbout, onHelp }) {
                 Login / Register
               </motion.button>
 
-              {/* Tombol Download APK Drive */}
+              {/* Tombol Download APK */}
               <motion.a 
                 href="https://drive.google.com/file/d/1pt5h3CA_VBF-TZazCutiNt4MqSS-UPl2/view?usp=drivesdk"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 px-6 py-3 rounded-full font-semibold transition-all shadow-lg bg-green-600 hover:bg-green-700 text-white"
+                className="flex items-center justify-center gap-2 px-8 py-3 rounded-full font-bold bg-green-600 hover:bg-green-700 text-white shadow-lg transition-all w-full sm:w-auto min-w-[200px]"
                 whileHover={{ scale: 1.05 }} 
                 whileTap={{ scale: 0.95 }}
                 style={{ textDecoration: 'none' }}
@@ -239,8 +244,8 @@ export default function Landing({ onStart, onAbout, onHelp }) {
               </motion.a>
             </div>
             
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-3 italic">
-              *Klik "Download APK" untuk mengunduh & instal manual di Android.
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-4 italic w-full text-center sm:text-left">
+              *Klik "Download APK" untuk mengunduh & instal manual.
             </p>
 
           </motion.div>
