@@ -3,9 +3,9 @@
    ======================================= */
 :root {
   /* LIGHT MODE (DEFAULT) */
-  --bg-main: #f8fafc;        /* Latar belakang utama (agak abu sangat muda) */
+  --bg-main: #f8fafc;        /* Latar belakang utama */
   --bg-card: #ffffff;        /* Warna kartu/kotak */
-  --bg-sidebar: #ffffff;
+  --bg-sidebar: #ffffff;     /* (Tidak dipakai di sidebar mobile karena logic terbalik) */
   --text-main: #1e293b;      /* Slate-800 */
   --text-secondary: #64748b; /* Slate-500 */
   --text-muted: #94a3b8;
@@ -45,7 +45,7 @@ body.dark-mode {
   color: var(--text-main);
   font-family: 'Plus Jakarta Sans', sans-serif; 
   transition: background-color 0.3s ease, color 0.3s ease;
-  overflow-x: hidden; /* Mencegah scroll samping di HP */
+  overflow-x: hidden;
 }
 
 /* =======================================
@@ -58,7 +58,7 @@ body.dark-mode {
   padding: 0 5%;
   height: 80px;
   background: var(--navbar-bg);
-  backdrop-filter: blur(8px); /* Efek blur kaca */
+  backdrop-filter: blur(8px);
   box-shadow: var(--shadow-sm);
   position: sticky;
   top: 0;
@@ -82,33 +82,28 @@ body.dark-mode {
 .nav-item {
   cursor: pointer;
   font-size: 14px;
-  font-weight: 400; /* Regular / Tipis sesuai permintaan */
+  font-weight: 400; /* Regular / Tipis */
   color: var(--text-secondary);
   transition: color 0.2s ease;
 }
 .nav-item:hover { color: var(--primary-color); }
 
-/* Tombol Mobile (Hamburger) - DIPERBAIKI */
+/* Tombol Mobile (Hamburger) */
 .mobile-menu-btn {
-  display: none; /* Hidden di desktop */
+  display: none;
   background: none;
   border: none;
   cursor: pointer;
   padding: 5px;
-  
-  /* Pastikan hitam di mode terang agar terlihat */
-  color: #1e293b; 
+  color: #1e293b; /* Default Hitam (agar terlihat di Light Mode) */
   transition: all 0.2s;
 }
 
-/* Pastikan putih di mode gelap */
 body.dark-mode .mobile-menu-btn {
-  color: #ffffff;
+  color: #ffffff; /* Putih di Dark Mode */
 }
 
-.mobile-menu-btn:hover {
-  transform: scale(1.1);
-}
+.mobile-menu-btn:hover { transform: scale(1.1); }
 
 .theme-toggle-btn {
   background: transparent;
@@ -124,7 +119,7 @@ body.dark-mode .mobile-menu-btn {
 .theme-toggle-btn:hover { background: var(--bg-card); transform: scale(1.05); }
 
 /* =======================================
-   3. SIDEBAR MOBILE - DIPERBAIKI
+   3. SIDEBAR MOBILE (LOGIK KONTRAS TERBALIK)
    ======================================= */
 .sidebar-overlay {
   position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); z-index: 1001;
@@ -132,41 +127,92 @@ body.dark-mode .mobile-menu-btn {
 }
 .sidebar-overlay.active { opacity: 1; visibility: visible; }
 
+/* --- BASE STYLE: DEFAULT (UNTUK LIGHT MODE) -> SIDEBAR GELAP --- */
 .mobile-sidebar {
   position: fixed; top: 0; right: 0; width: 280px; height: 100vh;
-  background: var(--bg-sidebar);
+  
+  /* Default: Hitam (Slate-900) saat web terang */
+  background-color: #0f172a !important; 
+  
   z-index: 1002;
-  
-  /* Bayangan dipertegas agar terlihat "terpisah" dari background putih */
-  box-shadow: -10px 0 30px rgba(0,0,0,0.15);
-  border-left: 1px solid var(--border-color);
-  
+  box-shadow: -10px 0 30px rgba(0,0,0,0.4);
+  border-left: 1px solid #334155;
   transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex; flex-direction: column;
 }
+
+/* --- OVERRIDE: KHUSUS DARK MODE -> SIDEBAR PUTIH --- */
+body.dark-mode .mobile-sidebar {
+  background-color: #ffffff !important; /* Jadi Putih */
+  border-left: 1px solid #e2e8f0;       /* Border jadi abu terang */
+  box-shadow: -10px 0 30px rgba(255,255,255,0.1); 
+}
+
 .mobile-sidebar.active { transform: translateX(0); }
 
+/* --- HEADER SIDEBAR --- */
 .sidebar-header {
-  padding: 20px; border-bottom: 1px solid var(--border-color);
+  padding: 20px; 
+  border-bottom: 1px solid #334155; /* Default border gelap */
   display: flex; justify-content: space-between; align-items: center;
 }
-.sidebar-title { font-weight: 700; font-size: 16px; color: var(--text-main); margin: 0; }
-.close-btn { background: none; border: none; cursor: pointer; color: var(--text-secondary); }
+body.dark-mode .sidebar-header { border-bottom: 1px solid #f1f5f9; }
 
+/* --- TEXT JUDUL --- */
+.sidebar-title { 
+  font-weight: 700; font-size: 16px; 
+  color: #ffffff !important; /* Default Putih */
+  margin: 0; 
+}
+body.dark-mode .sidebar-title { color: #1e293b !important; }
+
+/* --- TOMBOL CLOSE (X) --- */
+.close-btn { 
+  background: none; border: none; cursor: pointer; 
+  color: #94a3b8 !important; 
+}
+body.dark-mode .close-btn { color: #64748b !important; }
+
+/* --- LIST MENU --- */
 .sidebar-list { list-style: none; padding: 0; margin: 0; flex: 1; overflow-y: auto; }
-.sidebar-list li {
-  padding: 16px 20px; border-bottom: 1px solid var(--border-color);
-  display: flex; justify-content: space-between; align-items: center;
-  color: var(--text-secondary); font-weight: 500; font-size: 14px; cursor: pointer;
-}
-.sidebar-list li:hover { background-color: rgba(0,0,0,0.03); color: var(--primary-color); }
 
-.sidebar-btn-container { padding: 20px; border-top: 1px solid var(--border-color); }
+.sidebar-list li {
+  padding: 16px 20px; 
+  border-bottom: 1px solid #1e293b; /* Separator gelap */
+  display: flex; justify-content: space-between; align-items: center;
+  color: #cbd5e1 !important; /* Teks default terang */
+  font-weight: 500; font-size: 14px; cursor: pointer;
+}
+
+/* Override List di Dark Mode (Sidebar Putih) */
+body.dark-mode .sidebar-list li {
+  border-bottom: 1px solid #f1f5f9; 
+  color: #475569 !important;        
+}
+
+/* --- HOVER EFFECT --- */
+.sidebar-list li:hover { 
+  background-color: #1e293b !important; /* Hover gelap */
+  color: #38bdf8 !important;            /* Teks biru terang */
+}
+body.dark-mode .sidebar-list li:hover {
+  background-color: #f8fafc !important; /* Hover terang */
+  color: #00AEEF !important;            /* Teks biru normal */
+}
+
+/* --- FOOTER & BUTTON --- */
+.sidebar-btn-container { padding: 20px; border-top: 1px solid #334155; }
+body.dark-mode .sidebar-btn-container { border-top: 1px solid #f1f5f9; }
+
 .sidebar-login-btn {
   width: 100%; padding: 12px; background-color: var(--primary-color); color: white;
   border: none; border-radius: 8px; font-weight: 700; cursor: pointer;
 }
-.sidebar-footer { padding: 20px; text-align: center; color: var(--text-muted); font-size: 11px; }
+
+.sidebar-footer { 
+  padding: 20px; text-align: center; 
+  color: #64748b; font-size: 11px; 
+}
 
 /* =======================================
    4. HERO SECTION (KOTAK TIMBUL)
@@ -175,7 +221,7 @@ body.dark-mode .mobile-menu-btn {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 40px 5%; /* Padding luar */
+  padding: 40px 5%;
   min-height: calc(100vh - 140px);
 }
 
@@ -184,40 +230,21 @@ body.dark-mode .mobile-menu-btn {
   align-items: center;
   justify-content: space-between;
   gap: 3rem;
-  
   background-color: var(--bg-card);
   padding: 3rem; 
   border-radius: 24px;
   box-shadow: var(--shadow-lg);
   border: 1px solid var(--border-color);
-  
   width: 100%;
   max-width: 1100px;
   position: relative;
   overflow: hidden;
 }
 
-.hero-left-img {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.hero-img {
-  width: 100%;
-  max-width: 450px;
-  height: auto;
-  filter: drop-shadow(0 10px 10px rgba(0,0,0,0.1));
-}
+.hero-left-img { flex: 1; display: flex; justify-content: center; align-items: center; }
+.hero-img { width: 100%; max-width: 450px; height: auto; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.1)); }
 
-.hero-right-text {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start; /* Default align left untuk desktop */
-}
-
+.hero-right-text { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; }
 .hero-subtitle { font-size: 14px; font-weight: 800; color: var(--primary-color); letter-spacing: 1px; margin-bottom: 10px; text-transform: uppercase; }
 .hero-title { font-size: 42px; font-weight: 800; color: var(--text-main); line-height: 1.1; margin: 0 0 20px 0; }
 .hero-title span { color: var(--primary-color); }
@@ -227,12 +254,7 @@ body.dark-mode .mobile-menu-btn {
    5. BERITA & NEWS GRID
    ======================================= */
 .news-section { padding: 60px 5%; background-color: var(--bg-main); }
-
-.news-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 30px;
-}
+.news-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
 
 .news-card {
   background: var(--bg-card);
@@ -287,7 +309,6 @@ body.dark-mode .mobile-menu-btn {
 .profile-title { font-size: 28px; font-weight: 800; color: var(--text-main); margin-bottom: 8px; }
 .title-underline { width: 60px; height: 5px; background-color: var(--primary-color); border-radius: 5px; }
 
-/* Video 16:9 Responsive */
 .video-wrapper {
   position: relative; width: 100%; padding-bottom: 56.25%; height: 0; overflow: hidden;
   border-radius: 16px; box-shadow: var(--shadow-lg); background: #000; margin-bottom: 25px;
@@ -295,7 +316,6 @@ body.dark-mode .mobile-menu-btn {
 .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
 .profile-desc { font-size: 16px; color: var(--text-secondary); line-height: 1.8; text-align: justify; }
 
-/* Sidebar Widgets */
 .sidebar-widget {
   background: var(--bg-card); padding: 25px; border-radius: 16px;
   box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); margin-bottom: 30px;
@@ -362,7 +382,7 @@ body.dark-mode .mobile-menu-btn {
   .mobile-menu-btn { display: block; }
   .nav-divider { display: none; }
   
-  /* Hero menjadi Stack Vertical */
+  /* Hero */
   .landing-hero { padding: 20px 5%; height: auto; min-height: auto; }
   .hero-box-container {
     flex-direction: column; 
@@ -376,14 +396,8 @@ body.dark-mode .mobile-menu-btn {
   .hero-desc { font-size: 15px; margin-bottom: 20px; }
   .hero-img { max-width: 300px; }
   
-  .hero-right-text > div.flex {
-    flex-direction: column;
-    width: 100%;
-  }
-  .hero-right-text button, .hero-right-text a {
-    width: 100% !important; 
-    justify-content: center;
-  }
+  .hero-right-text > div.flex { flex-direction: column; width: 100%; }
+  .hero-right-text button, .hero-right-text a { width: 100% !important; justify-content: center; }
   
   /* Profile Layout */
   .profile-layout { grid-template-columns: 1fr; gap: 40px; }
@@ -407,54 +421,27 @@ body.dark-mode .mobile-menu-btn {
   background-color: var(--bg-card); /* Otomatis ikut tema (Putih/Gelap) */
   border: 1px solid var(--border-color);
   color: var(--text-main);
-  /* Agar bayangan menyesuaikan tema */
   box-shadow: var(--shadow-lg); 
 }
 
-.trending-text {
-  color: var(--text-main); /* Warna teks ikut tema */
-  text-decoration: none;
-}
+.trending-text { color: var(--text-main); text-decoration: none; }
+.trending-text:hover { color: var(--primary-color); }
+.trending-arrow { color: var(--text-secondary); }
+.trending-arrow:hover { color: var(--primary-color); }
 
-.trending-text:hover {
-  color: var(--primary-color);
-}
-
-.trending-arrow {
-  color: var(--text-secondary); /* Warna panah abu-abu/slate */
-}
-
-.trending-arrow:hover {
-  color: var(--primary-color);
-}
-
-/* KHUSUS TAMPILAN HP (Mobile Adjustment) */
+/* KHUSUS TAMPILAN HP */
 @media (max-width: 600px) {
   .trending-box {
-    padding: 10px 15px !important; /* Padding lebih kecil di HP */
+    padding: 10px 15px !important;
     height: auto !important;
     min-height: 60px;
   }
   
-  /* Sembunyikan kata 'Trending:' ganti jadi icon saja jika layar sempit */
-  .trending-box .text-\[\#1A73E8\] {
-    font-size: 0; /* Hilangkan teks */
-  }
-  
-  .trending-box .text-\[\#1A73E8\] svg {
-    width: 20px;
-    height: 20px;
-    margin-right: 5px;
-  }
-  
-  /* Munculkan kembali teks label sedikit lebih kecil */
+  .trending-box .text-\[\#1A73E8\] { font-size: 0; }
+  .trending-box .text-\[\#1A73E8\] svg { width: 20px; height: 20px; margin-right: 5px; }
   .trending-box .text-\[\#1A73E8\]::after {
-    content: "Hot:"; /* Ganti 'Trending:' jadi lebih pendek */
-    font-size: 13px;
-    font-weight: 800;
+    content: "Hot:"; 
+    font-size: 13px; font-weight: 800;
   }
-
-  .trending-text {
-    font-size: 12px !important; /* Ukuran font berita pas di HP */
-  }
+  .trending-text { font-size: 12px !important; }
 }
