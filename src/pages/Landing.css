@@ -79,25 +79,37 @@ body.dark-mode {
 .nav-right { display: flex; align-items: center; gap: 25px; }
 .nav-links { display: flex; list-style: none; gap: 25px; margin: 0; padding: 0; }
 
-/* INI YANG DIUBAH MENJADI TIPIS */
 .nav-item {
   cursor: pointer;
   font-size: 14px;
-  font-weight: 400; /* Regular / Tipis */
+  font-weight: 400; /* Regular / Tipis sesuai permintaan */
   color: var(--text-secondary);
   transition: color 0.2s ease;
 }
 .nav-item:hover { color: var(--primary-color); }
 
-/* Tombol Mobile */
+/* Tombol Mobile (Hamburger) - DIPERBAIKI */
 .mobile-menu-btn {
   display: none; /* Hidden di desktop */
   background: none;
   border: none;
   cursor: pointer;
   padding: 5px;
-  color: var(--text-main);
+  
+  /* Pastikan hitam di mode terang agar terlihat */
+  color: #1e293b; 
+  transition: all 0.2s;
 }
+
+/* Pastikan putih di mode gelap */
+body.dark-mode .mobile-menu-btn {
+  color: #ffffff;
+}
+
+.mobile-menu-btn:hover {
+  transform: scale(1.1);
+}
+
 .theme-toggle-btn {
   background: transparent;
   border: 1px solid var(--border-color);
@@ -112,7 +124,7 @@ body.dark-mode {
 .theme-toggle-btn:hover { background: var(--bg-card); transform: scale(1.05); }
 
 /* =======================================
-   3. SIDEBAR MOBILE
+   3. SIDEBAR MOBILE - DIPERBAIKI
    ======================================= */
 .sidebar-overlay {
   position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); z-index: 1001;
@@ -124,7 +136,11 @@ body.dark-mode {
   position: fixed; top: 0; right: 0; width: 280px; height: 100vh;
   background: var(--bg-sidebar);
   z-index: 1002;
-  box-shadow: -5px 0 20px rgba(0,0,0,0.2);
+  
+  /* Bayangan dipertegas agar terlihat "terpisah" dari background putih */
+  box-shadow: -10px 0 30px rgba(0,0,0,0.15);
+  border-left: 1px solid var(--border-color);
+  
   transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex; flex-direction: column;
 }
@@ -385,7 +401,7 @@ body.dark-mode {
 }
 
 /* =======================================
-   TRENDING BOX STYLES (THEME & MOBILE)
+   9. TRENDING BOX STYLES (THEME & MOBILE)
    ======================================= */
 .trending-box {
   background-color: var(--bg-card); /* Otomatis ikut tema (Putih/Gelap) */
