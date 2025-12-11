@@ -67,7 +67,8 @@ body.dark-mode {
   transition: all 0.3s ease;
 }
 
-.nav-left { display: flex; align-items: center; gap: 15px; }
+/* UPDATE: Gap dikurangi jadi 10px agar logo lebih dekat ke tulisan */
+.nav-left { display: flex; align-items: center; gap: 10px; }
 .logo { width: 45px; height: auto; }
 .nav-divider { width: 1px; height: 35px; background-color: var(--border-color); }
 
@@ -88,7 +89,7 @@ body.dark-mode {
 }
 .nav-item:hover { color: var(--primary-color); }
 
-/* Tombol Mobile (Hamburger) */
+/* UPDATE: Tombol Mobile (Hamburger) */
 .mobile-menu-btn {
   display: none;
   background: none;
@@ -97,6 +98,11 @@ body.dark-mode {
   padding: 5px;
   color: #1e293b; /* Default Hitam (agar terlihat di Light Mode) */
   transition: all 0.2s;
+}
+
+/* UPDATE: Pastikan SVG mengikuti warna tombol */
+.mobile-menu-btn svg {
+  stroke: currentColor;
 }
 
 body.dark-mode .mobile-menu-btn {

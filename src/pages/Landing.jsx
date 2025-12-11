@@ -186,7 +186,8 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
         initial="hidden" animate="visible" variants={fadeInDown}
       >
         <div className="nav-left flex items-center">
-          <img src="/pemkot.png" alt="logo" className="logo w-10 h-10 sm:w-12 sm:h-12 mr-3" />
+          {/* UPDATE: Hapus 'mr-3' agar jarak diatur oleh gap CSS */}
+          <img src="/pemkot.png" alt="logo" className="logo w-10 h-10 sm:w-12 sm:h-12" />
           
           <div className="nav-divider h-8 w-[1px] bg-slate-200 dark:bg-slate-700 mx-2 hidden sm:block"></div> 
 
@@ -235,8 +236,10 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
           <button onClick={toggleTheme} className="theme-toggle-btn mobile-theme-btn">
             {isDarkMode ? <Sun size={22} className="text-yellow-400" /> : <Moon size={22} className="text-slate-600" />}
           </button>
+          
+          {/* UPDATE: Menghapus class warna Tailwind dari sini agar dikontrol penuh oleh CSS */}
           <button className="mobile-menu-btn" onClick={() => setSidebarOpen(true)}>
-            <Menu size={28} className="text-slate-800 dark:text-white" />
+            <Menu size={28} />
           </button>
         </div>
 
@@ -272,7 +275,6 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
       <div className="w-full py-6 relative z-10 -mt-10 mb-4 px-4">
         <div className="container mx-auto max-w-5xl">
           
-          {/* PERUBAHAN DI SINI: Saya menambahkan class 'trending-box' dan menghapus bg-white/dark:bg... */}
           <div className="trending-box rounded-xl p-4 flex items-center shadow-lg relative overflow-hidden transition-colors duration-300 h-16">
             
             <div className="text-[#1A73E8] font-bold text-sm md:text-base mr-4 shrink-0 flex items-center">
@@ -291,7 +293,6 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
                   animate={{ y: 0, opacity: 1 }}
                   exit={{ y: -30, opacity: 0 }}
                   transition={{ duration: 0.5, ease: "easeInOut" }}
-                  // PERUBAHAN DI SINI: Menambahkan class 'trending-text'
                   className="trending-text absolute truncate w-full text-xs md:text-sm font-medium block leading-normal transition-colors"
                 >
                   {currentNews.title}
