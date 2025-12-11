@@ -208,7 +208,7 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
 
         {/* MENU DESKTOP */}
         <div className="nav-right desktop-menu flex items-center">
-          <ul className="nav-links flex gap-4 text-[13px] font-medium mr-5 items-center text-slate-700 dark:text-slate-200">
+          <ul className="nav-links flex gap-4 text-[14px] font-normal mr-5 items-center text-slate-600 dark:text-slate-300">
             <li className="nav-item cursor-pointer hover:text-blue-600 transition-colors" onClick={handleAbout}>Tentang Aplikasi</li>
             <li className="nav-item cursor-pointer hover:text-blue-600 transition-colors" onClick={handleStats}>Statistik Layanan</li>
             <li className="nav-item cursor-pointer hover:text-blue-600 transition-colors" onClick={() => scrollToSection('berita')}>Berita</li>
@@ -218,11 +218,11 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
           </ul>
           
           <div className="flex items-center gap-3">
-            <button onClick={toggleTheme} className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors" title={isDarkMode ? "Mode Terang" : "Mode Gelap"}>
+            <button onClick={toggleTheme} className="theme-toggle-btn p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors" title={isDarkMode ? "Mode Terang" : "Mode Gelap"}>
               {isDarkMode ? <Sun size={18} className="text-yellow-400" /> : <Moon size={18} className="text-slate-600" />}
             </button>
             <button 
-              className="px-4 py-2 bg-[#00AEEF] hover:bg-sky-600 text-white text-[13px] font-semibold rounded-lg shadow-sm transition-all" 
+              className="px-4 py-2 bg-[#00AEEF] hover:bg-sky-600 text-white text-[13px] font-medium rounded-lg shadow-sm transition-all" 
               onClick={handleLogin}
             >
               Login / Register
@@ -272,7 +272,8 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
       <div className="w-full py-6 relative z-10 -mt-10 mb-4 px-4">
         <div className="container mx-auto max-w-5xl">
           
-          <div className="bg-white dark:bg-slate-800 rounded-xl p-4 flex items-center shadow-lg relative overflow-hidden border border-slate-200 dark:border-slate-700 transition-colors duration-300 h-16">
+          {/* PERUBAHAN DI SINI: Saya menambahkan class 'trending-box' dan menghapus bg-white/dark:bg... */}
+          <div className="trending-box rounded-xl p-4 flex items-center shadow-lg relative overflow-hidden transition-colors duration-300 h-16">
             
             <div className="text-[#1A73E8] font-bold text-sm md:text-base mr-4 shrink-0 flex items-center">
               <Zap size={18} className="mr-2 fill-current" />
@@ -290,7 +291,8 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
                   animate={{ y: 0, opacity: 1 }}
                   exit={{ y: -30, opacity: 0 }}
                   transition={{ duration: 0.5, ease: "easeInOut" }}
-                  className="absolute truncate w-full text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 text-xs md:text-sm font-medium block leading-normal transition-colors"
+                  // PERUBAHAN DI SINI: Menambahkan class 'trending-text'
+                  className="trending-text absolute truncate w-full text-xs md:text-sm font-medium block leading-normal transition-colors"
                 >
                   {currentNews.title}
                 </motion.a>
@@ -300,14 +302,14 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
             <div className="flex flex-col gap-1 ml-4 shrink-0 justify-center">
                <button 
                  onClick={handlePrevNews} 
-                 className="text-slate-400 hover:text-blue-600 dark:text-slate-500 dark:hover:text-blue-400 transition-colors p-0.5"
+                 className="trending-arrow transition-colors p-0.5"
                  title="Berita Sebelumnya"
                >
                  <ChevronUp size={16} />
                </button>
                <button 
                  onClick={handleNextNews} 
-                 className="text-slate-400 hover:text-blue-600 dark:text-slate-500 dark:hover:text-blue-400 transition-colors p-0.5"
+                 className="trending-arrow transition-colors p-0.5"
                  title="Berita Selanjutnya"
                >
                  <ChevronDown size={16} />
