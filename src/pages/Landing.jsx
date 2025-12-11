@@ -37,7 +37,7 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
     setIsDarkMode(!isDarkMode);
   };
 
-  // --- DATA BERITA (HEADER TRENDING) ---
+  // --- DATA BERITA ---
   const newsData = [
     {
       id: 1,
@@ -66,7 +66,7 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
     }
   ];
 
-  // --- DATA BERITA LENGKAP (GRID) ---
+  // --- DATA BERITA LENGKAP ---
   const fullNewsData = [
     {
       id: 1,
@@ -110,7 +110,6 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
     }
   ];
 
-  // --- LOGIKA TRENDING ---
   useEffect(() => {
     const interval = setInterval(() => {
       handleNextNews();
@@ -126,9 +125,6 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
     setCurrentNewsIndex((prevIndex) => (prevIndex === 0 ? newsData.length - 1 : prevIndex - 1));
   };
 
-  const currentNews = newsData[currentNewsIndex];
-
-  // --- LOGIKA LOAD MORE BERITA ---
   const handleLoadMore = () => {
     setIsLoadingMore(true);
     setTimeout(() => {
@@ -137,7 +133,6 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
     }, 1500);
   };
 
-  // --- VARIAN ANIMASI ---
   const fadeInUp = {
     hidden: { opacity: 0, y: 60 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
@@ -161,7 +156,6 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
     }
   };
 
-  // --- HANDLER NAVIGASI ---
   const handleAbout = () => { setSidebarOpen(false); onAbout(); };
   const handleHelp = () => { setSidebarOpen(false); onHelp(); };
   const handleLogin = () => { setSidebarOpen(false); onStart(); };
@@ -180,13 +174,14 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
   return (
     <div className="landing-container overflow-hidden bg-gray-50 dark:bg-slate-900 transition-colors duration-300">
       
-      {/* NAVBAR: BG PUTIH/HITAM DENGAN SHADOW JELAS */}
+      {/* NAVBAR */}
       <motion.nav 
         className="landing-navbar bg-white dark:bg-[#0f172a] shadow-lg border-b border-gray-200 dark:border-slate-800"
         initial="hidden" animate="visible" variants={fadeInDown}
       >
         <div className="nav-left flex items-center">
-          <img src="/pemkot.png" alt="logo" className="logo w-10 h-10 sm:w-12 sm:h-12 mr-3" />
+          {/* LOGO: mr-2 di HP, mr-3 di Desktop (Agar lebih rapat di HP) */}
+          <img src="/pemkot.png" alt="logo" className="logo w-10 h-10 sm:w-12 sm:h-12 mr-2 sm:mr-3" />
           
           <div className="nav-divider h-8 w-[1px] bg-slate-200 dark:bg-slate-700 mx-2 hidden sm:block"></div> 
 
@@ -236,7 +231,8 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
             {isDarkMode ? <Sun size={22} className="text-yellow-400" /> : <Moon size={22} className="text-slate-600" />}
           </button>
           <button className="mobile-menu-btn" onClick={() => setSidebarOpen(true)}>
-            <Menu size={28} className="text-slate-800 dark:text-white" />
+            {/* PASTIKAN WARNA TOMBOL INI DIATUR DI CSS (.mobile-menu-btn) */}
+            <Menu size={28} className="current-color" />
           </button>
         </div>
 
@@ -266,15 +262,10 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
         <BannerSlider />
       </motion.div>
 
-      {/* ====================================
-          BOX TRENDING
-      ==================================== */}
+      {/* BOX TRENDING */}
       <div className="w-full py-6 relative z-10 -mt-10 mb-4 px-4">
         <div className="container mx-auto max-w-5xl">
-          
-          {/* PERUBAHAN DI SINI: Saya menambahkan class 'trending-box' dan menghapus bg-white/dark:bg... */}
           <div className="trending-box rounded-xl p-4 flex items-center shadow-lg relative overflow-hidden transition-colors duration-300 h-16">
-            
             <div className="text-[#1A73E8] font-bold text-sm md:text-base mr-4 shrink-0 flex items-center">
               <Zap size={18} className="mr-2 fill-current" />
               Trending:
@@ -291,7 +282,6 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
                   animate={{ y: 0, opacity: 1 }}
                   exit={{ y: -30, opacity: 0 }}
                   transition={{ duration: 0.5, ease: "easeInOut" }}
-                  // PERUBAHAN DI SINI: Menambahkan class 'trending-text'
                   className="trending-text absolute truncate w-full text-xs md:text-sm font-medium block leading-normal transition-colors"
                 >
                   {currentNews.title}
@@ -300,29 +290,14 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
             </div>
 
             <div className="flex flex-col gap-1 ml-4 shrink-0 justify-center">
-               <button 
-                 onClick={handlePrevNews} 
-                 className="trending-arrow transition-colors p-0.5"
-                 title="Berita Sebelumnya"
-               >
-                 <ChevronUp size={16} />
-               </button>
-               <button 
-                 onClick={handleNextNews} 
-                 className="trending-arrow transition-colors p-0.5"
-                 title="Berita Selanjutnya"
-               >
-                 <ChevronDown size={16} />
-               </button>
+               <button onClick={handlePrevNews} className="trending-arrow transition-colors p-0.5"><ChevronUp size={16} /></button>
+               <button onClick={handleNextNews} className="trending-arrow transition-colors p-0.5"><ChevronDown size={16} /></button>
             </div>
-
           </div>
         </div>
       </div>
 
-      {/* ===========================
-          HERO SECTION
-      =========================== */}
+      {/* HERO SECTION */}
       <section className="landing-hero relative z-0">
         <motion.div 
           className="hero-box-container"
@@ -332,15 +307,11 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
             <img src="/vektor.png" alt="illustration" className="hero-img" />
           </motion.div>
           
-          <motion.div 
-            className="hero-right-text flex flex-col items-center sm:items-start text-center sm:text-left" 
-            variants={fadeInUp}
-          >
+          <motion.div className="hero-right-text flex flex-col items-center sm:items-start text-center sm:text-left" variants={fadeInUp}>
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-green-100 text-green-800 border border-green-300 dark:bg-green-900 dark:text-green-100 dark:border-green-700 text-sm font-bold mb-4">
               <Smartphone size={16} />
               <span>Tersedia Aplikasi Android</span>
             </div>
-
             <h3 className="hero-subtitle">DPPPA KOTA BANJARMASIN</h3>
             <h2 className="hero-title">Portal <span>DP3A</span></h2>
             <p className="hero-desc">Layanan Pengaduan Perempuan & Anak Kota Banjarmasin. Bersama kita lindungi perempuan dan anak dari kekerasan.</p>
@@ -349,40 +320,29 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
               <motion.button 
                 className="flex items-center justify-center px-8 py-3 rounded-full font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-lg transition-all w-full sm:w-auto min-w-[200px]"
                 onClick={handleLogin} 
-                whileHover={{ scale: 1.05 }} 
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
               >
                 Login / Register
               </motion.button>
-
               <motion.a 
                 href="https://drive.google.com/file/d/1pt5h3CA_VBF-TZazCutiNt4MqSS-UPl2/view?usp=drivesdk"
-                target="_blank"
-                rel="noopener noreferrer"
+                target="_blank" rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 px-8 py-3 rounded-full font-bold bg-green-600 hover:bg-green-700 text-white shadow-lg transition-all w-full sm:w-auto min-w-[200px]"
-                whileHover={{ scale: 1.05 }} 
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
                 style={{ textDecoration: 'none' }}
               >
                 <Download size={20} />
                 Download APK
               </motion.a>
             </div>
-            
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-4 italic w-full text-center sm:text-left">
-              *Klik "Download APK" untuk mengunduh & instal manual.
-            </p>
-
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-4 italic w-full text-center sm:text-left">*Klik "Download APK" untuk mengunduh & instal manual.</p>
           </motion.div>
         </motion.div>
       </section>
 
-      {/* ===========================
-          BERITA TERKINI SECTION
-      =========================== */}
+      {/* BERITA TERKINI */}
       <motion.section 
-        className="news-section relative z-0"
-        id="berita" 
+        className="news-section relative z-0" id="berita" 
         initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.2 }} variants={fadeInUp}
       >
         <div className="profile-container">
@@ -391,57 +351,29 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
             <div className="title-underline mx-auto"></div>
             <p className="text-slate-500 mt-2 text-sm dark:text-slate-400">Informasi terbaru seputar kegiatan dan layanan DPPPA</p>
           </div>
-
           <div className="news-grid">
-            {/* HANYA TAMPILKAN SEJUMLAH visibleNewsCount */}
             {fullNewsData.slice(0, visibleNewsCount).map((item) => (
               <motion.div 
-                key={item.id} 
-                className="news-card group"
-                whileHover={{ y: -5 }}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3 }}
+                key={item.id} className="news-card group"
+                whileHover={{ y: -5 }} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }}
               >
                 <div className="news-image-wrapper">
-                  <img 
-                    src={item.image} 
-                    alt={item.title} 
-                    className="news-image" 
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                      objectPosition: "top"
-                    }}
-                  />
-                  <div className="news-overlay">
-                    <a href={item.link} target="_blank" rel="noreferrer" className="read-more-btn">Baca Berita</a>
-                  </div>
+                  <img src={item.image} alt={item.title} className="news-image" />
+                  <div className="news-overlay"><a href={item.link} target="_blank" rel="noreferrer" className="read-more-btn">Baca Berita</a></div>
                 </div>
                 <div className="news-content">
-                  <div className="news-date">
-                    <Calendar size={14} className="mr-1" />
-                    {item.date}
-                  </div>
-                  <h3 className="news-title">
-                    <a href={item.link} target="_blank" rel="noreferrer">{item.title}</a>
-                  </h3>
+                  <div className="news-date"><Calendar size={14} className="mr-1" />{item.date}</div>
+                  <h3 className="news-title"><a href={item.link} target="_blank" rel="noreferrer">{item.title}</a></h3>
                   <p className="news-desc">{item.desc}</p>
-                  <a href={item.link} target="_blank" rel="noreferrer" className="news-link">
-                    Selengkapnya <ArrowRight size={14} className="ml-1" />
-                  </a>
+                  <a href={item.link} target="_blank" rel="noreferrer" className="news-link">Selengkapnya <ArrowRight size={14} className="ml-1" /></a>
                 </div>
               </motion.div>
             ))}
           </div>
-
-          {/* TOMBOL LOAD MORE */}
           {visibleNewsCount < fullNewsData.length && (
             <div className="text-center mt-10">
               <button 
-                onClick={handleLoadMore} 
-                disabled={isLoadingMore}
+                onClick={handleLoadMore} disabled={isLoadingMore}
                 className="px-6 py-2.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-full font-semibold hover:bg-slate-300 dark:hover:bg-slate-600 transition-all flex items-center justify-center mx-auto"
               >
                 {isLoadingMore ? <Loader2 className="animate-spin mr-2" size={18} /> : null}
@@ -449,11 +381,10 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
               </button>
             </div>
           )}
-
         </div>
       </motion.section>
 
-      {/* PROFIL & SIDEBAR SECTION */}
+      {/* PROFIL & SIDEBAR */}
       <motion.section 
         className="profile-section relative z-0" id="profil"
         initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.2 }} transition={{ duration: 0.8 }} variants={fadeInUp}
@@ -474,7 +405,6 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
                 Kami berkomitmen mewujudkan kesetaraan gender, perlindungan hak perempuan, serta pemenuhan hak anak demi terciptanya masyarakat kota yang inklusif, aman, dan sejahtera.
               </p>
             </div>
-
             <div className="profile-sidebar">
               <div className="sidebar-widget">
                 <h3 className="widget-title flex items-start">
