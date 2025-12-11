@@ -5,7 +5,6 @@
   /* LIGHT MODE (DEFAULT) */
   --bg-main: #f8fafc;        /* Latar belakang utama */
   --bg-card: #ffffff;        /* Warna kartu/kotak */
-  --bg-sidebar: #ffffff;     /* (Tidak dipakai di sidebar mobile karena logic terbalik) */
   --text-main: #1e293b;      /* Slate-800 */
   --text-secondary: #64748b; /* Slate-500 */
   --text-muted: #94a3b8;
@@ -21,7 +20,6 @@
 body.dark-mode {
   --bg-main: #0f172a;        /* Slate-900 */
   --bg-card: #1e293b;        /* Slate-800 */
-  --bg-sidebar: #1e293b;
   --text-main: #f1f5f9;      /* Slate-100 */
   --text-secondary: #cbd5e1; /* Slate-300 */
   --text-muted: #94a3b8;
@@ -123,7 +121,7 @@ body.dark-mode .mobile-menu-btn {
 .theme-toggle-btn:hover { background: var(--bg-card); transform: scale(1.05); }
 
 /* =======================================
-   3. SIDEBAR MOBILE (LOGIK KONTRAS TERBALIK)
+   3. SIDEBAR MOBILE (LOGIK WARNA DIPERBAIKI)
    ======================================= */
 .sidebar-overlay {
   position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); z-index: 1001;
@@ -131,25 +129,25 @@ body.dark-mode .mobile-menu-btn {
 }
 .sidebar-overlay.active { opacity: 1; visibility: visible; }
 
-/* --- BASE STYLE: DEFAULT (UNTUK LIGHT MODE) -> SIDEBAR GELAP --- */
+/* --- BASE STYLE: DEFAULT (MODE TERANG -> SIDEBAR PUTIH) --- */
 .mobile-sidebar {
   position: fixed; top: 0; right: 0; width: 280px; height: 100vh;
   
-  /* Default: Hitam (Slate-900) saat web terang */
-  background-color: #0f172a !important; 
+  /* Default: Putih */
+  background-color: #ffffff !important; 
   
   z-index: 1002;
-  box-shadow: -10px 0 30px rgba(0,0,0,0.4);
-  border-left: 1px solid #334155;
+  box-shadow: -10px 0 30px rgba(0,0,0,0.1);
+  border-left: 1px solid #e2e8f0;
   transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex; flex-direction: column;
 }
 
-/* --- OVERRIDE: KHUSUS DARK MODE -> SIDEBAR PUTIH --- */
+/* --- OVERRIDE: KHUSUS DARK MODE -> SIDEBAR GELAP --- */
 body.dark-mode .mobile-sidebar {
-  background-color: #ffffff !important; /* Jadi Putih */
-  border-left: 1px solid #e2e8f0;       /* Border jadi abu terang */
-  box-shadow: -10px 0 30px rgba(255,255,255,0.1); 
+  background-color: #0f172a !important; /* Jadi Gelap */
+  border-left: 1px solid #334155;       /* Border jadi gelap */
+  box-shadow: -10px 0 30px rgba(0,0,0,0.4); 
 }
 
 .mobile-sidebar.active { transform: translateX(0); }
@@ -157,59 +155,63 @@ body.dark-mode .mobile-sidebar {
 /* --- HEADER SIDEBAR --- */
 .sidebar-header {
   padding: 20px; 
-  border-bottom: 1px solid #334155; /* Default border gelap */
+  border-bottom: 1px solid #e2e8f0; /* Default border terang */
   display: flex; justify-content: space-between; align-items: center;
 }
-body.dark-mode .sidebar-header { border-bottom: 1px solid #f1f5f9; }
+body.dark-mode .sidebar-header { border-bottom: 1px solid #334155; /* Border gelap di dark mode */ }
 
 /* --- TEXT JUDUL --- */
 .sidebar-title { 
   font-weight: 700; font-size: 16px; 
-  color: #ffffff !important; /* Default Putih */
+  color: #1e293b !important; /* Default Hitam */
   margin: 0; 
 }
-body.dark-mode .sidebar-title { color: #1e293b !important; }
+body.dark-mode .sidebar-title { color: #ffffff !important; /* Putih di dark mode */ }
 
 /* --- TOMBOL CLOSE (X) --- */
 .close-btn { 
   background: none; border: none; cursor: pointer; 
-  color: #ffffff !important; /* Default Putih agar terlihat di BG gelap */
+  color: #64748b !important; /* Default Abu Gelap */
 }
-body.dark-mode .close-btn { color: #1e293b !important; /* Jadi gelap di BG putih */ }
+body.dark-mode .close-btn { color: #94a3b8 !important; /* Abu Terang di dark mode */ }
 
-/* --- LIST MENU --- */
+/* --- LIST MENU (BAGIAN PENTING YANG DIUBAH) --- */
 .sidebar-list { list-style: none; padding: 0; margin: 0; flex: 1; overflow-y: auto; }
 
+/* MODE TERANG (Sidebar Putih) -> Teks Hitam */
 .sidebar-list li {
   padding: 16px 20px; 
-  border-bottom: 1px solid #1e293b; /* Separator gelap */
+  border-bottom: 1px solid #e2e8f0; /* Separator terang */
   display: flex; justify-content: space-between; align-items: center;
   
-  /* UPDATE: Warna teks jadi PUTIH MURNI agar kontras di BG gelap */
-  color: #ffffff !important; 
+  /* UPDATE: Warna teks jadi GELAP agar kontras di BG putih */
+  color: #1e293b !important; 
   font-weight: 500; font-size: 14px; cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-/* Override List di Dark Mode (Sidebar Putih) */
+/* MODE GELAP (Sidebar Gelap) -> Teks Putih */
 body.dark-mode .sidebar-list li {
-  border-bottom: 1px solid #f1f5f9; 
-  /* UPDATE: Warna teks jadi GELAP agar kontras di BG putih */
-  color: #1e293b !important;        
+  border-bottom: 1px solid #334155; /* Separator gelap */
+  /* UPDATE: Warna teks jadi PUTIH MURNI agar kontras di BG gelap */
+  color: #ffffff !important;        
 }
 
 /* --- HOVER EFFECT --- */
+/* Hover di Mode Terang */
 .sidebar-list li:hover { 
-  background-color: #1e293b !important; /* Hover gelap */
-  color: #38bdf8 !important;            /* Teks biru terang */
-}
-body.dark-mode .sidebar-list li:hover {
-  background-color: #f8fafc !important; /* Hover terang */
+  background-color: #f8fafc !important; /* Hover abu sangat terang */
   color: #00AEEF !important;            /* Teks biru normal */
+}
+/* Hover di Mode Gelap */
+body.dark-mode .sidebar-list li:hover {
+  background-color: #1e293b !important; /* Hover agak gelap */
+  color: #38bdf8 !important;            /* Teks biru terang */
 }
 
 /* --- FOOTER & BUTTON --- */
-.sidebar-btn-container { padding: 20px; border-top: 1px solid #334155; }
-body.dark-mode .sidebar-btn-container { border-top: 1px solid #f1f5f9; }
+.sidebar-btn-container { padding: 20px; border-top: 1px solid #e2e8f0; }
+body.dark-mode .sidebar-btn-container { border-top: 1px solid #334155; }
 
 .sidebar-login-btn {
   width: 100%; padding: 12px; background-color: var(--primary-color); color: white;
@@ -218,10 +220,10 @@ body.dark-mode .sidebar-btn-container { border-top: 1px solid #f1f5f9; }
 
 .sidebar-footer { 
   padding: 20px; text-align: center; 
-  color: #94a3b8; font-size: 11px; /* Warna default agak terang */
+  color: #64748b; font-size: 11px; /* Warna default agak gelap */
 }
 body.dark-mode .sidebar-footer {
-    color: #64748b; /* Warna dark mode agak gelap */
+    color: #94a3b8; /* Warna dark mode agak terang */
 }
 
 /* =======================================
@@ -393,12 +395,13 @@ body.dark-mode .sidebar-footer {
   .nav-divider { display: none; }
   
   /* Hero */
-  .landing-hero { padding: 20px 5%; height: auto; min-height: auto; }
+  .landing-hero { padding: 0 5% 20px; height: auto; min-height: auto; } /* Hapus padding atas */
   .hero-box-container {
     flex-direction: column; 
     text-align: center;
     padding: 2rem 1.5rem;
     gap: 2rem;
+    margin-top: 10px; /* Tambahkan sedikit margin atas agar tidak nempel banget */
   }
   
   .hero-right-text { align-items: center; }
@@ -454,4 +457,10 @@ body.dark-mode .sidebar-footer {
     font-size: 13px; font-weight: 800;
   }
   .trending-text { font-size: 12px !important; }
+
+  /* Fix: Geser subtitle slider ke atas agar tidak tertutup box trending */
+  /* Asumsi class subtitle di BannerSlider adalah .banner-subtitle */
+  .banner-subtitle {
+    transform: translateY(-30px); /* Sesuaikan nilai ini jika perlu */
+  }
 }

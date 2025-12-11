@@ -38,7 +38,8 @@ const banners = [
 
 export default function BannerSlider() {
   return (
-    <div className="w-full max-w-[1400px] mx-auto mt-0 md:mt-2 px-0 md:px-4">
+    // PERBAIKAN 1: !mt-0 untuk memaksa margin atas hilang di mobile agar dempet ke header
+    <div className="w-full max-w-[1400px] mx-auto !mt-0 md:mt-2 px-0 md:px-4">
       <Swiper
         spaceBetween={0}
         slidesPerView={1}
@@ -66,10 +67,9 @@ export default function BannerSlider() {
             <SwiperSlide key={banner.id} className="bg-white">
               <Tag 
                 {...props}
-                // === PERBAIKAN DISINI ===
-                // Mobile: h-[150px] (Sebelumnya 200px) -> Agar lebih pendek/tipis di HP
-                // Desktop: md:h-[400px] -> Tetap besar di laptop
-                className={`block relative w-full h-[150px] md:h-[400px] flex items-center justify-center overflow-hidden ${isLink ? 'cursor-pointer' : 'cursor-default'}`}
+                // Mobile: h-[180px] agar tidak terlalu tipis, sesuaikan jika ingin 150px
+                // Desktop: md:h-[400px]
+                className={`block relative w-full h-[180px] md:h-[400px] flex items-center justify-center overflow-hidden ${isLink ? 'cursor-pointer' : 'cursor-default'}`}
               >
                 {/* Background Blur */}
                 <div 
@@ -90,11 +90,14 @@ export default function BannerSlider() {
                 
                 {/* Overlay Text */}
                 <div className="absolute inset-x-0 bottom-0 z-20 flex flex-col justify-end">
-                  {/* Padding dikurangi di HP (p-3) agar teks tidak makan tempat */}
-                  <div className="bg-gradient-to-t from-slate-900/90 via-slate-900/50 to-transparent p-3 md:p-8 pt-8 md:pt-16">
+                  {/* PERBAIKAN 2: pb-16 (padding-bottom: 4rem) pada mobile.
+                     Ini akan mengangkat teks ke atas sehingga tidak tertutup oleh Box Trending (-mt-10).
+                     Di desktop (md), padding dikembalikan normal (md:pb-8).
+                  */}
+                  <div className="bg-gradient-to-t from-slate-900/90 via-slate-900/50 to-transparent p-3 pb-16 md:pb-8 md:p-8 pt-8 md:pt-16">
                     
                     <div className="max-w-4xl mx-auto text-left">
-                      {/* Judul Utama (Ukuran font HP diperkecil sedikit: text-xs) */}
+                      {/* Judul Utama */}
                       <h3 className="text-white text-xs md:text-3xl font-bold mb-0.5 md:mb-2 drop-shadow-lg tracking-tight line-clamp-1 md:line-clamp-none">
                         {banner.title}
                       </h3>
@@ -143,7 +146,7 @@ export default function BannerSlider() {
             font-weight: bold;
           }
           .swiper-pagination-bullet {
-            width: 16px; /* Bullet lebih kecil di HP agar rapi */
+            width: 16px; 
             height: 3px;
             background: rgba(255,255,255,0.5);
             border-radius: 2px;
@@ -162,6 +165,10 @@ export default function BannerSlider() {
           @media (max-width: 768px) {
             .swiper-button-next, .swiper-button-prev {
               display: none !important;
+            }
+            /* Geser pagination sedikit ke atas agar tidak tertutup trending box juga */
+            .swiper-pagination {
+              bottom: 45px !important; 
             }
           }
         `}</style>

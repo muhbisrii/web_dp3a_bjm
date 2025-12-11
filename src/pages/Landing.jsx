@@ -248,7 +248,6 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
             <h3 className="sidebar-title">Menu Utama</h3>
             <button onClick={() => setSidebarOpen(false)} className="close-btn"><X size={24} /></button>
           </div>
-          {/* UPDATE: Menghapus class 'text-slate-400' dari ChevronRight agar warnanya mengikuti CSS induknya */}
           <ul className="sidebar-list">
             <li onClick={handleAbout}><span>Tentang Aplikasi</span><ChevronRight size={16} /></li>
             <li onClick={handleStats}><span>Statistik Layanan</span><ChevronRight size={16} /></li>
