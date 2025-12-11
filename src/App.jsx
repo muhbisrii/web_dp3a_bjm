@@ -10,8 +10,11 @@ import Register from './pages/Register';
 import AdminDashboard from './pages/AdminDashboard';
 import UserHome from './pages/UserHome';
 import Landing from './pages/Landing';
-import Help from './pages/Help';   // <-- Import Baru
-import About from './pages/About'; // <-- Import Baru
+import Help from './pages/Help';
+import About from './pages/About';
+
+// Components
+import Statistik from './components/Statistik'; // <-- Import Baru (Lokasi di folder components)
 
 function App() {
   const [user, setUser] = useState(null);
@@ -20,7 +23,7 @@ function App() {
   const [isRegistering, setIsRegistering] = useState(false);
 
   // STATE BARU: Mengatur tampilan halaman publik
-  // Nilai: 'landing' | 'help' | 'about' | 'auth' (masuk ke login/register)
+  // Nilai: 'landing' | 'help' | 'about' | 'stats' | 'auth'
   const [publicView, setPublicView] = useState('landing');
 
   useEffect(() => {
@@ -56,20 +59,29 @@ function App() {
   // =============== LOGIKA HALAMAN PUBLIK (Sebelum Login) ===============
   // Jika user belum login DAN publicView bukan 'auth', tampilkan halaman info
   if (!user && publicView !== 'auth') {
+    
+    // 1. Tampilkan Halaman Bantuan
     if (publicView === 'help') {
       return <Help onBack={() => setPublicView('landing')} />;
     }
     
+    // 2. Tampilkan Halaman Tentang
     if (publicView === 'about') {
       return <About onBack={() => setPublicView('landing')} />;
     }
 
-    // Default: Tampilkan Landing Page
+    // 3. Tampilkan Halaman Statistik (NEW)
+    if (publicView === 'stats') {
+      return <Statistik onBack={() => setPublicView('landing')} />;
+    }
+
+    // 4. Default: Tampilkan Landing Page
     return (
       <Landing
         onStart={() => setPublicView('auth')}  // Menuju Login/Register
         onHelp={() => setPublicView('help')}   // Menuju Halaman Bantuan
         onAbout={() => setPublicView('about')} // Menuju Halaman Tentang
+        onStats={() => setPublicView('stats')} // Menuju Halaman Statistik (BARU)
       />
     );
   }

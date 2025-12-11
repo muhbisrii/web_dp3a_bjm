@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { 
   Menu, X, ChevronRight, MapPin, Phone, Mail, Clock, 
-  Instagram, Youtube, Facebook, Hash, PlayCircle, Loader2,
+  Instagram, Youtube, Facebook, Hash, PlayCircle, 
   Sun, Moon, Calendar, ArrowRight,
-  Download, Smartphone 
+  Download, Smartphone
 } from "lucide-react"; 
 import { motion } from "framer-motion"; 
 import BannerSlider from "../components/BannerSlider"; 
 import "./Landing.css";
 
-export default function Landing({ onStart, onAbout, onHelp }) {
+export default function Landing({ onStart, onAbout, onHelp, onStats }) {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   
   // --- LOGIKA DARK MODE ---
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -56,18 +55,11 @@ export default function Landing({ onStart, onAbout, onHelp }) {
     }
   };
 
-  const handleNavWithDelay = (action) => {
-    setSidebarOpen(false);
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      if (action) action();
-    }, 1200);
-  };
-
-  const handleAbout = () => handleNavWithDelay(onAbout);
-  const handleHelp = () => handleNavWithDelay(onHelp);
-  const handleLogin = () => handleNavWithDelay(onStart);
+  // --- HANDLER NAVIGASI LANGSUNG (TANPA LOADING) ---
+  const handleAbout = () => { setSidebarOpen(false); onAbout(); };
+  const handleHelp = () => { setSidebarOpen(false); onHelp(); };
+  const handleLogin = () => { setSidebarOpen(false); onStart(); };
+  const handleStats = () => { setSidebarOpen(false); onStats(); };
 
   // --- DATA BERITA ---
   const newsData = [
@@ -118,44 +110,80 @@ export default function Landing({ onStart, onAbout, onHelp }) {
   return (
     <div className="landing-container overflow-hidden">
       
-      {isLoading && (
-        <div className="loading-overlay-screen">
-          <div className="loading-content">
-            <Loader2 size={48} className="animate-spin text-white mb-4" />
-            <p className="text-white font-semibold text-lg">Memuat Halaman...</p>
-            <p className="text-white/70 text-sm">Mohon Tunggu Sebentar</p>
-          </div>
-        </div>
-      )}
-
       {/* NAVBAR */}
       <motion.nav 
         className="landing-navbar"
         initial="hidden" animate="visible" variants={fadeInDown}
       >
-        <div className="nav-left">
-          <img src="/pemkot.png" alt="logo" className="logo" />
-          <div className="nav-divider"></div>
-          <div className="nav-text">
-            <h1 className="portal-title">Portal DP3A</h1>
-            <p className="portal-subtitle">Layanan Pengaduan Masyarakat</p>
+        <div className="nav-left flex items-center">
+          <img src="/pemkot.png" alt="logo" className="logo w-10 h-10 sm:w-12 sm:h-12 mr-3" />
+          
+          <div className="nav-divider h-8 w-[1px] bg-gray-300 mx-2 hidden sm:block"></div> 
+
+          <div className="nav-text flex flex-col justify-center">
+            {/* Judul: Ukuran disesuaikan */}
+            <h1 
+              className="text-sm font-bold sm:text-lg text-slate-800 dark:text-white leading-tight !block"
+              style={{ display: 'block', opacity: 1, visibility: 'visible' }}
+            >
+              Portal DP3A
+            </h1>
+            
+            {/* Subtitle: Ukuran disesuaikan */}
+            <p 
+              className="text-[10px] sm:text-xs font-medium text-slate-600 dark:text-slate-300 leading-tight mt-0.5 !block"
+              style={{ display: 'block', opacity: 1, visibility: 'visible' }}
+            >
+              Layanan Pengaduan Masyarakat
+            </p>
           </div>
         </div>
 
-        <div className="nav-right desktop-menu">
-          <ul className="nav-links">
-            <li className="nav-item" onClick={handleAbout}>Tentang Aplikasi</li>
-            <li className="nav-item" onClick={() => scrollToSection('berita')}>Berita</li>
-            <li className="nav-item" onClick={() => scrollToSection('profil')}>Profil Dinas</li>
-            <li className="nav-item" onClick={() => scrollToSection('kontak')}>Kontak</li>
-            <li className="nav-item" onClick={handleHelp}>Bantuan</li>
+        {/* MENU DESKTOP */}
+        <div className="nav-right desktop-menu flex items-center">
+          
+          {/* Menu Link Text: Ukuran KECIL (13px), Font Normal/Medium, Warna Slate-700 */}
+          {/* Gap dikurangi menjadi 4 (16px) agar hemat ruang */}
+          <ul className="nav-links flex gap-4 text-[13px] font-medium mr-5 items-center text-slate-700 dark:text-slate-200">
+            
+            <li className="nav-item cursor-pointer hover:text-blue-600 transition-colors" onClick={handleAbout}>
+              Tentang Aplikasi
+            </li>
+            
+            <li className="nav-item cursor-pointer hover:text-blue-600 transition-colors" onClick={handleStats}>
+              Statistik Layanan
+            </li>
+
+            <li className="nav-item cursor-pointer hover:text-blue-600 transition-colors" onClick={() => scrollToSection('berita')}>
+              Berita
+            </li>
+            <li className="nav-item cursor-pointer hover:text-blue-600 transition-colors" onClick={() => scrollToSection('profil')}>
+              Profil Dinas
+            </li>
+            <li className="nav-item cursor-pointer hover:text-blue-600 transition-colors" onClick={() => scrollToSection('kontak')}>
+              Kontak
+            </li>
+            <li className="nav-item cursor-pointer hover:text-blue-600 transition-colors" onClick={handleHelp}>
+              Bantuan
+            </li>
           </ul>
-          <button onClick={toggleTheme} className="theme-toggle-btn desktop-theme-btn" title={isDarkMode ? "Mode Terang" : "Mode Gelap"}>
-            {isDarkMode ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} />}
-          </button>
-          <button className="hero-btn navbar-btn" onClick={handleLogin}>Login / Register</button>
+          
+          <div className="flex items-center gap-3">
+            <button onClick={toggleTheme} className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors" title={isDarkMode ? "Mode Terang" : "Mode Gelap"}>
+              {isDarkMode ? <Sun size={18} className="text-yellow-400" /> : <Moon size={18} />}
+            </button>
+            
+            {/* Tombol Login: KOTAK (rounded-md/lg), Ukuran Font Kecil (13px) */}
+            <button 
+              className="px-4 py-2 bg-[#00AEEF] hover:bg-sky-600 text-white text-[13px] font-semibold rounded-lg shadow-sm transition-all" 
+              onClick={handleLogin}
+            >
+              Login / Register
+            </button>
+          </div>
         </div>
 
+        {/* MOBILE MENU TOGGLE */}
         <div className="flex items-center gap-3 md:hidden">
           <button onClick={toggleTheme} className="theme-toggle-btn mobile-theme-btn">
             {isDarkMode ? <Sun size={22} className="text-yellow-400" /> : <Moon size={22} />}
@@ -167,6 +195,7 @@ export default function Landing({ onStart, onAbout, onHelp }) {
 
         <div className={`sidebar-overlay ${isSidebarOpen ? 'active' : ''}`} onClick={() => setSidebarOpen(false)}></div>
 
+        {/* SIDEBAR MOBILE */}
         <div className={`mobile-sidebar ${isSidebarOpen ? 'active' : ''}`}>
           <div className="sidebar-header">
             <h3 className="sidebar-title">Menu Utama</h3>
@@ -174,9 +203,10 @@ export default function Landing({ onStart, onAbout, onHelp }) {
           </div>
           <ul className="sidebar-list">
             <li onClick={handleAbout}><span>Tentang Aplikasi</span><ChevronRight size={16} className="text-slate-400"/></li>
-            <li onClick={() => scrollToSection('berita')}><span>Berita</span><ChevronRight size={16} className="text-slate-400"/></li>
-            <li onClick={() => scrollToSection('profil')}><span>Profil Dinas</span><ChevronRight size={16} className="text-slate-400"/></li>
-            <li onClick={() => scrollToSection('kontak')}><span>Kontak</span><ChevronRight size={16} className="text-slate-400"/></li>
+            <li onClick={handleStats}><span>Statistik Layanan</span><ChevronRight size={16} className="text-slate-400"/></li>
+            <li onClick={() => { scrollToSection('berita'); setSidebarOpen(false); }}><span>Berita</span><ChevronRight size={16} className="text-slate-400"/></li>
+            <li onClick={() => { scrollToSection('profil'); setSidebarOpen(false); }}><span>Profil Dinas</span><ChevronRight size={16} className="text-slate-400"/></li>
+            <li onClick={() => { scrollToSection('kontak'); setSidebarOpen(false); }}><span>Kontak</span><ChevronRight size={16} className="text-slate-400"/></li>
             <li onClick={handleHelp}><span>Bantuan</span><ChevronRight size={16} className="text-slate-400"/></li>
             <li className="sidebar-btn-container"><button className="sidebar-login-btn" onClick={handleLogin}>Login / Register</button></li>
           </ul>
@@ -190,7 +220,7 @@ export default function Landing({ onStart, onAbout, onHelp }) {
       </motion.div>
 
       {/* ===========================
-          HERO SECTION (UPDATED FOR MOBILE)
+          HERO SECTION
       =========================== */}
       <section className="landing-hero">
         <motion.div 
@@ -201,12 +231,11 @@ export default function Landing({ onStart, onAbout, onHelp }) {
             <img src="/vektor.png" alt="illustration" className="hero-img" />
           </motion.div>
           
-          {/* Perubahan di sini: Menggunakan flex-col items-center untuk Mobile agar rata tengah */}
           <motion.div 
             className="hero-right-text flex flex-col items-center sm:items-start text-center sm:text-left" 
             variants={fadeInUp}
           >
-            {/* BADGE APLIKASI - Warna diperbaiki agar solid & jelas */}
+            {/* BADGE APLIKASI */}
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-green-100 text-green-800 border border-green-300 dark:bg-green-900 dark:text-green-100 dark:border-green-700 text-sm font-bold mb-4">
               <Smartphone size={16} />
               <span>Tersedia Aplikasi Android</span>
@@ -216,10 +245,10 @@ export default function Landing({ onStart, onAbout, onHelp }) {
             <h2 className="hero-title">Portal <span>DP3A</span></h2>
             <p className="hero-desc">Layanan Pengaduan Perempuan & Anak Kota Banjarmasin. Bersama kita lindungi perempuan dan anak dari kekerasan.</p>
             
-            {/* GROUP TOMBOL: Center di Mobile, Kiri di Desktop */}
+            {/* GROUP TOMBOL */}
             <div className="flex flex-col sm:flex-row gap-4 mt-6 w-full sm:w-auto items-center sm:items-start justify-center sm:justify-start">
               
-              {/* Tombol Login - Style disamakan (Pill Shape) agar rapi */}
+              {/* Tombol Login */}
               <motion.button 
                 className="flex items-center justify-center px-8 py-3 rounded-full font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-lg transition-all w-full sm:w-auto min-w-[200px]"
                 onClick={handleLogin} 
