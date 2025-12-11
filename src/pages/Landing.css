@@ -67,7 +67,6 @@ body.dark-mode {
   transition: all 0.3s ease;
 }
 
-/* UPDATE: Gap dikurangi jadi 10px agar logo lebih dekat ke tulisan */
 .nav-left { display: flex; align-items: center; gap: 10px; }
 .logo { width: 45px; height: auto; }
 .nav-divider { width: 1px; height: 35px; background-color: var(--border-color); }
@@ -89,7 +88,7 @@ body.dark-mode {
 }
 .nav-item:hover { color: var(--primary-color); }
 
-/* UPDATE: Tombol Mobile (Hamburger) */
+/* Tombol Mobile (Hamburger) */
 .mobile-menu-btn {
   display: none;
   background: none;
@@ -100,7 +99,6 @@ body.dark-mode {
   transition: all 0.2s;
 }
 
-/* UPDATE: Pastikan SVG mengikuti warna tombol */
 .mobile-menu-btn svg {
   stroke: currentColor;
 }
@@ -175,9 +173,9 @@ body.dark-mode .sidebar-title { color: #1e293b !important; }
 /* --- TOMBOL CLOSE (X) --- */
 .close-btn { 
   background: none; border: none; cursor: pointer; 
-  color: #94a3b8 !important; 
+  color: #ffffff !important; /* Default Putih agar terlihat di BG gelap */
 }
-body.dark-mode .close-btn { color: #64748b !important; }
+body.dark-mode .close-btn { color: #1e293b !important; /* Jadi gelap di BG putih */ }
 
 /* --- LIST MENU --- */
 .sidebar-list { list-style: none; padding: 0; margin: 0; flex: 1; overflow-y: auto; }
@@ -186,14 +184,17 @@ body.dark-mode .close-btn { color: #64748b !important; }
   padding: 16px 20px; 
   border-bottom: 1px solid #1e293b; /* Separator gelap */
   display: flex; justify-content: space-between; align-items: center;
-  color: #cbd5e1 !important; /* Teks default terang */
+  
+  /* UPDATE: Warna teks jadi PUTIH MURNI agar kontras di BG gelap */
+  color: #ffffff !important; 
   font-weight: 500; font-size: 14px; cursor: pointer;
 }
 
 /* Override List di Dark Mode (Sidebar Putih) */
 body.dark-mode .sidebar-list li {
   border-bottom: 1px solid #f1f5f9; 
-  color: #475569 !important;        
+  /* UPDATE: Warna teks jadi GELAP agar kontras di BG putih */
+  color: #1e293b !important;        
 }
 
 /* --- HOVER EFFECT --- */
@@ -217,7 +218,10 @@ body.dark-mode .sidebar-btn-container { border-top: 1px solid #f1f5f9; }
 
 .sidebar-footer { 
   padding: 20px; text-align: center; 
-  color: #64748b; font-size: 11px; 
+  color: #94a3b8; font-size: 11px; /* Warna default agak terang */
+}
+body.dark-mode .sidebar-footer {
+    color: #64748b; /* Warna dark mode agak gelap */
 }
 
 /* =======================================

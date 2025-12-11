@@ -186,7 +186,6 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
         initial="hidden" animate="visible" variants={fadeInDown}
       >
         <div className="nav-left flex items-center">
-          {/* UPDATE: Hapus 'mr-3' agar jarak diatur oleh gap CSS */}
           <img src="/pemkot.png" alt="logo" className="logo w-10 h-10 sm:w-12 sm:h-12" />
           
           <div className="nav-divider h-8 w-[1px] bg-slate-200 dark:bg-slate-700 mx-2 hidden sm:block"></div> 
@@ -236,8 +235,6 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
           <button onClick={toggleTheme} className="theme-toggle-btn mobile-theme-btn">
             {isDarkMode ? <Sun size={22} className="text-yellow-400" /> : <Moon size={22} className="text-slate-600" />}
           </button>
-          
-          {/* UPDATE: Menghapus class warna Tailwind dari sini agar dikontrol penuh oleh CSS */}
           <button className="mobile-menu-btn" onClick={() => setSidebarOpen(true)}>
             <Menu size={28} />
           </button>
@@ -251,13 +248,14 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
             <h3 className="sidebar-title">Menu Utama</h3>
             <button onClick={() => setSidebarOpen(false)} className="close-btn"><X size={24} /></button>
           </div>
+          {/* UPDATE: Menghapus class 'text-slate-400' dari ChevronRight agar warnanya mengikuti CSS induknya */}
           <ul className="sidebar-list">
-            <li onClick={handleAbout}><span>Tentang Aplikasi</span><ChevronRight size={16} className="text-slate-400"/></li>
-            <li onClick={handleStats}><span>Statistik Layanan</span><ChevronRight size={16} className="text-slate-400"/></li>
-            <li onClick={() => { scrollToSection('berita'); setSidebarOpen(false); }}><span>Berita</span><ChevronRight size={16} className="text-slate-400"/></li>
-            <li onClick={() => { scrollToSection('profil'); setSidebarOpen(false); }}><span>Profil Dinas</span><ChevronRight size={16} className="text-slate-400"/></li>
-            <li onClick={() => { scrollToSection('kontak'); setSidebarOpen(false); }}><span>Kontak</span><ChevronRight size={16} className="text-slate-400"/></li>
-            <li onClick={handleHelp}><span>Bantuan</span><ChevronRight size={16} className="text-slate-400"/></li>
+            <li onClick={handleAbout}><span>Tentang Aplikasi</span><ChevronRight size={16} /></li>
+            <li onClick={handleStats}><span>Statistik Layanan</span><ChevronRight size={16} /></li>
+            <li onClick={() => { scrollToSection('berita'); setSidebarOpen(false); }}><span>Berita</span><ChevronRight size={16} /></li>
+            <li onClick={() => { scrollToSection('profil'); setSidebarOpen(false); }}><span>Profil Dinas</span><ChevronRight size={16} /></li>
+            <li onClick={() => { scrollToSection('kontak'); setSidebarOpen(false); }}><span>Kontak</span><ChevronRight size={16} /></li>
+            <li onClick={handleHelp}><span>Bantuan</span><ChevronRight size={16} /></li>
             <li className="sidebar-btn-container"><button className="sidebar-login-btn" onClick={handleLogin}>Login / Register</button></li>
           </ul>
           <div className="sidebar-footer"><p>© 2025 DPPPA Banjarmasin</p></div>
