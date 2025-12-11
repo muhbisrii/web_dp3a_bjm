@@ -3,15 +3,21 @@ import {
   Menu, X, ChevronRight, MapPin, Phone, Mail, Clock, 
   Instagram, Youtube, Facebook, Hash, PlayCircle, 
   Sun, Moon, Calendar, ArrowRight,
-  Download, Smartphone
+  Download, Smartphone, Zap,
+  ChevronUp, ChevronDown, Loader2
 } from "lucide-react"; 
-import { motion } from "framer-motion"; 
+import { motion, AnimatePresence } from "framer-motion"; 
 import BannerSlider from "../components/BannerSlider"; 
 import "./Landing.css";
 
 export default function Landing({ onStart, onAbout, onHelp, onStats }) {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const [currentNewsIndex, setCurrentNewsIndex] = useState(0);
   
+  // --- STATE UNTUK LOAD MORE BERITA ---
+  const [visibleNewsCount, setVisibleNewsCount] = useState(3);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+
   // --- LOGIKA DARK MODE ---
   const [isDarkMode, setIsDarkMode] = useState(() => {
     return localStorage.getItem("theme") === "dark";
@@ -29,6 +35,106 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
 
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
+  };
+
+  // --- DATA BERITA (HEADER TRENDING) ---
+  const newsData = [
+    {
+      id: 1,
+      title: "Kampanye 16 Hari Anti Kekerasan Terhadap Perempuan dan Anak",
+      link: "https://dpppa.banjarmasinkota.go.id/2025/12/kampanye-16-hari-anti-kekerasan.html"
+    },
+    {
+      id: 2,
+      title: "Pendampingan Unit Penyedia Layanan Teknis Berkelanjutan",
+      link: "https://dpppa.banjarmasinkota.go.id/2025/11/pendampingan-unit-penyedia-layanan.html"
+    },
+    {
+      id: 3,
+      title: "Penetapan Peraturan Daerah Kota Banjarmasin Terbaru",
+      link: "https://dpppa.banjarmasinkota.go.id/2025/11/penetapan-peraturan-daerah-kota.html"
+    },
+    {
+      id: 4,
+      title: "Bimbingan Teknis Anggaran Responsif Gender (ARG)",
+      link: "https://dpppa.banjarmasinkota.go.id/2025/11/bimbingan-teknis-anggaran-responsif.html"
+    },
+    {
+      id: 5,
+      title: "Manajemen Sumber Daya Keluarga",
+      link: "https://dpppa.banjarmasinkota.go.id/2025/11/manajamen-sumber-daya-keluarga.html"
+    }
+  ];
+
+  // --- DATA BERITA LENGKAP (GRID) ---
+  const fullNewsData = [
+    {
+      id: 1,
+      image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj20v8yoRstj0ilYUFdsD4loc1CtBU1ByrKSpqCoKGPGOofhG6SLycEzaMGyT2Ttf8LZ_5dQXbiXTXX53xU9k106H1v7r6_fEUwl801XLLII4odZBS1heQj2krmxLMi2sN1T8f8RQF-unT72tUQS052sAxFwTlwBsQYK5S_oXjMBwUjFfNLymKq-W_7edo/w640-h480-rw/IMG_1178.HEIC",
+      title: "Kampanye 16 Hari Anti Kekerasan Terhadap Perempuan dan Anak",
+      date: "Desember 02, 2025",
+      desc: "DPPPA Kota Banjarmasin menggelar kampanye serentak sebagai bentuk komitmen mengakhiri kekerasan terhadap perempuan dan anak.",
+      link: "https://dpppa.banjarmasinkota.go.id/2025/12/kampanye-16-hari-anti-kekerasan.html"
+    },
+    {
+      id: 2,
+      image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgTAPaBvpAkHgDWXQgvlNgkcFOvQw40xa44c92AoFz5bNVb5BYApdPMl469VUr9BvyiWmWa1gwvyZoa3oxGYlZzq-9wYlsAxS7NhwJVyRWGhSsuSRn8NDLjIAxWH5F59DhIeqtXykHz1aoFB4PpMAU_6M46dDUim3IVE2Zp3I-rWtr4oTGsBIlBe-LJymg/w512-h640-rw/SnapInsta.to_588512863_18175237591367406_4792646108763604928_n.jpg",
+      title: "Pendampingan Unit Penyedia Layanan Teknis Berkelanjutan",
+      date: "November 28, 2025",
+      desc: "Optimalisasi peran unit layanan dalam penanganan kasus melalui pendampingan teknis yang berkelanjutan.",
+      link: "https://dpppa.banjarmasinkota.go.id/2025/11/pendampingan-unit-penyedia-layanan.html"
+    },
+    {
+      id: 3,
+      image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhvumMWDBTpXCnXcdl09GwmGNnFkKzCy9NM7NI1IIXMFFKrhgrGsIOwNxR3X6Nw4KMchCI9oBaHSZmyPtzFXICGPNLTzIWzclMCCEghc__8-7lV1Eq-MeYOrMuhzhVAERFcXBWUvlPhqcXg4Z1lnvpygeCJTZU3ZyTCmgrv_4fhUkR0dJ7kTN9wevWZ_UQ/w640-h428-rw/WhatsApp%20Image%202025-11-26%20at%2013.32.07.jpeg",
+      title: "Penetapan Peraturan Daerah Kota Banjarmasin Terbaru",
+      date: "November 28, 2025",
+      desc: "Penetapan regulasi daerah terbaru untuk memperkuat landasan hukum perlindungan anak dan pemberdayaan perempuan di Banjarmasin.",
+      link: "https://dpppa.banjarmasinkota.go.id/2025/11/penetapan-peraturan-daerah-kota.html"
+    },
+    {
+      id: 4,
+      image: "https://blogger.googleusercontent.com/img/a/AVvXsEi0FZHQJsvepzuR_FKi9bZK70KxoxfSbB51nRnv1cE1XKXbCqJC4z4opIdnH38VNtm8IyAT9b2cqxSkRvJ-tP7MxKnmBrKAbCC6W6nkYrsFaqjS9_UjZgw44n3FUqemYtQfsD3OJl8xmxvm-yFqlCj-vS-b5WYx4rPb9C9v6-BKTkKrYAFYPs6q0if0gH8=w600-h640-rw",
+      title: "Bimbingan Teknis Anggaran Responsif Gender (ARG)",
+      date: "November 28, 2025",
+      desc: "Pelaksanaan Bimtek penyusunan anggaran responsif gender (ARG) guna memastikan pembangunan yang inklusif dan tepat sasaran.",
+      link: "https://dpppa.banjarmasinkota.go.id/2025/11/bimbingan-teknis-anggaran-responsif.html"
+    },
+    {
+      id: 5,
+      image: "https://blogger.googleusercontent.com/img/a/AVvXsEjR_5mFERuq7ZPghwlyf5-reuHDIj8vqOsmee5ihqazMav4EDFkni-WdG1JQrgMS_04cqdcN4_4d4u-Elgo2WjpgXuz65UUe7_TDkfXZaKPa9eQwPJQ4DqAoNhmx17H4U3krOZra-vpEATsOy1wXxRwfF32hpcGlTOwEIIcMOSvInJnIYZkIycoPAAhdKM=w640-h330-rw",
+      title: "Manajemen Sumber Daya Keluarga",
+      date: "November 25, 2025",
+      desc: "Kegiatan sosialisasi dan peningkatan kapasitas tentang pentingnya manajemen sumber daya keluarga untuk ketahanan keluarga.",
+      link: "https://dpppa.banjarmasinkota.go.id/2025/11/manajamen-sumber-daya-keluarga.html"
+    }
+  ];
+
+  // --- LOGIKA TRENDING ---
+  useEffect(() => {
+    const interval = setInterval(() => {
+      handleNextNews();
+    }, 4000); 
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleNextNews = () => {
+    setCurrentNewsIndex((prevIndex) => (prevIndex + 1) % newsData.length);
+  };
+
+  const handlePrevNews = () => {
+    setCurrentNewsIndex((prevIndex) => (prevIndex === 0 ? newsData.length - 1 : prevIndex - 1));
+  };
+
+  const currentNews = newsData[currentNewsIndex];
+
+  // --- LOGIKA LOAD MORE BERITA ---
+  const handleLoadMore = () => {
+    setIsLoadingMore(true);
+    setTimeout(() => {
+      setVisibleNewsCount((prev) => prev + 3);
+      setIsLoadingMore(false);
+    }, 1500);
   };
 
   // --- VARIAN ANIMASI ---
@@ -55,47 +161,11 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
     }
   };
 
-  // --- HANDLER NAVIGASI LANGSUNG (TANPA LOADING) ---
+  // --- HANDLER NAVIGASI ---
   const handleAbout = () => { setSidebarOpen(false); onAbout(); };
   const handleHelp = () => { setSidebarOpen(false); onHelp(); };
   const handleLogin = () => { setSidebarOpen(false); onStart(); };
   const handleStats = () => { setSidebarOpen(false); onStats(); };
-
-  // --- DATA BERITA ---
-  const newsData = [
-    {
-      id: 1,
-      image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj20v8yoRstj0ilYUFdsD4loc1CtBU1ByrKSpqCoKGPGOofhG6SLycEzaMGyT2Ttf8LZ_5dQXbiXTXX53xU9k106H1v7r6_fEUwl801XLLII4odZBS1heQj2krmxLMi2sN1T8f8RQF-unT72tUQS052sAxFwTlwBsQYK5S_oXjMBwUjFfNLymKq-W_7edo/w640-h480-rw/IMG_1178.HEIC",
-      title: "Kampanye 16 Hari Anti Kekerasan",
-      date: "Desember 02, 2025",
-      desc: "DPPPA Kota Banjarmasin menggelar kampanye serentak sebagai bentuk komitmen mengakhiri kekerasan terhadap perempuan dan anak.",
-      link: "https://dpppa.banjarmasinkota.go.id/2025/12/kampanye-16-hari-anti-kekerasan.html"
-    },
-    {
-      id: 2,
-      image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgTAPaBvpAkHgDWXQgvlNgkcFOvQw40xa44c92AoFz5bNVb5BYApdPMl469VUr9BvyiWmWa1gwvyZoa3oxGYlZzq-9wYlsAxS7NhwJVyRWGhSsuSRn8NDLjIAxWH5F59DhIeqtXykHz1aoFB4PpMAU_6M46dDUim3IVE2Zp3I-rWtr4oTGsBIlBe-LJymg/w512-h640-rw/SnapInsta.to_588512863_18175237591367406_4792646108763604928_n.jpg",
-      title: "Pendampingan Unit Penyedia Layanan",
-      date: "November 28, 2025",
-      desc: "Optimalisasi peran unit layanan dalam penanganan kasus melalui pendampingan teknis yang berkelanjutan.",
-      link: "https://dpppa.banjarmasinkota.go.id/2025/11/pendampingan-unit-penyedia-layanan.html"
-    },
-    {
-      id: 3,
-      image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhvumMWDBTpXCnXcdl09GwmGNnFkKzCy9NM7NI1IIXMFFKrhgrGsIOwNxR3X6Nw4KMchCI9oBaHSZmyPtzFXICGPNLTzIWzclMCCEghc__8-7lV1Eq-MeYOrMuhzhVAERFcXBWUvlPhqcXg4Z1lnvpygeCJTZU3ZyTCmgrv_4fhUkR0dJ7kTN9wevWZ_UQ/w640-h428-rw/WhatsApp%20Image%202025-11-26%20at%2013.32.07.jpeg",
-      title: "Penetapan Peraturan Daerah Kota",
-      date: "November 28, 2025",
-      desc: "Penetapan regulasi daerah terbaru untuk memperkuat landasan hukum perlindungan anak dan pemberdayaan perempuan di Banjarmasin.",
-      link: "https://dpppa.banjarmasinkota.go.id/2025/11/penetapan-peraturan-daerah-kota.html"
-    },
-    {
-      id: 4,
-      image: "https://blogger.googleusercontent.com/img/a/AVvXsEi0FZHQJsvepzuR_FKi9bZK70KxoxfSbB51nRnv1cE1XKXbCqJC4z4opIdnH38VNtm8IyAT9b2cqxSkRvJ-tP7MxKnmBrKAbCC6W6nkYrsFaqjS9_UjZgw44n3FUqemYtQfsD3OJl8xmxvm-yFqlCj-vS-b5WYx4rPb9C9v6-BKTkKrYAFYPs6q0if0gH8=w600-h640-rw",
-      title: "Bimbingan Teknis Anggaran Responsif",
-      date: "November 28, 2025",
-      desc: "Pelaksanaan Bimtek penyusunan anggaran responsif gender (ARG) guna memastikan pembangunan yang inklusif dan tepat sasaran.",
-      link: "https://dpppa.banjarmasinkota.go.id/2025/11/bimbingan-teknis-anggaran-responsif.html"
-    }
-  ];
 
   const sidebarVideos = [
     { id: "qOep768DpOg", title: "Kegiatan DP3A" },
@@ -108,30 +178,27 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
   ];
 
   return (
-    <div className="landing-container overflow-hidden">
+    <div className="landing-container overflow-hidden bg-gray-50 dark:bg-slate-900 transition-colors duration-300">
       
-      {/* NAVBAR */}
+      {/* NAVBAR: BG PUTIH/HITAM DENGAN SHADOW JELAS */}
       <motion.nav 
-        className="landing-navbar"
+        className="landing-navbar bg-white dark:bg-[#0f172a] shadow-lg border-b border-gray-200 dark:border-slate-800"
         initial="hidden" animate="visible" variants={fadeInDown}
       >
         <div className="nav-left flex items-center">
           <img src="/pemkot.png" alt="logo" className="logo w-10 h-10 sm:w-12 sm:h-12 mr-3" />
           
-          <div className="nav-divider h-8 w-[1px] bg-gray-300 mx-2 hidden sm:block"></div> 
+          <div className="nav-divider h-8 w-[1px] bg-slate-200 dark:bg-slate-700 mx-2 hidden sm:block"></div> 
 
-          <div className="nav-text flex flex-col justify-center">
-            {/* Judul: Ukuran disesuaikan */}
+          <div className="nav-text flex flex-col justify-center text-left">
             <h1 
-              className="text-sm font-bold sm:text-lg text-slate-800 dark:text-white leading-tight !block"
+              className="text-sm font-bold sm:text-lg text-slate-800 dark:text-white leading-none !block"
               style={{ display: 'block', opacity: 1, visibility: 'visible' }}
             >
               Portal DP3A
             </h1>
-            
-            {/* Subtitle: Ukuran disesuaikan */}
             <p 
-              className="text-[10px] sm:text-xs font-medium text-slate-600 dark:text-slate-300 leading-tight mt-0.5 !block"
+              className="text-[10px] sm:text-xs font-medium text-slate-600 dark:text-slate-400 leading-tight mt-0.5 !block"
               style={{ display: 'block', opacity: 1, visibility: 'visible' }}
             >
               Layanan Pengaduan Masyarakat
@@ -141,39 +208,19 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
 
         {/* MENU DESKTOP */}
         <div className="nav-right desktop-menu flex items-center">
-          
-          {/* Menu Link Text: Ukuran KECIL (13px), Font Normal/Medium, Warna Slate-700 */}
-          {/* Gap dikurangi menjadi 4 (16px) agar hemat ruang */}
           <ul className="nav-links flex gap-4 text-[13px] font-medium mr-5 items-center text-slate-700 dark:text-slate-200">
-            
-            <li className="nav-item cursor-pointer hover:text-blue-600 transition-colors" onClick={handleAbout}>
-              Tentang Aplikasi
-            </li>
-            
-            <li className="nav-item cursor-pointer hover:text-blue-600 transition-colors" onClick={handleStats}>
-              Statistik Layanan
-            </li>
-
-            <li className="nav-item cursor-pointer hover:text-blue-600 transition-colors" onClick={() => scrollToSection('berita')}>
-              Berita
-            </li>
-            <li className="nav-item cursor-pointer hover:text-blue-600 transition-colors" onClick={() => scrollToSection('profil')}>
-              Profil Dinas
-            </li>
-            <li className="nav-item cursor-pointer hover:text-blue-600 transition-colors" onClick={() => scrollToSection('kontak')}>
-              Kontak
-            </li>
-            <li className="nav-item cursor-pointer hover:text-blue-600 transition-colors" onClick={handleHelp}>
-              Bantuan
-            </li>
+            <li className="nav-item cursor-pointer hover:text-blue-600 transition-colors" onClick={handleAbout}>Tentang Aplikasi</li>
+            <li className="nav-item cursor-pointer hover:text-blue-600 transition-colors" onClick={handleStats}>Statistik Layanan</li>
+            <li className="nav-item cursor-pointer hover:text-blue-600 transition-colors" onClick={() => scrollToSection('berita')}>Berita</li>
+            <li className="nav-item cursor-pointer hover:text-blue-600 transition-colors" onClick={() => scrollToSection('profil')}>Profil Dinas</li>
+            <li className="nav-item cursor-pointer hover:text-blue-600 transition-colors" onClick={() => scrollToSection('kontak')}>Kontak</li>
+            <li className="nav-item cursor-pointer hover:text-blue-600 transition-colors" onClick={handleHelp}>Bantuan</li>
           </ul>
           
           <div className="flex items-center gap-3">
             <button onClick={toggleTheme} className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors" title={isDarkMode ? "Mode Terang" : "Mode Gelap"}>
-              {isDarkMode ? <Sun size={18} className="text-yellow-400" /> : <Moon size={18} />}
+              {isDarkMode ? <Sun size={18} className="text-yellow-400" /> : <Moon size={18} className="text-slate-600" />}
             </button>
-            
-            {/* Tombol Login: KOTAK (rounded-md/lg), Ukuran Font Kecil (13px) */}
             <button 
               className="px-4 py-2 bg-[#00AEEF] hover:bg-sky-600 text-white text-[13px] font-semibold rounded-lg shadow-sm transition-all" 
               onClick={handleLogin}
@@ -186,10 +233,10 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
         {/* MOBILE MENU TOGGLE */}
         <div className="flex items-center gap-3 md:hidden">
           <button onClick={toggleTheme} className="theme-toggle-btn mobile-theme-btn">
-            {isDarkMode ? <Sun size={22} className="text-yellow-400" /> : <Moon size={22} />}
+            {isDarkMode ? <Sun size={22} className="text-yellow-400" /> : <Moon size={22} className="text-slate-600" />}
           </button>
           <button className="mobile-menu-btn" onClick={() => setSidebarOpen(true)}>
-            <Menu size={28} className="menu-icon-color" />
+            <Menu size={28} className="text-slate-800 dark:text-white" />
           </button>
         </div>
 
@@ -215,14 +262,66 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
       </motion.nav>
 
       {/* BANNER SLIDER */}
-      <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: false }} transition={{ duration: 0.8 }}>
+      <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: false }} transition={{ duration: 0.8 }} className="relative z-0">
         <BannerSlider />
       </motion.div>
+
+      {/* ====================================
+          BOX TRENDING
+      ==================================== */}
+      <div className="w-full py-6 relative z-10 -mt-10 mb-4 px-4">
+        <div className="container mx-auto max-w-5xl">
+          
+          <div className="bg-white dark:bg-slate-800 rounded-xl p-4 flex items-center shadow-lg relative overflow-hidden border border-slate-200 dark:border-slate-700 transition-colors duration-300 h-16">
+            
+            <div className="text-[#1A73E8] font-bold text-sm md:text-base mr-4 shrink-0 flex items-center">
+              <Zap size={18} className="mr-2 fill-current" />
+              Trending:
+            </div>
+
+            <div className="flex-1 h-[24px] md:h-[28px] overflow-hidden relative">
+              <AnimatePresence mode="wait">
+                <motion.a
+                  key={currentNews.id}
+                  href={currentNews.link}
+                  target="_blank"
+                  rel="noreferrer"
+                  initial={{ y: 30, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: -30, opacity: 0 }}
+                  transition={{ duration: 0.5, ease: "easeInOut" }}
+                  className="absolute truncate w-full text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 text-xs md:text-sm font-medium block leading-normal transition-colors"
+                >
+                  {currentNews.title}
+                </motion.a>
+              </AnimatePresence>
+            </div>
+
+            <div className="flex flex-col gap-1 ml-4 shrink-0 justify-center">
+               <button 
+                 onClick={handlePrevNews} 
+                 className="text-slate-400 hover:text-blue-600 dark:text-slate-500 dark:hover:text-blue-400 transition-colors p-0.5"
+                 title="Berita Sebelumnya"
+               >
+                 <ChevronUp size={16} />
+               </button>
+               <button 
+                 onClick={handleNextNews} 
+                 className="text-slate-400 hover:text-blue-600 dark:text-slate-500 dark:hover:text-blue-400 transition-colors p-0.5"
+                 title="Berita Selanjutnya"
+               >
+                 <ChevronDown size={16} />
+               </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
 
       {/* ===========================
           HERO SECTION
       =========================== */}
-      <section className="landing-hero">
+      <section className="landing-hero relative z-0">
         <motion.div 
           className="hero-box-container"
           initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.3 }} variants={staggerContainer}
@@ -235,7 +334,6 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
             className="hero-right-text flex flex-col items-center sm:items-start text-center sm:text-left" 
             variants={fadeInUp}
           >
-            {/* BADGE APLIKASI */}
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-green-100 text-green-800 border border-green-300 dark:bg-green-900 dark:text-green-100 dark:border-green-700 text-sm font-bold mb-4">
               <Smartphone size={16} />
               <span>Tersedia Aplikasi Android</span>
@@ -245,10 +343,7 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
             <h2 className="hero-title">Portal <span>DP3A</span></h2>
             <p className="hero-desc">Layanan Pengaduan Perempuan & Anak Kota Banjarmasin. Bersama kita lindungi perempuan dan anak dari kekerasan.</p>
             
-            {/* GROUP TOMBOL */}
             <div className="flex flex-col sm:flex-row gap-4 mt-6 w-full sm:w-auto items-center sm:items-start justify-center sm:justify-start">
-              
-              {/* Tombol Login */}
               <motion.button 
                 className="flex items-center justify-center px-8 py-3 rounded-full font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-lg transition-all w-full sm:w-auto min-w-[200px]"
                 onClick={handleLogin} 
@@ -258,7 +353,6 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
                 Login / Register
               </motion.button>
 
-              {/* Tombol Download APK */}
               <motion.a 
                 href="https://drive.google.com/file/d/1pt5h3CA_VBF-TZazCutiNt4MqSS-UPl2/view?usp=drivesdk"
                 target="_blank"
@@ -285,7 +379,7 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
           BERITA TERKINI SECTION
       =========================== */}
       <motion.section 
-        className="news-section"
+        className="news-section relative z-0"
         id="berita" 
         initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.2 }} variants={fadeInUp}
       >
@@ -297,11 +391,15 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
           </div>
 
           <div className="news-grid">
-            {newsData.map((item) => (
+            {/* HANYA TAMPILKAN SEJUMLAH visibleNewsCount */}
+            {fullNewsData.slice(0, visibleNewsCount).map((item) => (
               <motion.div 
                 key={item.id} 
                 className="news-card group"
                 whileHover={{ y: -5 }}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3 }}
               >
                 <div className="news-image-wrapper">
                   <img 
@@ -335,12 +433,27 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
               </motion.div>
             ))}
           </div>
+
+          {/* TOMBOL LOAD MORE */}
+          {visibleNewsCount < fullNewsData.length && (
+            <div className="text-center mt-10">
+              <button 
+                onClick={handleLoadMore} 
+                disabled={isLoadingMore}
+                className="px-6 py-2.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-full font-semibold hover:bg-slate-300 dark:hover:bg-slate-600 transition-all flex items-center justify-center mx-auto"
+              >
+                {isLoadingMore ? <Loader2 className="animate-spin mr-2" size={18} /> : null}
+                {isLoadingMore ? "Memuat..." : "Muat postingan lainnya!"}
+              </button>
+            </div>
+          )}
+
         </div>
       </motion.section>
 
       {/* PROFIL & SIDEBAR SECTION */}
       <motion.section 
-        className="profile-section" id="profil"
+        className="profile-section relative z-0" id="profil"
         initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.2 }} transition={{ duration: 0.8 }} variants={fadeInUp}
       >
         <div className="profile-container">
@@ -389,7 +502,7 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
 
       {/* FOOTER */}
       <motion.footer 
-        className="landing-footer" id="kontak"
+        className="landing-footer relative z-0" id="kontak"
         initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.1 }} variants={fadeInUp}
       >
         <div className="footer-content">
