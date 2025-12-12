@@ -1,56 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { collection, query, where, onSnapshot, addDoc, serverTimestamp, doc, getDoc } from 'firebase/firestore';
-import { signOut } from 'firebase/auth';
+import { collection, query, where, onSnapshot, addDoc, serverTimestamp, doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { 
+  signOut, 
+  updateProfile, 
+  updatePassword, 
+  deleteUser, 
+  reauthenticateWithCredential, 
+  EmailAuthProvider 
+} from 'firebase/auth'; 
 import { db, auth } from '../firebase';
 import { 
-  LogOut, User, Search, Phone, Home, FileText, Menu, ChevronRight, Send, X, MapPin, Clock, AlertCircle, Calendar, Tag, Copy, Settings, CheckCircle, FileBarChart, MessageSquare, Check, AlertTriangle
+  LogOut, User, Search, Phone, Home, FileText, Menu, ChevronRight, Send, X, MapPin, Clock, AlertCircle, Calendar, Tag, Copy, Settings, CheckCircle, FileBarChart, MessageSquare, Check, AlertTriangle, Lock, Trash2, Edit3, Shield
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// --- KOMPONEN ANIMASI MENGETIK (TYPEWRITER) ---
+// --- KOMPONEN ANIMASI MENGETIK ---
 const TypewriterText = ({ text }) => {
   const [key, setKey] = useState(0); 
-
   useEffect(() => {
-    const interval = setInterval(() => {
-      setKey((prev) => prev + 1); 
-    }, 10000); 
+    const interval = setInterval(() => { setKey((prev) => prev + 1); }, 10000); 
     return () => clearInterval(interval);
   }, []);
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.03, delayChildren: 0.5 },
-    },
-  };
-
-  const letterVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1 },
-  };
-
+  const containerVariants = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.03, delayChildren: 0.5 } } };
+  const letterVariants = { hidden: { opacity: 0 }, visible: { opacity: 1 } };
   return (
-    <motion.div
-      key={key} 
-      // UBAH DISINI: Hapus 'hidden sm:block' agar muncul di HP, atur ukuran font mobile jadi kecil (text-[10px])
-      className="text-[10px] md:text-sm font-bold text-white block leading-tight max-w-[200px] md:max-w-none"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      {text.split("").map((char, index) => (
-        <motion.span key={index} variants={letterVariants}>
-          {char}
-        </motion.span>
-      ))}
-      <motion.span
-        initial={{ opacity: 0 }}
-        animate={{ opacity: [0, 1, 0] }}
-        transition={{ duration: 0.8, repeat: Infinity }}
-        className="inline-block w-[2px] h-[12px] md:h-[14px] bg-emerald-400 ml-1 align-middle"
-      />
+    <motion.div key={key} className="text-[10px] md:text-sm font-bold text-white block leading-tight max-w-[200px] md:max-w-none" variants={containerVariants} initial="hidden" animate="visible">
+      {text.split("").map((char, index) => (<motion.span key={index} variants={letterVariants}>{char}</motion.span>))}
+      <motion.span initial={{ opacity: 0 }} animate={{ opacity: [0, 1, 0] }} transition={{ duration: 0.8, repeat: Infinity }} className="inline-block w-[2px] h-[12px] md:h-[14px] bg-emerald-400 ml-1 align-middle" />
     </motion.div>
   );
 };
@@ -69,34 +45,11 @@ const HeroParticles = () => {
     { type: 'x',      left: '85%', delay: 9, duration: 17, rotate: 180 },
     { type: 'circle', left: '95%', delay: 2, duration: 23 },
   ];
-
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
       {particles.map((p, i) => (
-        <motion.div
-          key={i}
-          initial={{ y: -50, opacity: 0, rotate: 0 }}
-          animate={{ 
-            y: 450, 
-            opacity: [0, 1, 1, 0],
-            rotate: p.rotate || 0 
-          }} 
-          transition={{
-            duration: p.duration,
-            repeat: Infinity,
-            delay: p.delay,
-            ease: "linear"
-          }}
-          className="absolute text-slate-600/30 font-bold flex items-center justify-center"
-          style={{ left: p.left, top: -30 }}
-        >
-          {p.type === 'circle' ? (
-            <div className="w-3 h-3 rounded-full bg-slate-600/30" />
-          ) : p.type === 'line' ? (
-            <div className="w-[2px] h-7 bg-slate-600/30 rounded-full" />
-          ) : (
-            <X size={18} />
-          )}
+        <motion.div key={i} initial={{ y: -50, opacity: 0, rotate: 0 }} animate={{ y: 450, opacity: [0, 1, 1, 0], rotate: p.rotate || 0 }} transition={{ duration: p.duration, repeat: Infinity, delay: p.delay, ease: "linear" }} className="absolute text-slate-600/30 font-bold flex items-center justify-center" style={{ left: p.left, top: -30 }}>
+          {p.type === 'circle' ? <div className="w-3 h-3 rounded-full bg-slate-600/30" /> : p.type === 'line' ? <div className="w-[2px] h-7 bg-slate-600/30 rounded-full" /> : <X size={18} />}
         </motion.div>
       ))}
     </div>
@@ -110,14 +63,33 @@ export default function UserHome({ user }) {
   const [laporanUser, setLaporanUser] = useState([]); 
   const [form, setForm] = useState({ judul: '', kategori: 'Kekerasan Fisik', lokasi: '', kronologi: '', tanggal: '' });
   
+  // States Lacak & Modal
   const [searchToken, setSearchToken] = useState('');
   const [trackResult, setTrackResult] = useState(null);
   const [trackLoading, setTrackLoading] = useState(false);
   const [trackError, setTrackError] = useState('');
-
   const [successModal, setSuccessModal] = useState({ isOpen: false, token: '' });
   const [isCopied, setIsCopied] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  // States Profile
+  const [profileForm, setProfileForm] = useState({ name: '', phone: '', nik: '' });
+  const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
+  const [deletePassword, setDeletePassword] = useState(''); // State password untuk hapus akun
+  const [isLoadingProfile, setIsLoadingProfile] = useState(false);
+  const [isLoadingPassword, setIsLoadingPassword] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false); // State loading hapus akun
+
+  // Notifikasi In-App
+  const [profileStatus, setProfileStatus] = useState(null);
+  const [passwordStatus, setPasswordStatus] = useState(null);
+
+  useEffect(() => {
+    if (user) {
+      setProfileForm({ name: user.name || '', phone: user.phone || '', nik: user.nik || '' });
+    }
+  }, [user]);
 
   useEffect(() => {
      if (!user || !user.uid) return;
@@ -135,6 +107,85 @@ export default function UserHome({ user }) {
      return () => unsubscribe();
   }, [user]);
 
+  const handleUpdateProfile = async (e) => {
+    e.preventDefault();
+    setIsLoadingProfile(true);
+    setProfileStatus(null);
+    try {
+      const userRef = doc(db, "users", user.uid);
+      await updateDoc(userRef, { name: profileForm.name, phone: profileForm.phone, nik: profileForm.nik });
+      if (auth.currentUser && profileForm.name !== auth.currentUser.displayName) {
+        await updateProfile(auth.currentUser, { displayName: profileForm.name });
+      }
+      setProfileStatus({ type: 'success', message: 'Profil berhasil diperbarui!' });
+      setTimeout(() => setProfileStatus(null), 3000);
+    } catch (error) { setProfileStatus({ type: 'error', message: "Gagal: " + error.message }); } 
+    finally { setIsLoadingProfile(false); }
+  };
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    setPasswordStatus(null);
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setPasswordStatus({ type: 'error', message: 'Konfirmasi password baru tidak cocok!' }); return;
+    }
+    if (passwordForm.newPassword.length < 6) {
+      setPasswordStatus({ type: 'error', message: 'Password baru minimal 6 karakter.' }); return;
+    }
+    setIsLoadingPassword(true);
+    const currentUser = auth.currentUser;
+    try {
+      const credential = EmailAuthProvider.credential(currentUser.email, passwordForm.currentPassword);
+      await reauthenticateWithCredential(currentUser, credential);
+      await updatePassword(currentUser, passwordForm.newPassword);
+      setPasswordStatus({ type: 'success', message: 'Password berhasil diubah!' });
+      setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      setTimeout(() => setPasswordStatus(null), 3000);
+    } catch (error) {
+      if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+        setPasswordStatus({ type: 'error', message: 'Password lama salah. Silakan periksa kembali.' });
+      } else { setPasswordStatus({ type: 'error', message: 'Gagal mengubah password: ' + error.message }); }
+    } finally { setIsLoadingPassword(false); }
+  };
+
+  // --- LOGIKA HAPUS AKUN YANG BENAR (RE-AUTH + DELETE FIRESTORE + DELETE AUTH) ---
+  const handleDeleteAccount = async () => {
+    if (!deletePassword) {
+        alert("Mohon masukkan password Anda untuk konfirmasi.");
+        return;
+    }
+    setIsDeleting(true);
+    const currentUser = auth.currentUser;
+
+    try {
+        // 1. RE-AUTHENTICATE (Wajib agar Firebase mengizinkan hapus akun)
+        const credential = EmailAuthProvider.credential(currentUser.email, deletePassword);
+        await reauthenticateWithCredential(currentUser, credential);
+
+        // 2. HAPUS DATA DI FIRESTORE
+        await deleteDoc(doc(db, "users", user.uid));
+        
+        // (Opsional) Hapus juga laporan user jika ingin benar-benar bersih
+        // const q = query(collection(db, "laporan"), where("userId", "==", user.uid));
+        // const snapshot = await getDocs(q);
+        // snapshot.forEach(async (doc) => await deleteDoc(doc.ref));
+
+        // 3. HAPUS USER DARI AUTHENTICATION
+        await deleteUser(currentUser);
+        
+        // Tidak perlu alert, karena App.jsx akan mendeteksi user null dan redirect ke landing page
+
+    } catch (error) {
+        setIsDeleting(false);
+        console.error(error);
+        if (error.code === 'auth/wrong-password') {
+            alert("Password salah. Gagal menghapus akun.");
+        } else {
+            alert("Gagal menghapus akun: " + error.message);
+        }
+    }
+  };
+
   const kirimLaporan = async (e) => {
     e.preventDefault();
     try {
@@ -148,18 +199,9 @@ export default function UserHome({ user }) {
     } catch (err) { alert('Gagal: ' + err.message); }
   };
 
-  const closeSuccessModal = () => {
-    setSuccessModal({ isOpen: false, token: '' });
-    setIsCopied(false);
-    setView('history');
-  };
-
-  const handleCopyToken = () => {
-    navigator.clipboard.writeText(successModal.token);
-    setIsCopied(true);
-    setTimeout(() => setIsCopied(false), 2000);
-  };
-
+  const closeSuccessModal = () => { setSuccessModal({ isOpen: false, token: '' }); setIsCopied(false); setView('history'); };
+  const handleCopyToken = () => { navigator.clipboard.writeText(successModal.token); setIsCopied(true); setTimeout(() => setIsCopied(false), 2000); };
+  
   const handleLacak = async (e) => {
     e.preventDefault();
     if(!searchToken) return;
@@ -194,37 +236,19 @@ export default function UserHome({ user }) {
     </button>
   )};
 
-  const pageVariants = { 
-    initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } }, 
-    exit: { opacity: 0, y: -20, transition: { duration: 0.3 } } 
-  };
-
-  const floatingVariant = {
-    animate: {
-      y: [0, -10, 0],
-      transition: { duration: 4, repeat: Infinity, ease: "easeInOut" }
-    }
-  };
-
-  const cardFloatVariant = (delay) => ({
-    animate: {
-      y: [0, -8, 0],
-      transition: { duration: 4, repeat: Infinity, ease: "easeInOut", delay: delay }
-    }
-  });
+  const pageVariants = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } }, exit: { opacity: 0, y: -20, transition: { duration: 0.3 } } };
+  const floatingVariant = { animate: { y: [0, -10, 0], transition: { duration: 4, repeat: Infinity, ease: "easeInOut" } } };
+  const cardFloatVariant = (delay) => ({ animate: { y: [0, -8, 0], transition: { duration: 4, repeat: Infinity, ease: "easeInOut", delay: delay } } });
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-slate-50 to-slate-200 font-sans overflow-hidden relative">
-      
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#475569 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
 
-      {/* SIDEBAR */}
       <aside className={`fixed md:relative z-30 w-64 h-full bg-[#0f172a] text-white flex flex-col transition-transform duration-300 shadow-xl ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
         <div className="p-6 border-b border-slate-800">
-           <div className="flex items-center space-x-3 bg-slate-800/50 p-3 rounded-xl border border-slate-700/50 backdrop-blur-sm">
-              <div className="h-10 w-10 rounded-full bg-slate-700 flex items-center justify-center text-emerald-400 font-bold border border-slate-600"><User size={20} /></div>
-              <div className="overflow-hidden"><p className="text-white text-sm font-semibold truncate">{user.name}</p><p className="text-[10px] text-emerald-400 font-medium uppercase tracking-wider">Masyarakat</p></div>
+           <div onClick={() => { setView('profile'); setSidebarOpen(false); }} className="flex items-center space-x-3 bg-slate-800/50 p-3 rounded-xl border border-slate-700/50 backdrop-blur-sm cursor-pointer hover:bg-slate-700 transition-colors group">
+              <div className="h-10 w-10 rounded-full bg-slate-700 flex items-center justify-center text-emerald-400 font-bold border border-slate-600 group-hover:border-emerald-400 transition-colors"><User size={20} /></div>
+              <div className="overflow-hidden"><p className="text-white text-sm font-semibold truncate group-hover:text-emerald-300 transition-colors">{user.name}</p><p className="text-[10px] text-emerald-400 font-medium uppercase tracking-wider">Edit Profil</p></div>
            </div>
         </div>
         <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
@@ -242,67 +266,35 @@ export default function UserHome({ user }) {
 
       {isSidebarOpen && <div onClick={() => setSidebarOpen(false)} className="fixed inset-0 bg-slate-900/50 z-20 md:hidden backdrop-blur-sm"></div>}
 
-      {/* CONTENT WRAPPER */}
       <div className="flex-1 flex flex-col h-full overflow-hidden relative z-10">
-        
-        {/* HEADER */}
         <header className="h-16 md:h-20 bg-[#0f172a] border-b border-slate-800 flex items-center justify-between px-4 md:px-6 shadow-md z-10 text-white">
            <div className="flex items-center gap-3">
              <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="md:hidden text-white hover:text-emerald-400 p-1"><Menu size={24}/></button>
              <div className="flex items-center gap-2 md:gap-3">
                 <img src="/logo-dp3a.png" alt="Logo" onError={(e) => e.target.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Coat_of_arms_of_South_Kalimantan.svg/1200px-Coat_of_arms_of_South_Kalimantan.svg.png"} className="h-8 md:h-10 w-auto object-contain" />
-                <div>
-                  {/* UBAH: Menggunakan TypewriterText di semua mode (HP & Desktop) */}
-                  <TypewriterText text="Dinas Pemberdayaan Perempuan dan Perlindungan Anak" />
-                  
-                  {/* UBAH: Menghapus h1 Portal DP3A statis, cukup TypewriterText */}
-                  
-                  <p className="text-[10px] md:text-xs text-slate-400 mt-0.5">Kota Banjarmasin</p>
-                </div>
+                <div><TypewriterText text="Dinas Pemberdayaan Perempuan dan Perlindungan Anak" /><p className="text-[10px] md:text-xs text-slate-400 mt-0.5">Kota Banjarmasin</p></div>
              </div>
            </div>
-           {/* Tanggal Hidden di Mobile untuk menghemat ruang */}
            <div className="hidden md:flex items-center space-x-4"><div className="text-right"><p className="text-xs text-slate-400">Tanggal Hari Ini</p><p className="text-sm font-bold text-white">{new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p></div></div>
         </header>
 
-        {/* MAIN CONTENT */}
         <main className="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth">
           <div className="max-w-5xl mx-auto pb-20 md:pb-10">
             <AnimatePresence mode="wait">
             
             {view === 'home' && (
               <motion.div key="home" variants={pageVariants} initial="initial" animate="animate" exit="exit" className="space-y-6 md:space-y-8">
-                 {/* HERO BOX */}
                  <motion.div variants={floatingVariant} animate="animate" className="relative bg-[#0f172a] rounded-2xl md:rounded-3xl p-6 md:p-12 text-white shadow-xl overflow-hidden">
                     <HeroParticles />
                     <div className="absolute top-0 right-0 w-40 md:w-64 h-40 md:h-64 bg-emerald-500/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
                     <div className="relative z-10 max-w-3xl">
-                      {/* === ANIMASI TANGAN MELAMBAI (WAVING) === */}
-                      <h2 className="text-2xl md:text-4xl font-bold mb-3 md:mb-4 flex items-center gap-2">
-                        Halo, {user.name} 
-                        <motion.span 
-                          style={{ originX: 0.7, originY: 0.7 }} // Titik putar di pergelangan tangan (kanan bawah)
-                          animate={{ rotate: [0, 14, -8, 14, -4, 10, 0, 0] }} 
-                          transition={{ 
-                            duration: 2.5, 
-                            repeat: Infinity, 
-                            repeatDelay: 1, // Jeda sebentar sebelum melambai lagi
-                            ease: "easeInOut" 
-                          }}
-                          className="inline-block"
-                        >
-                          👋
-                        </motion.span>
-                      </h2>
+                      <h2 className="text-2xl md:text-4xl font-bold mb-3 md:mb-4 flex items-center gap-2">Halo, {user.name} <motion.span style={{ originX: 0.7, originY: 0.7 }} animate={{ rotate: [0, 14, -8, 14, -4, 10, 0, 0] }} transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 1, ease: "easeInOut" }} className="inline-block">👋</motion.span></h2>
                       <p className="text-slate-300 text-sm md:text-lg mb-6 md:mb-8 leading-relaxed">Suara Anda berharga. Kami hadir untuk mendampingi dan memastikan setiap laporan ditindaklanjuti dengan aman.</p>
                       <button onClick={() => setView('form')} className="w-full md:w-auto px-6 py-3 bg-[#fbbf24] text-slate-900 font-bold rounded-xl shadow-lg hover:bg-yellow-400 transition-colors flex items-center justify-center">Buat Laporan Baru <ChevronRight className="ml-2 w-5 h-5"/></button>
                     </div>
                  </motion.div>
-
-                 {/* STATS CARDS */}
                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
-                      {[
-                        { label: 'Total Laporan', val: stats.total, color: 'text-slate-800', bgIcon: 'bg-slate-100', icon: FileBarChart, delay: 0 },
+                      {[{ label: 'Total Laporan', val: stats.total, color: 'text-slate-800', bgIcon: 'bg-slate-100', icon: FileBarChart, delay: 0 },
                         { label: 'Menunggu', val: stats.menunggu, color: 'text-amber-600', bgIcon: 'bg-amber-50', icon: Clock, delay: 1 },
                         { label: 'Diproses', val: stats.diproses, color: 'text-blue-600', bgIcon: 'bg-blue-50', icon: Settings, delay: 0.5 },
                         { label: 'Selesai', val: stats.selesai, color: 'text-emerald-600', bgIcon: 'bg-emerald-50', icon: CheckCircle, delay: 1.5 }
@@ -319,21 +311,82 @@ export default function UserHome({ user }) {
               </motion.div>
             )}
 
+            {view === 'profile' && (
+                <motion.div key="profile" variants={pageVariants} initial="initial" animate="animate" exit="exit" className="space-y-6">
+                    <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-2">Pengaturan Akun</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-lg border border-white/60 p-6 md:p-8">
+                            <div className="flex items-center gap-3 mb-6 border-b border-slate-100 pb-4">
+                                <div className="p-2 bg-blue-50 rounded-lg text-blue-600"><Edit3 size={20}/></div>
+                                <h3 className="text-lg font-bold text-slate-700">Edit Informasi Pribadi</h3>
+                            </div>
+                            
+                            {profileStatus && (
+                                <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className={`p-4 rounded-xl mb-4 text-sm font-medium flex items-center ${profileStatus.type === 'success' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-red-100 text-red-800 border border-red-200'}`}>
+                                    {profileStatus.type === 'success' ? <CheckCircle size={18} className="mr-2"/> : <AlertCircle size={18} className="mr-2"/>}
+                                    {profileStatus.message}
+                                </motion.div>
+                            )}
+
+                            <form onSubmit={handleUpdateProfile} className="space-y-4">
+                                <div><label className="text-xs font-bold text-slate-500 uppercase">Nama Lengkap</label><input type="text" value={profileForm.name} onChange={(e) => setProfileForm({...profileForm, name: e.target.value})} className="w-full mt-1 p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#0f172a] outline-none text-sm bg-white/50" required /></div>
+                                <div><label className="text-xs font-bold text-slate-500 uppercase">NIK</label><input type="text" value={profileForm.nik} onChange={(e) => setProfileForm({...profileForm, nik: e.target.value})} className="w-full mt-1 p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#0f172a] outline-none text-sm bg-white/50" placeholder="Nomor Induk Kependudukan" /></div>
+                                <div><label className="text-xs font-bold text-slate-500 uppercase">No. Handphone</label><input type="tel" value={profileForm.phone} onChange={(e) => setProfileForm({...profileForm, phone: e.target.value})} className="w-full mt-1 p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#0f172a] outline-none text-sm bg-white/50" placeholder="08..." /></div>
+                                <div><label className="text-xs font-bold text-slate-500 uppercase">Email (Tidak dapat diubah)</label><input type="email" value={user.email} disabled className="w-full mt-1 p-3 border border-slate-200 rounded-xl bg-slate-100 text-slate-500 text-sm cursor-not-allowed" /></div>
+                                <div className="pt-4 flex justify-end">
+                                    <button type="submit" disabled={isLoadingProfile} className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md transition text-sm flex items-center">{isLoadingProfile ? 'Menyimpan...' : 'Simpan Perubahan'}</button>
+                                </div>
+                            </form>
+                        </div>
+                        <div className="space-y-6">
+                            <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-lg border border-white/60 p-6 md:p-8">
+                                <div className="flex items-center gap-3 mb-6 border-b border-slate-100 pb-4">
+                                    <div className="p-2 bg-emerald-50 rounded-lg text-emerald-600"><Lock size={20}/></div>
+                                    <h3 className="text-lg font-bold text-slate-700">Keamanan Akun</h3>
+                                </div>
+
+                                {passwordStatus && (
+                                    <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className={`p-4 rounded-xl mb-4 text-sm font-medium flex items-center ${passwordStatus.type === 'success' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-red-100 text-red-800 border border-red-200'}`}>
+                                        {passwordStatus.type === 'success' ? <CheckCircle size={18} className="mr-2"/> : <AlertCircle size={18} className="mr-2"/>}
+                                        {passwordStatus.message}
+                                    </motion.div>
+                                )}
+
+                                <form onSubmit={handleChangePassword} className="space-y-4">
+                                    <div><label className="text-xs font-bold text-slate-500 uppercase">Password Lama</label><input type="password" value={passwordForm.currentPassword} onChange={(e) => setPasswordForm({...passwordForm, currentPassword: e.target.value})} className="w-full mt-1 p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 outline-none text-sm bg-white/50" placeholder="Masukkan password saat ini" required /></div>
+                                    <div><label className="text-xs font-bold text-slate-500 uppercase">Password Baru</label><input type="password" value={passwordForm.newPassword} onChange={(e) => setPasswordForm({...passwordForm, newPassword: e.target.value})} className="w-full mt-1 p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 outline-none text-sm bg-white/50" placeholder="Minimal 6 karakter" required /></div>
+                                    <div><label className="text-xs font-bold text-slate-500 uppercase">Konfirmasi Password Baru</label><input type="password" value={passwordForm.confirmPassword} onChange={(e) => setPasswordForm({...passwordForm, confirmPassword: e.target.value})} className="w-full mt-1 p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 outline-none text-sm bg-white/50" placeholder="Ulangi password baru" required /></div>
+                                    <div className="pt-4 flex justify-end">
+                                        <button type="submit" disabled={isLoadingPassword} className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition text-sm flex items-center">{isLoadingPassword ? 'Memproses...' : 'Ubah Password'}</button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div className="bg-red-50/80 backdrop-blur-md rounded-2xl shadow-sm border border-red-100 p-6">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="p-2 bg-red-100 rounded-lg text-red-600"><Shield size={20}/></div>
+                                    <h3 className="text-lg font-bold text-red-800">Zona Bahaya</h3>
+                                </div>
+                                <p className="text-sm text-red-600 mb-6">Menghapus akun Anda bersifat permanen dan tidak dapat dibatalkan.</p>
+                                <button onClick={() => setShowDeleteConfirm(true)} className="w-full py-3 bg-white border border-red-200 text-red-600 font-bold rounded-xl hover:bg-red-600 hover:text-white transition shadow-sm flex items-center justify-center"><Trash2 size={18} className="mr-2"/> Hapus Akun Permanen</button>
+                            </div>
+                        </div>
+                    </div>
+                </motion.div>
+            )}
+
+            {/* VIEWS LAIN (FORM, HISTORY, TRACKING, CONTACT) */}
             {view === 'form' && (
                <motion.div key="form" variants={pageVariants} initial="initial" animate="animate" exit="exit" className="bg-white/80 backdrop-blur-md rounded-2xl shadow-lg border border-white/60 overflow-hidden">
                   <div className="bg-slate-50/50 px-6 py-4 md:px-8 md:py-6 border-b border-slate-200"><h2 className="text-xl md:text-2xl font-bold text-slate-800">Formulir Pengaduan</h2><p className="text-slate-500 text-xs md:text-sm mt-1">Isi detail kejadian dengan sebenar-benarnya.</p></div>
                   <div className="p-6 md:p-8">
                     <form onSubmit={kirimLaporan} className="space-y-5">
                       <div className="space-y-2"><label className="text-sm font-bold text-slate-700">Judul Laporan</label><input value={form.judul} onChange={(e)=>setForm({...form, judul:e.target.value})} className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#0f172a] outline-none transition-all bg-white/50 text-sm" placeholder="Contoh: Kekerasan di Sekolah..." required/></div>
-                      
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div className="space-y-2"><label className="text-sm font-bold text-slate-700">Kategori</label><select value={form.kategori} onChange={(e)=>setForm({...form, kategori:e.target.value})} className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#0f172a] outline-none bg-white/50 text-sm"><option>Kekerasan Fisik</option><option>Kekerasan Seksual</option><option>Kekerasan Psikologis</option><option>Penelantaran</option><option>Lainnya</option></select></div>
                         <div className="space-y-2"><label className="text-sm font-bold text-slate-700">Tanggal Kejadian</label><input type="date" value={form.tanggal} onChange={(e)=>setForm({...form, tanggal:e.target.value})} className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#0f172a] outline-none bg-white/50 text-sm" required/></div>
                       </div>
-
                       <div className="space-y-2"><label className="text-sm font-bold text-slate-700">Lokasi Kejadian</label><input value={form.lokasi} onChange={(e)=>setForm({...form, lokasi:e.target.value})} className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#0f172a] outline-none bg-white/50 text-sm" placeholder="Nama Jalan, Gedung, dll..." required/></div>
                       <div className="space-y-2"><label className="text-sm font-bold text-slate-700">Kronologi Lengkap</label><textarea value={form.kronologi} onChange={(e)=>setForm({...form, kronologi:e.target.value})} className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#0f172a] outline-none h-32 resize-none bg-white/50 text-sm" placeholder="Ceritakan detail kejadian..." required></textarea></div>
-                      
                       <div className="pt-4 flex flex-col md:flex-row items-center justify-end gap-3">
                         <button type="button" onClick={() => setView('home')} className="w-full md:w-auto px-6 py-2.5 text-slate-500 font-bold hover:bg-slate-100 rounded-lg transition text-sm">Batal</button>
                         <button type="submit" className="w-full md:w-auto px-6 py-2.5 bg-[#0f172a] hover:bg-slate-800 text-white font-bold rounded-lg shadow-md transition flex items-center justify-center text-sm"><Send size={18} className="mr-2"/> Kirim Laporan</button>
@@ -342,7 +395,7 @@ export default function UserHome({ user }) {
                   </div>
                </motion.div>
             )}
-
+            
             {view === 'history' && (
                <motion.div key="history" variants={pageVariants} initial="initial" animate="animate" exit="exit" className="space-y-6">
                  <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-2"><div><h2 className="text-2xl font-bold text-slate-800">Pengaduan Saya</h2><p className="text-slate-500 text-sm">Daftar laporan yang pernah Anda kirimkan.</p></div><button onClick={() => setView('form')} className="w-full md:w-auto px-4 py-2 bg-[#0f172a] text-white text-sm font-bold rounded-lg hover:bg-slate-800 transition shadow-sm flex items-center justify-center"><FileText size={16} className="mr-2"/> Buat Baru</button></div>
@@ -418,14 +471,14 @@ export default function UserHome({ user }) {
         </main>
       </div>
 
-      {/* MODAL SUCCESS */}
       <AnimatePresence>
       {successModal.isOpen && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
             <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="bg-white w-full max-w-sm md:max-w-md rounded-3xl shadow-2xl overflow-hidden">
-                <div className="bg-emerald-500 p-6 text-center flex flex-col items-center justify-center">
-                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2, type: "spring" }} className="h-16 w-16 md:h-20 md:w-20 bg-white rounded-full flex items-center justify-center text-emerald-500 shadow-lg mb-4"><Check size={40} strokeWidth={4} /></motion.div>
+                <div className="bg-[#0f172a] p-6 text-center flex flex-col items-center justify-center">
+                    <motion.div initial={{ scale: 0, rotate: -180 }} animate={{ scale: 1, rotate: 0 }} transition={{ delay: 0.2, type: "spring", stiffness: 200 }} className="h-16 w-16 md:h-20 md:w-20 bg-emerald-500 rounded-full flex items-center justify-center text-white shadow-lg mb-4"><Check size={40} strokeWidth={4} /></motion.div>
                     <h3 className="text-xl md:text-2xl font-bold text-white">Laporan Terkirim!</h3>
+                    <p className="text-slate-400 text-xs md:text-sm mt-1">Terima kasih atas laporan Anda.</p>
                 </div>
                 <div className="p-6 md:p-8">
                     <p className="text-slate-500 text-center mb-4 text-xs md:text-sm">Simpan Token ID ini untuk melacak status laporan Anda.</p>
@@ -433,14 +486,13 @@ export default function UserHome({ user }) {
                         <span className="font-mono text-base md:text-lg font-bold text-slate-700 tracking-wider truncate mr-2">{successModal.token}</span>
                         <button onClick={handleCopyToken} className={`p-2 rounded-lg transition-all flex items-center flex-shrink-0 ${isCopied ? 'bg-emerald-100 text-emerald-600' : 'bg-white text-slate-500 hover:text-slate-800 shadow-sm'}`}>{isCopied ? <Check size={18} /> : <Copy size={18} />}</button>
                     </div>
-                    <button onClick={closeSuccessModal} className="w-full py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition shadow-lg text-sm">Tutup & Lihat Riwayat</button>
+                    <button onClick={closeSuccessModal} className="w-full py-3 bg-[#0f172a] text-white font-bold rounded-xl hover:bg-slate-800 transition shadow-lg text-sm">Tutup & Lihat Riwayat</button>
                 </div>
             </motion.div>
         </motion.div>
       )}
       </AnimatePresence>
 
-      {/* MODAL LOGOUT */}
       <AnimatePresence>
       {showLogoutConfirm && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
@@ -453,6 +505,31 @@ export default function UserHome({ user }) {
                 <div className="p-4 bg-white flex space-x-3">
                     <button onClick={() => setShowLogoutConfirm(false)} className="flex-1 py-2.5 text-slate-500 font-bold hover:bg-slate-50 rounded-xl transition text-sm">Batal</button>
                     <button onClick={confirmLogout} className="flex-1 py-2.5 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 shadow-md transition text-sm">Ya, Keluar</button>
+                </div>
+            </motion.div>
+        </motion.div>
+      )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+      {showDeleteConfirm && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-red-900/80 backdrop-blur-sm">
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden">
+                <div className="p-6 text-center bg-red-50">
+                    <div className="h-16 w-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm"><Trash2 size={32} strokeWidth={2.5} /></div>
+                    <h3 className="text-xl font-bold text-red-700 mb-1">Hapus Akun Permanen?</h3>
+                    <p className="text-slate-600 text-xs md:text-sm px-4">Tindakan ini tidak dapat dibatalkan. Masukkan password Anda untuk konfirmasi.</p>
+                </div>
+                <div className="p-6 bg-white flex flex-col gap-3">
+                    <input 
+                      type="password" 
+                      placeholder="Masukkan Password Anda" 
+                      className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-sm mb-2"
+                      value={deletePassword}
+                      onChange={(e) => setDeletePassword(e.target.value)}
+                    />
+                    <button onClick={handleDeleteAccount} disabled={isDeleting} className="w-full py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 shadow-md transition text-sm">{isDeleting ? 'Menghapus...' : 'Ya, Hapus Akun Saya'}</button>
+                    <button onClick={() => {setShowDeleteConfirm(false); setDeletePassword('');}} className="w-full py-3 text-slate-500 font-bold hover:bg-slate-50 rounded-xl transition text-sm">Batal</button>
                 </div>
             </motion.div>
         </motion.div>

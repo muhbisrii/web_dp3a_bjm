@@ -8,27 +8,16 @@ import { User, Lock, AlertCircle, Send, Sparkles } from 'lucide-react';
 // Import CSS Landing agar animasi loader "Wave" dan "Particles" berfungsi
 import "./Landing.css"; 
 
-// --- KOMPONEN KECIL UNTUK PARTIKEL JATUH (Agar tidak duplikat kode) ---
+// --- KOMPONEN KECIL UNTUK PARTIKEL JATUH ---
 const FallingParticles = () => (
   <div className="particle-container">
-    {/* Partikel 1: Bulat Kiri */}
     <div className="particle-base particle-circle" style={{ left: '10%', animationDuration: '15s', animationDelay: '0s' }}></div>
-    
-    {/* Partikel 2: Sparkles Kiri-Tengah */}
     <Sparkles className="particle-svg h-5 w-5" style={{ left: '25%', animationDuration: '18s', animationDelay: '2s' }} />
-    
-    {/* Partikel 3: Garis Tengah */}
     <div className="particle-base particle-line" style={{ left: '50%', animationDuration: '13s', animationDelay: '5s' }}></div>
-    
-    {/* Partikel 4: Bulat Kanan (sedikit lebih besar) */}
     <div className="particle-base particle-circle" style={{ left: '70%', width: '12px', height: '12px', animationDuration: '16s', animationDelay: '1s' }}></div>
-    
-    {/* Partikel 5: Sparkles Kanan */}
     <Sparkles className="particle-svg h-6 w-6" style={{ left: '88%', animationDuration: '14s', animationDelay: '4s' }} />
   </div>
 );
-// -------------------------------------------------------------------
-
 
 export default function Login({ onSwitchToRegister, onBack }) {
   const [email, setEmail] = useState('');
@@ -64,10 +53,23 @@ export default function Login({ onSwitchToRegister, onBack }) {
       
     } catch (err) {
       await minLoadingTime;
-      if (err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found') {
-        setError("Email atau password salah.");
+      
+      console.error("Login Error Code:", err.code); // Debugging code di console
+
+      // === LOGIKA ERROR HANDLING YANG DIPERBARUI ===
+      if (err.code === 'auth/user-not-found') {
+        // Khusus jika email benar-benar tidak ada
+        setError("Email ini belum terdaftar. Silakan daftar terlebih dahulu.");
+      } else if (err.code === 'auth/invalid-credential') {
+        // Firebase versi baru sering melempar ini untuk email salah ATAU password salah (biar aman)
+        // Kita bisa buat pesan umum atau spesifik
+        setError("Email belum terdaftar atau password salah.");
+      } else if (err.code === 'auth/wrong-password') {
+        setError("Password salah. Silakan coba lagi.");
       } else if (err.code === 'auth/too-many-requests') {
         setError("Terlalu banyak percobaan. Silakan coba lagi nanti.");
+      } else if (err.code === 'auth/invalid-email') {
+        setError("Format email tidak valid.");
       } else {
         setError("Gagal Login: " + err.message);
       }
@@ -90,6 +92,16 @@ export default function Login({ onSwitchToRegister, onBack }) {
       setError("Gagal mengirim email. Coba lagi nanti.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Animasi Floating untuk Box
+  const floatingAnimation = {
+    y: [0, -8, 0],
+    transition: {
+      duration: 3,
+      repeat: Infinity,
+      ease: "easeInOut"
     }
   };
 
@@ -121,41 +133,37 @@ export default function Login({ onSwitchToRegister, onBack }) {
           animate={{ x: 0 }}
           transition={{ duration: 0.6 }}
           className="hidden md:flex w-[50%] h-full bg-gradient-to-br from-[#4f46e5] to-[#6366f1] 
-          text-white flex-col items-center justify-center text-center p-12 relative overflow-hidden" // Tambahkan overflow-hidden di sini
+          text-white flex-col items-center justify-center text-center p-12 relative overflow-hidden"
           style={{ borderTopRightRadius: '100px', borderBottomRightRadius: '100px' }}
         >
-          {/* MASUKKAN PARTIKEL JATUH DI SINI */}
+          {/* Partikel Jatuh */}
           <FallingParticles />
 
-          {/* Konten Teks (Diberi z-10 dan relative agar di atas partikel) */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.5 }}
+            animate={{ 
+              opacity: 1, 
+              ...floatingAnimation 
+            }}
+            transition={{
+               opacity: { delay: 0.3, duration: 0.5 },
+               y: floatingAnimation.transition 
+            }}
             className="w-full relative z-10" 
           >
-            <motion.div
-              animate={{ y: [0, -10, 0] }} 
-              transition={{ 
-                duration: 4, 
-                repeat: Infinity, 
-                ease: "easeInOut" 
-              }}
-            >
-              <div className="bg-white p-4 rounded-2xl shadow-lg mb-6 flex items-center justify-center w-full max-w-[200px] mx-auto">
-                <img 
-                  src="/logo-dp3a.png" 
-                  className="h-20 w-auto object-contain" 
-                  alt="Logo DP3A" 
-                  onError={(e) => e.target.src='/pemkot.png'} 
-                />
-              </div>
-              <h2 className="text-3xl font-extrabold mb-3">Portal DP3A</h2>
-              <p className="text-indigo-100 text-lg">Layanan Pengaduan Masyarakat<br />Kota Banjarmasin</p>
-              <p className="text-indigo-200 text-sm italic mt-4 max-w-xs mx-auto">
-                "Melindungi Perempuan, Menjaga Anak, Membangun Keluarga Sejahtera."
-              </p>
-            </motion.div>
+            <div className="bg-white p-4 rounded-2xl shadow-lg mb-6 flex items-center justify-center w-full max-w-[200px] mx-auto">
+              <img 
+                src="/logo-dp3a.png" 
+                className="h-20 w-auto object-contain" 
+                alt="Logo DP3A" 
+                onError={(e) => e.target.src='/pemkot.png'} 
+              />
+            </div>
+            <h2 className="text-3xl font-extrabold mb-3">Portal DP3A</h2>
+            <p className="text-indigo-100 text-lg">Layanan Pengaduan Masyarakat<br />Kota Banjarmasin</p>
+            <p className="text-indigo-200 text-sm italic mt-4 max-w-xs mx-auto">
+              "Melindungi Perempuan, Menjaga Anak, Membangun Keluarga Sejahtera."
+            </p>
           </motion.div>
         </motion.div>
 
@@ -170,15 +178,11 @@ export default function Login({ onSwitchToRegister, onBack }) {
             
             {/* === HEADER MOBILE (BOX BIRU MENGAMBANG) === */}
             <motion.div 
-              animate={{ y: [0, -8, 0] }} 
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-              // Tambahkan relative dan overflow-hidden
+              animate={floatingAnimation} 
               className="w-full bg-gradient-to-br from-[#4f46e5] to-[#6366f1] p-6 rounded-2xl shadow-lg mb-8 md:hidden flex flex-col items-center text-center relative overflow-hidden"
             >
-                {/* MASUKKAN PARTIKEL JATUH DI SINI JUGA UNTUK MOBILE */}
                 <FallingParticles />
 
-                {/* Konten Teks Mobile (Diberi z-10 dan relative) */}
                 <div className="relative z-10 flex flex-col items-center">
                   <div className="bg-white p-3 rounded-xl shadow-sm mb-3">
                     <img 
@@ -196,13 +200,14 @@ export default function Login({ onSwitchToRegister, onBack }) {
             <h2 className="text-2xl font-bold text-slate-800 mb-1 text-center md:text-left">Halo, Warga!</h2>
             <p className="text-slate-500 mb-5 text-center md:text-left text-sm">Silakan masuk ke akun Anda.</p>
 
-            {/* AREA PESAN ERROR / SUKSES */}
+            {/* === AREA PESAN ERROR / SUKSES === */}
             {error && (
               <div className="mb-4 bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded text-sm flex flex-col animate-pulse">
                 <span className="flex items-center gap-2 font-semibold">
                   <AlertCircle size={16} /> Perhatian:
                 </span>
                 <span>{error}</span>
+                
                 {needsVerification && (
                   <button 
                     onClick={handleResendVerification}
@@ -221,7 +226,6 @@ export default function Login({ onSwitchToRegister, onBack }) {
               </div>
             )}
 
-            {/* FORM */}
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="relative">
                 <User className="absolute left-4 top-3.5 text-slate-400 h-5 w-5" />
@@ -234,6 +238,7 @@ export default function Login({ onSwitchToRegister, onBack }) {
                   required
                 />
               </div>
+
               <div className="relative">
                 <Lock className="absolute left-4 top-3.5 text-slate-400 h-5 w-5" />
                 <input
@@ -245,6 +250,7 @@ export default function Login({ onSwitchToRegister, onBack }) {
                   required
                 />
               </div>
+
               <div className="flex justify-between items-center text-sm">
                 <button type="button" onClick={onBack} className="text-slate-400 hover:text-slate-600">
                   ← Kembali
@@ -253,6 +259,7 @@ export default function Login({ onSwitchToRegister, onBack }) {
                   Lupa Password?
                 </button>
               </div>
+
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
@@ -276,7 +283,9 @@ export default function Login({ onSwitchToRegister, onBack }) {
 
           </motion.div>
         </div>
+
       </div>
+
     </div>
   );
 }
