@@ -18,7 +18,22 @@ export default function Statistik({ onBack }) {
   });
   const [loading, setLoading] = useState(true);
 
-  // --- LOGIKA FETCH DATA REALTIME (SAMA DENGAN ADMIN) ---
+  // --- LOGIKA SINKRONISASI TEMA (TAMBAHAN BARU) ---
+  useEffect(() => {
+    // 1. Ambil tema yang tersimpan dari LocalStorage
+    const savedTheme = localStorage.getItem("theme");
+
+    // 2. Terapkan class sesuai tema
+    if (savedTheme === "dark") {
+      document.body.classList.add("dark-mode");
+      document.documentElement.classList.add("dark"); // Untuk dukungan native Tailwind
+    } else {
+      document.body.classList.remove("dark-mode");
+      document.documentElement.classList.remove("dark");
+    }
+  }, []);
+
+  // --- LOGIKA FETCH DATA REALTIME ---
   useEffect(() => {
     // Query ke koleksi "laporan"
     const q = query(collection(db, "laporan"));
@@ -117,7 +132,7 @@ export default function Statistik({ onBack }) {
               </p>
             </motion.div>
 
-            {/* GAMBAR VEKTOR (Sesuai Permintaan) */}
+            {/* GAMBAR VEKTOR */}
             <motion.div 
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
