@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, signOut } from 'firebase/auth'; // Tambah signOut
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from './firebase';
 import { AnimatePresence } from 'framer-motion';
@@ -14,7 +14,7 @@ import Help from './pages/Help';
 import About from './pages/About';
 
 // Components
-import Statistik from './components/Statistik'; // <-- Import Baru (Lokasi di folder components)
+import Statistik from './components/Statistik'; 
 
 function App() {
   const [user, setUser] = useState(null);
@@ -22,23 +22,47 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [isRegistering, setIsRegistering] = useState(false);
 
-  // STATE BARU: Mengatur tampilan halaman publik
-  // Nilai: 'landing' | 'help' | 'about' | 'stats' | 'auth'
+  // STATE HALAMAN PUBLIK
   const [publicView, setPublicView] = useState('landing');
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
-
-      if (currentUser) {
-        const docRef = doc(db, "users", currentUser.uid);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setUserData(docSnap.data());
+      
+      // === PERBAIKAN LOGIKA DISINI ===
+      // Cek: Apakah user ada? DAN Apakah emailnya sudah diverifikasi?
+      if (currentUser && currentUser.emailVerified) {
+        
+        // 1. Jika User Login & Sudah Verifikasi -> Masuk Dashboard
+        setUser(currentUser);
+        
+        // Ambil data detail dari Firestore
+        try {
+          const docRef = doc(db, "users", currentUser.uid);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            setUserData(docSnap.data());
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
         }
-        // Jika user sudah login, otomatis set view ke mode auth/dashboard
+        
         setPublicView('auth');
+
+      } else if (currentUser && !currentUser.emailVerified) {
+        
+        // 2. Jika User Login TAPI Belum Verifikasi -> Anggap Belum Login
+        // Ini penting agar halaman Register "Waiting Verification" tidak tertutup
+        // Kita biarkan user tetap null di state aplikasi utama
+        setUser(null);
+        setUserData(null);
+        
+        // Opsional: Kita bisa paksa logout di sini jika mau ketat, 
+        // tapi untuk Register flow (auto-detect), lebih baik biarkan null saja
+        // tanpa signOut, agar Register.jsx bisa jalan logic interval-nya.
       } else {
+        
+        // 3. Tidak ada user login
+        setUser(null);
         setUserData(null);
       }
 
@@ -57,31 +81,18 @@ function App() {
   }
 
   // =============== LOGIKA HALAMAN PUBLIK (Sebelum Login) ===============
-  // Jika user belum login DAN publicView bukan 'auth', tampilkan halaman info
   if (!user && publicView !== 'auth') {
-    
-    // 1. Tampilkan Halaman Bantuan
-    if (publicView === 'help') {
-      return <Help onBack={() => setPublicView('landing')} />;
-    }
-    
-    // 2. Tampilkan Halaman Tentang
-    if (publicView === 'about') {
-      return <About onBack={() => setPublicView('landing')} />;
-    }
+    if (publicView === 'help') return <Help onBack={() => setPublicView('landing')} />;
+    if (publicView === 'about') return <About onBack={() => setPublicView('landing')} />;
+    if (publicView === 'stats') return <Statistik onBack={() => setPublicView('landing')} />;
 
-    // 3. Tampilkan Halaman Statistik (NEW)
-    if (publicView === 'stats') {
-      return <Statistik onBack={() => setPublicView('landing')} />;
-    }
-
-    // 4. Default: Tampilkan Landing Page
+    // Default Landing Page
     return (
       <Landing
-        onStart={() => setPublicView('auth')}  // Menuju Login/Register
-        onHelp={() => setPublicView('help')}   // Menuju Halaman Bantuan
-        onAbout={() => setPublicView('about')} // Menuju Halaman Tentang
-        onStats={() => setPublicView('stats')} // Menuju Halaman Statistik (BARU)
+        onStart={() => setPublicView('auth')} 
+        onHelp={() => setPublicView('help')} 
+        onAbout={() => setPublicView('about')} 
+        onStats={() => setPublicView('stats')} 
       />
     );
   }
@@ -95,8 +106,6 @@ function App() {
           <Register
             key="register"
             onSwitchToLogin={() => setIsRegistering(false)}
-            // Opsional: Tambah tombol kembali ke Landing dari Register
-            // onBack={() => setPublicView('landing')} 
           />
         );
       }
@@ -104,8 +113,7 @@ function App() {
         <Login
           key="login"
           onSwitchToRegister={() => setIsRegistering(true)}
-          // Opsional: Jika di Login.jsx Anda punya tombol back
-          // onBack={() => setPublicView('landing')} 
+          onBack={() => setPublicView('landing')} // Tambahkan prop ini jika Login.jsx mendukung
         />
       );
     }
@@ -124,13 +132,10 @@ function App() {
     );
   };
 
-  // Deteksi apakah sedang di halaman auth (Login/Register) untuk background
   const isAuthPage = !user;
 
   return (
     <>
-      {/* Background global blobs hanya muncul jika SUDAH login (UserHome/Admin) 
-          atau jika ingin ditampilkan di login page juga, sesuaikan kondisinya. */}
       {!isAuthPage && (
         <div className="bg-blobs-container">
           <div className="blob blob-1"></div>

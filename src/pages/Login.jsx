@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, signOut } from 'firebase/auth'; // Import signOut
 import { auth } from '../firebase';
 import { motion } from 'framer-motion';
 import { User, Lock } from 'lucide-react';
@@ -14,42 +14,45 @@ export default function Login({ onSwitchToRegister }) {
     e.preventDefault();
     setError('');
     setLoading(true);
+    
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      // 1. Coba Login
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // 2. CEK APAKAH EMAIL SUDAH DIVERIFIKASI?
+      if (!user.emailVerified) {
+        // Jika belum, paksa Logout
+        await signOut(auth);
+        setError("Akun belum aktif. Silakan cek email Anda untuk verifikasi.");
+        setLoading(false);
+        return; // Stop, jangan lanjut login
+      }
+
+      // Jika sudah verified, Firebase listener di App.js Anda akan otomatis mengarahkan ke dashboard
+
     } catch (err) {
-      if (err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found') {
+      if (err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
         setError("Email atau password salah.");
+      } else if (err.code === 'auth/too-many-requests') {
+        setError("Terlalu banyak percobaan. Coba lagi nanti.");
       } else {
         setError("Gagal Login: " + err.message);
       }
-    } finally {
       setLoading(false);
     }
   };
 
   return (
+    // Background diubah jadi slate-100 tanpa gambar
     <div className="relative w-full min-h-screen overflow-hidden font-sans bg-slate-100">
-
-      {/* ==== BACKGROUND FOTO BLUR RINGAN ==== */}
-      <img
-        src="/bgfoto.jpeg"
-        alt="background"
-        className="
-          absolute top-0 left-0 w-full h-full
-          object-cover
-          blur-md brightness-75
-        "
-      />
-
-      {/* Lapisan gelap tipis */}
-      <div className="absolute inset-0 bg-black/20"></div>
 
       {/* ==== CONTAINER LOGIN ==== */}
       <div className="relative z-40 min-h-screen w-full flex items-center justify-center p-4">
 
         <div className="bg-white w-full max-w-4xl h-[600px] md:h-[550px] rounded-[30px] shadow-2xl overflow-hidden flex flex-row relative">
 
-          {/* PANEL KIRI (DESKTOP ONLY) */}
+          {/* PANEL KIRI (DESKTOP ONLY) - Panel Biru */}
           <motion.div
             initial={{ x: '-100%' }}
             animate={{ x: 0 }}
@@ -66,7 +69,7 @@ export default function Login({ onSwitchToRegister }) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.5 }}
             >
-              {/* Logo Desktop (Hanya DP3A) */}
+              {/* Logo Desktop */}
               <div className="bg-white p-4 rounded-2xl shadow-lg mb-6 flex items-center justify-center w-full max-w-[200px] mx-auto">
                 <img 
                   src="/logo-dp3a.png" 
@@ -101,11 +104,9 @@ export default function Login({ onSwitchToRegister }) {
                     className="h-10 w-auto mb-2 object-contain" 
                     onError={(e) => e.target.src='/pemkot.png'} 
                   />
-                  
                   <h3 className="text-lg font-bold text-[#4f46e5]">Portal DP3A</h3>
                   <p className="text-xs text-slate-500">Layanan Pengaduan Kota Banjarmasin</p>
               </div>
-              {/* ================================================ */}
 
               <h2 className="text-3xl font-bold text-slate-800 mb-2 text-center md:text-left">Halo, Warga!</h2>
               <p className="text-slate-500 mb-6 text-center md:text-left">Silakan masuk ke akun Anda.</p>
@@ -154,7 +155,7 @@ export default function Login({ onSwitchToRegister }) {
                   disabled={loading}
                   className="w-full bg-[#4f46e5] hover:bg-[#4338ca] text-white font-bold py-3.5 rounded-xl shadow-lg mt-2 transition-all"
                 >
-                  {loading ? "Memuat..." : "MASUK"}
+                  {loading ? "Memeriksa..." : "MASUK"}
                 </motion.button>
               </form>
 
@@ -172,9 +173,7 @@ export default function Login({ onSwitchToRegister }) {
           </div>
 
         </div>
-
       </div>
-
     </div>
   );
 }
