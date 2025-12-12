@@ -17,6 +17,7 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
   // --- STATE UNTUK LOAD MORE BERITA ---
   const [visibleNewsCount, setVisibleNewsCount] = useState(3);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // State Loading Halaman
 
   // --- LOGIKA DARK MODE ---
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -161,11 +162,20 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
     }
   };
 
-  // --- HANDLER NAVIGASI ---
-  const handleAbout = () => { setSidebarOpen(false); onAbout(); };
-  const handleHelp = () => { setSidebarOpen(false); onHelp(); };
-  const handleLogin = () => { setSidebarOpen(false); onStart(); };
-  const handleStats = () => { setSidebarOpen(false); onStats(); };
+  // --- HANDLER NAVIGASI & LOADING ---
+  const handleNavWithDelay = (action) => {
+    setSidebarOpen(false);
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+      if (action) action();
+    }, 2000);
+  };
+
+  const handleAbout = () => handleNavWithDelay(onAbout);
+  const handleHelp = () => handleNavWithDelay(onHelp);
+  const handleLogin = () => handleNavWithDelay(onStart);
+  const handleStats = () => handleNavWithDelay(onStats);
 
   const sidebarVideos = [
     { id: "qOep768DpOg", title: "Kegiatan DP3A" },
@@ -180,7 +190,24 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
   return (
     <div className="landing-container overflow-hidden bg-gray-50 dark:bg-slate-900 transition-colors duration-300">
       
-      {/* NAVBAR: BG PUTIH/HITAM DENGAN SHADOW JELAS */}
+      {/* LOADING OVERLAY (ANIMASI KOTAK BERGERAK) */}
+      {isLoading && (
+        <div className="custom-loading-screen">
+          <div className="custom-loader-content">
+            <div className="sipd-loader">
+              <div className="sipd-rect sipd-shape"></div>
+              <div className="sipd-square sipd-shape"></div>
+              <div className="sipd-square sipd-shape"></div>
+            </div>
+            <p className="loading-text-main">
+              Mohon tunggu... Sedang memproses halaman. 
+              <span className="loading-link"> Selengkapnya</span>
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* NAVBAR */}
       <motion.nav 
         className="landing-navbar bg-white dark:bg-[#0f172a] shadow-lg border-b border-gray-200 dark:border-slate-800"
         initial="hidden" animate="visible" variants={fadeInDown}
@@ -266,19 +293,14 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
         <BannerSlider />
       </motion.div>
 
-      {/* ====================================
-          BOX TRENDING
-      ==================================== */}
+      {/* BOX TRENDING */}
       <div className="w-full py-6 relative z-10 -mt-10 mb-4 px-4">
         <div className="container mx-auto max-w-5xl">
-          
           <div className="trending-box rounded-xl p-4 flex items-center shadow-lg relative overflow-hidden transition-colors duration-300 h-16">
-            
             <div className="text-[#1A73E8] font-bold text-sm md:text-base mr-4 shrink-0 flex items-center">
               <Zap size={18} className="mr-2 fill-current" />
               Trending:
             </div>
-
             <div className="flex-1 h-[24px] md:h-[28px] overflow-hidden relative">
               <AnimatePresence mode="wait">
                 <motion.a
@@ -296,30 +318,16 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
                 </motion.a>
               </AnimatePresence>
             </div>
-
             <div className="flex flex-col gap-1 ml-4 shrink-0 justify-center">
-               <button 
-                 onClick={handlePrevNews} 
-                 className="trending-arrow transition-colors p-0.5"
-                 title="Berita Sebelumnya"
-               >
-                 <ChevronUp size={16} />
-               </button>
-               <button 
-                 onClick={handleNextNews} 
-                 className="trending-arrow transition-colors p-0.5"
-                 title="Berita Selanjutnya"
-               >
-                 <ChevronDown size={16} />
-               </button>
+               <button onClick={handlePrevNews} className="trending-arrow transition-colors p-0.5" title="Berita Sebelumnya"><ChevronUp size={16} /></button>
+               <button onClick={handleNextNews} className="trending-arrow transition-colors p-0.5" title="Berita Selanjutnya"><ChevronDown size={16} /></button>
             </div>
-
           </div>
         </div>
       </div>
 
       {/* ===========================
-          HERO SECTION
+          HERO SECTION (ANIMASI FLOATING)
       =========================== */}
       <section className="landing-hero relative z-0">
         <motion.div 
@@ -327,7 +335,18 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
           initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.3 }} variants={staggerContainer}
         >
           <motion.div className="hero-left-img" variants={fadeInUp}>
-            <img src="/vektor.png" alt="illustration" className="hero-img" />
+            {/* --- GAMBAR VEKTOR MENGAMBANG --- */}
+            <motion.img 
+              src="/vektor.png" 
+              alt="illustration" 
+              className="hero-img"
+              animate={{ y: [0, -20, 0] }} // Gerak naik turun 20px
+              transition={{ 
+                duration: 4, 
+                repeat: Infinity, 
+                ease: "easeInOut" 
+              }}
+            />
           </motion.div>
           
           <motion.div 
@@ -370,17 +389,13 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-4 italic w-full text-center sm:text-left">
               *Klik "Download APK" untuk mengunduh & instal manual.
             </p>
-
           </motion.div>
         </motion.div>
       </section>
 
-      {/* ===========================
-          BERITA TERKINI SECTION
-      =========================== */}
+      {/* BERITA SECTION */}
       <motion.section 
-        className="news-section relative z-0"
-        id="berita" 
+        className="news-section relative z-0" id="berita" 
         initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.2 }} variants={fadeInUp}
       >
         <div className="profile-container">
@@ -391,67 +406,39 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
           </div>
 
           <div className="news-grid">
-            {/* HANYA TAMPILKAN SEJUMLAH visibleNewsCount */}
             {fullNewsData.slice(0, visibleNewsCount).map((item) => (
               <motion.div 
                 key={item.id} 
                 className="news-card group"
                 whileHover={{ y: -5 }}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3 }}
+                initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }}
               >
                 <div className="news-image-wrapper">
-                  <img 
-                    src={item.image} 
-                    alt={item.title} 
-                    className="news-image" 
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                      objectPosition: "top"
-                    }}
-                  />
-                  <div className="news-overlay">
-                    <a href={item.link} target="_blank" rel="noreferrer" className="read-more-btn">Baca Berita</a>
-                  </div>
+                  <img src={item.image} alt={item.title} className="news-image" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }} />
+                  <div className="news-overlay"><a href={item.link} target="_blank" rel="noreferrer" className="read-more-btn">Baca Berita</a></div>
                 </div>
                 <div className="news-content">
-                  <div className="news-date">
-                    <Calendar size={14} className="mr-1" />
-                    {item.date}
-                  </div>
-                  <h3 className="news-title">
-                    <a href={item.link} target="_blank" rel="noreferrer">{item.title}</a>
-                  </h3>
+                  <div className="news-date"><Calendar size={14} className="mr-1" />{item.date}</div>
+                  <h3 className="news-title"><a href={item.link} target="_blank" rel="noreferrer">{item.title}</a></h3>
                   <p className="news-desc">{item.desc}</p>
-                  <a href={item.link} target="_blank" rel="noreferrer" className="news-link">
-                    Selengkapnya <ArrowRight size={14} className="ml-1" />
-                  </a>
+                  <a href={item.link} target="_blank" rel="noreferrer" className="news-link">Selengkapnya <ArrowRight size={14} className="ml-1" /></a>
                 </div>
               </motion.div>
             ))}
           </div>
 
-          {/* TOMBOL LOAD MORE */}
           {visibleNewsCount < fullNewsData.length && (
             <div className="text-center mt-10">
-              <button 
-                onClick={handleLoadMore} 
-                disabled={isLoadingMore}
-                className="px-6 py-2.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-full font-semibold hover:bg-slate-300 dark:hover:bg-slate-600 transition-all flex items-center justify-center mx-auto"
-              >
+              <button onClick={handleLoadMore} disabled={isLoadingMore} className="px-6 py-2.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-full font-semibold hover:bg-slate-300 dark:hover:bg-slate-600 transition-all flex items-center justify-center mx-auto">
                 {isLoadingMore ? <Loader2 className="animate-spin mr-2" size={18} /> : null}
                 {isLoadingMore ? "Memuat..." : "Muat postingan lainnya!"}
               </button>
             </div>
           )}
-
         </div>
       </motion.section>
 
-      {/* PROFIL & SIDEBAR SECTION */}
+      {/* PROFIL & SIDEBAR */}
       <motion.section 
         className="profile-section relative z-0" id="profil"
         initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.2 }} transition={{ duration: 0.8 }} variants={fadeInUp}
@@ -472,7 +459,6 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
                 Kami berkomitmen mewujudkan kesetaraan gender, perlindungan hak perempuan, serta pemenuhan hak anak demi terciptanya masyarakat kota yang inklusif, aman, dan sejahtera.
               </p>
             </div>
-
             <div className="profile-sidebar">
               <div className="sidebar-widget">
                 <h3 className="widget-title flex items-start">
@@ -506,9 +492,7 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
         initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.1 }} variants={fadeInUp}
       >
         <div className="footer-content">
-          <div className="footer-map">
-            <iframe title="Lokasi Kantor DP3A Banjarmasin" src="https://maps.google.com/maps?q=Dinas%20Pemberdayaan%20Perempuan%20dan%20Perlindungan%20Anak%20Kota%20Banjarmasin&t=&z=15&ie=UTF8&iwloc=&output=embed" width="100%" height="250" style={{ border: 0, borderRadius: "12px" }} allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade"></iframe>
-          </div>
+          <div className="footer-map"><iframe title="Lokasi Kantor DP3A Banjarmasin" src="https://maps.google.com/maps?q=Dinas%20Pemberdayaan%20Perempuan%20dan%20Perlindungan%20Anak%20Kota%20Banjarmasin&t=&z=15&ie=UTF8&iwloc=&output=embed" width="100%" height="250" style={{ border: 0, borderRadius: "12px" }} allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade"></iframe></div>
           <div className="footer-info">
             <h3 className="footer-title">KONTAK KAMI</h3>
             <p className="footer-agency">Dinas Pemberdayaan Perempuan dan Perlindungan Anak (DP3A)</p>

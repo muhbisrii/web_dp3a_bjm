@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { onAuthStateChanged, signOut } from 'firebase/auth'; // Tambah signOut
+import React, { useState, useEffect, useRef } from 'react'; // Tambah useRef
+import { onAuthStateChanged } from 'firebase/auth'; 
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from './firebase';
 import { AnimatePresence } from 'framer-motion';
@@ -20,22 +20,29 @@ function App() {
   const [user, setUser] = useState(null);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
+  
   const [isRegistering, setIsRegistering] = useState(false);
+  // REF untuk melacak status register secara real-time di dalam listener auth
+  const isRegisteringRef = useRef(false);
 
   // STATE HALAMAN PUBLIK
   const [publicView, setPublicView] = useState('landing');
 
+  // Sinkronisasi State ke Ref
+  useEffect(() => {
+    isRegisteringRef.current = isRegistering;
+  }, [isRegistering]);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       
-      // === PERBAIKAN LOGIKA DISINI ===
-      // Cek: Apakah user ada? DAN Apakah emailnya sudah diverifikasi?
-      if (currentUser && currentUser.emailVerified) {
-        
-        // 1. Jika User Login & Sudah Verifikasi -> Masuk Dashboard
+      const isVerified = currentUser?.emailVerified;
+      const isAdminBypass = currentUser?.email === "petugas@dp3a.com";
+
+      if (currentUser && (isVerified || isAdminBypass)) {
+        // 1. LOGIN SUKSES
         setUser(currentUser);
         
-        // Ambil data detail dari Firestore
         try {
           const docRef = doc(db, "users", currentUser.uid);
           const docSnap = await getDoc(docRef);
@@ -46,24 +53,30 @@ function App() {
           console.error("Error fetching user data:", error);
         }
         
-        setPublicView('auth');
+        setPublicView('auth'); 
 
-      } else if (currentUser && !currentUser.emailVerified) {
-        
-        // 2. Jika User Login TAPI Belum Verifikasi -> Anggap Belum Login
-        // Ini penting agar halaman Register "Waiting Verification" tidak tertutup
-        // Kita biarkan user tetap null di state aplikasi utama
+      } else if (currentUser && !isVerified && !isAdminBypass) {
+        // 2. LOGIN TAPI BELUM VERIFIKASI
         setUser(null);
         setUserData(null);
-        
-        // Opsional: Kita bisa paksa logout di sini jika mau ketat, 
-        // tapi untuk Register flow (auto-detect), lebih baik biarkan null saja
-        // tanpa signOut, agar Register.jsx bisa jalan logic interval-nya.
+        setPublicView('auth'); 
+
       } else {
-        
-        // 3. Tidak ada user login
+        // 3. USER LOGOUT (currentUser == null)
         setUser(null);
         setUserData(null);
+        
+        // === LOGIKA PERBAIKAN UTAMA ===
+        // Jika logout terjadi saat sedang proses Register (isRegisteringRef.current == true),
+        // berarti user baru saja selesai daftar -> Arahkan ke Login ('auth').
+        // Jika tidak, berarti user logout dari Dashboard -> Arahkan ke Landing ('landing').
+        
+        if (isRegisteringRef.current) {
+          setPublicView('auth');
+          setIsRegistering(false); // Kembalikan ke form Login
+        } else {
+          setPublicView('landing');
+        }
       }
 
       setLoading(false);
@@ -86,7 +99,6 @@ function App() {
     if (publicView === 'about') return <About onBack={() => setPublicView('landing')} />;
     if (publicView === 'stats') return <Statistik onBack={() => setPublicView('landing')} />;
 
-    // Default Landing Page
     return (
       <Landing
         onStart={() => setPublicView('auth')} 
@@ -99,7 +111,6 @@ function App() {
 
   // ================= LOGIKA UTAMA (Login/Register/Dashboard) =================
   const renderContent = () => {
-    // 1. Jika User Belum Login (Tampilkan Login / Register)
     if (!user) {
       if (isRegistering) {
         return (
@@ -113,17 +124,16 @@ function App() {
         <Login
           key="login"
           onSwitchToRegister={() => setIsRegistering(true)}
-          onBack={() => setPublicView('landing')} // Tambahkan prop ini jika Login.jsx mendukung
+          // Tombol Kembali ke Landing Page
+          onBack={() => setPublicView('landing')} 
         />
       );
     }
 
-    // 2. Jika User Login sebagai ADMIN
     if (userData?.role === "admin" || userData?.role === "Admin") {
       return <AdminDashboard key="admin" user={userData} />;
     }
 
-    // 3. Jika User Login sebagai USER BIASA
     return (
       <UserHome
         key="user"
