@@ -4,9 +4,98 @@ import { signOut } from 'firebase/auth';
 import { db, auth } from '../firebase';
 import { 
   LogOut, LayoutDashboard, FileText, User, Search, Clock, Settings, 
-  CheckCircle, XCircle, Menu, Eye, MapPin, BarChart3, Trash2, ArrowLeft, MessageSquare, X, Send, Filter, Calendar, RefreshCcw, AlertTriangle, Check
+  CheckCircle, XCircle, Menu, MapPin, BarChart3, Trash2, ArrowLeft, MessageSquare, X, Send, Filter, Calendar, RefreshCcw, AlertTriangle, Check
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+
+// --- KOMPONEN ANIMASI MENGETIK (TYPEWRITER) ---
+const TypewriterText = ({ text }) => {
+  const [key, setKey] = useState(0); 
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setKey((prev) => prev + 1); 
+    }, 10000); // Ulangi setiap 10 detik
+    return () => clearInterval(interval);
+  }, []);
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.03, delayChildren: 0.5 },
+    },
+  };
+
+  const letterVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1 },
+  };
+
+  return (
+    <motion.div
+      key={key} 
+      className="text-sm font-bold text-white hidden sm:block leading-tight"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      {text.split("").map((char, index) => (
+        <motion.span key={index} variants={letterVariants}>
+          {char}
+        </motion.span>
+      ))}
+      <motion.span
+        initial={{ opacity: 0 }}
+        animate={{ opacity: [0, 1, 0] }}
+        transition={{ duration: 0.8, repeat: Infinity }}
+        className="inline-block w-[2px] h-[14px] bg-emerald-400 ml-1 align-middle"
+      />
+    </motion.div>
+  );
+};
+
+// --- KOMPONEN PARTIKEL JATUH (ADMIN STYLE) ---
+const AdminParticles = () => {
+  const particles = [
+    { type: 'circle', left: '5%',  delay: 0, duration: 20 },
+    { type: 'x',      left: '20%', delay: 5, duration: 25, rotate: 180 },
+    { type: 'circle', left: '40%', delay: 2, duration: 22 },
+    { type: 'x',      left: '60%', delay: 8, duration: 28, rotate: -180 },
+    { type: 'circle', left: '80%', delay: 4, duration: 24 },
+    { type: 'x',      left: '95%', delay: 1, duration: 30, rotate: 90 },
+  ];
+
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none z-0 opacity-30">
+      {particles.map((p, i) => (
+        <motion.div
+          key={i}
+          initial={{ y: -50, opacity: 0, rotate: 0 }}
+          animate={{ 
+            y: 300, 
+            opacity: [0, 0.5, 0.5, 0],
+            rotate: p.rotate || 0 
+          }} 
+          transition={{
+            duration: p.duration,
+            repeat: Infinity,
+            delay: p.delay,
+            ease: "linear"
+          }}
+          className="absolute text-white font-bold flex items-center justify-center"
+          style={{ left: p.left, top: -20 }}
+        >
+          {p.type === 'circle' ? (
+            <div className="w-2 h-2 rounded-full bg-white" />
+          ) : (
+            <X size={14} className="text-white" />
+          )}
+        </motion.div>
+      ))}
+    </div>
+  );
+};
 
 export default function AdminDashboard({ user }) {
   const [activeTab, setActiveTab] = useState('dashboard'); 
@@ -24,6 +113,7 @@ export default function AdminDashboard({ user }) {
   const [selectedLaporanId, setSelectedLaporanId] = useState(null);
   const [responseText, setResponseText] = useState('');
   const [loadingResponse, setLoadingResponse] = useState(false);
+  
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, type: '', id: null, data: null, title: '', message: '' });
   const [successModal, setSuccessModal] = useState({ isOpen: false, title: '', message: '' });
   const [isProcessing, setIsProcessing] = useState(false);
@@ -75,6 +165,7 @@ export default function AdminDashboard({ user }) {
   const requestDelete = (id) => {
     setConfirmModal({ isOpen: true, type: 'delete', id: id, title: 'Hapus Laporan Permanen?', message: 'PERINGATAN: Tindakan ini tidak dapat dibatalkan. Data laporan akan hilang selamanya.' });
   };
+  
   const handleConfirmAction = async () => {
     setIsProcessing(true);
     try {
@@ -88,6 +179,7 @@ export default function AdminDashboard({ user }) {
         setConfirmModal({ isOpen: false, type: '', id: null, data: null, title: '', message: '' });
     } catch (err) { alert("Terjadi kesalahan: " + err.message); } finally { setIsProcessing(false); }
   };
+
   const handleSendResponse = async (e) => {
     e.preventDefault();
     if (!responseText.trim()) return;
@@ -98,28 +190,55 @@ export default function AdminDashboard({ user }) {
         setSuccessModal({ isOpen: true, title: 'Tanggapan Terkirim!', message: 'Respon Anda telah berhasil dikirim ke pelapor.' });
     } catch (err) { alert("Gagal mengirim tanggapan: " + err.message); } finally { setLoadingResponse(false); }
   };
+
   const openResponseModal = (id, currentResponse) => { setSelectedLaporanId(id); setResponseText(currentResponse || ''); setIsResponseModalOpen(true); };
   const resetFilters = () => { setFilterStatus('Semua'); setFilterYear(''); setFilterMonth(''); setFilterDate(''); setSearchTerm(''); };
 
-  const StatCard = ({ title, count, icon: Icon, colorBg, colorText }) => (
-    <div className="bg-white/80 backdrop-blur-sm p-5 rounded-xl shadow-sm border border-white/50 flex items-center transform transition hover:scale-105 hover:shadow-md">
+  // --- ANIMASI VARIANTS ---
+  const pageVariants = { 
+    initial: { opacity: 0, y: 15 },
+    animate: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } }, 
+    exit: { opacity: 0, y: -15 } 
+  };
+
+  const cardFloatVariant = (delay) => ({
+    animate: {
+      y: [0, -6, 0], // Mengambang 6px
+      transition: { duration: 4, repeat: Infinity, ease: "easeInOut", delay: delay }
+    }
+  });
+
+  const StatCard = ({ title, count, icon: Icon, colorBg, colorText, delay = 0 }) => (
+    <motion.div 
+      variants={cardFloatVariant(delay)}
+      animate="animate"
+      className="bg-white/80 backdrop-blur-sm p-5 rounded-xl shadow-sm border border-white/50 flex items-center transform transition hover:scale-[1.02] hover:shadow-md"
+    >
       <div className={`p-3 rounded-lg mr-4 ${colorBg} ${colorText} shadow-sm`}><Icon size={24} /></div>
-      <div><h4 className="text-2xl font-bold text-slate-800">{count}</h4><p className="text-xs font-medium text-slate-500 uppercase tracking-wide">{title}</p></div>
-    </div>
+      <div>
+        <h4 className="text-2xl font-bold text-slate-800">{count}</h4>
+        <p className="text-[10px] md:text-xs font-medium text-slate-500 uppercase tracking-wide">{title}</p>
+      </div>
+    </motion.div>
   );
+
   const getStatusBadge = (status) => {
     const s = status ? status.toLowerCase() : 'menunggu';
-    switch(s) { case 'selesai': return 'bg-emerald-100 text-emerald-700 border border-emerald-200'; case 'diproses': return 'bg-blue-100 text-blue-700 border border-blue-200'; case 'ditolak': return 'bg-red-100 text-red-700 border border-red-200'; default: return 'bg-amber-100 text-amber-700 border border-amber-200'; }
+    switch(s) { 
+        case 'selesai': return 'bg-emerald-100 text-emerald-700 border border-emerald-200'; 
+        case 'diproses': return 'bg-blue-100 text-blue-700 border border-blue-200'; 
+        case 'ditolak': return 'bg-red-100 text-red-700 border border-red-200'; 
+        default: return 'bg-amber-100 text-amber-700 border border-amber-200'; 
+    }
   };
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-slate-50 to-slate-200 font-sans overflow-hidden relative">
       
-      {/* Pattern Dot Halus */}
+      {/* BACKGROUND PATTERN */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#475569 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
 
-      {/* --- PERBAIKAN SIDEBAR MOBILE --- */}
-      {/* Z-Index diubah jadi z-50 agar di atas Overlay */}
+      {/* SIDEBAR */}
       <aside className={`fixed md:relative z-50 w-64 h-full bg-[#0f172a] text-white flex flex-col transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} shadow-2xl`}>
         <div className="p-6 border-b border-slate-800">
            <div className="flex items-center space-x-3 bg-slate-800/50 p-3 rounded-xl border border-slate-700/50 backdrop-blur-sm">
@@ -137,91 +256,128 @@ export default function AdminDashboard({ user }) {
         </div>
       </aside>
 
-      {/* --- OVERLAY UNTUK HP --- */}
-      {/* Z-Index Overlay z-40 (di bawah sidebar z-50) */}
+      {/* OVERLAY MOBILE */}
       {isSidebarOpen && <div onClick={() => setSidebarOpen(false)} className="fixed inset-0 bg-slate-900/50 z-40 md:hidden backdrop-blur-sm"></div>}
 
+      {/* MAIN CONTENT AREA */}
       <div className="flex-1 flex flex-col h-full overflow-hidden relative z-10">
-        <header className="h-20 bg-[#0f172a] border-b border-slate-800 flex items-center justify-between px-6 shadow-md z-10 text-white">
+        <header className="h-16 md:h-20 bg-[#0f172a] border-b border-slate-800 flex items-center justify-between px-4 md:px-6 shadow-md z-10 text-white">
            <div className="flex items-center gap-4">
              <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="md:hidden text-white hover:text-emerald-400"><Menu/></button>
              <div className="flex items-center gap-3">
-                <img src="/logo-dp3a.png" alt="Logo" onError={(e) => e.target.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Coat_of_arms_of_South_Kalimantan.svg/1200px-Coat_of_arms_of_South_Kalimantan.svg.png"} className="h-10 w-auto object-contain hidden sm:block" />
-                <div><h1 className="text-sm font-bold text-white hidden sm:block leading-tight">Dinas Pemberdayaan Perempuan dan Perlindungan Anak</h1><h1 className="text-sm font-bold text-white sm:hidden">Admin Panel DP3A</h1><p className="text-xs text-slate-400 hidden sm:block mt-0.5">Kota Banjarmasin - Panel Manajemen Petugas</p></div>
+                <img src="/logo-dp3a.png" alt="Logo" onError={(e) => e.target.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Coat_of_arms_of_South_Kalimantan.svg/1200px-Coat_of_arms_of_South_Kalimantan.svg.png"} className="h-8 md:h-10 w-auto object-contain hidden sm:block" />
+                <div>
+                  {/* --- ANIMASI MENGETIK DI SINI --- */}
+                  <TypewriterText text="Dinas Pemberdayaan Perempuan dan Perlindungan Anak" />
+                  
+                  <h1 className="text-sm font-bold text-white sm:hidden">Admin Panel DP3A</h1>
+                  <p className="text-xs text-slate-400 hidden sm:block mt-0.5">Kota Banjarmasin - Panel Manajemen Petugas</p>
+                </div>
              </div>
            </div>
-           <div className="flex items-center space-x-4"><div className="text-right hidden sm:block"><p className="text-xs text-slate-400">Tanggal Hari Ini</p><p className="text-sm font-bold text-white">{new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p></div></div>
+           <div className="hidden md:flex items-center space-x-4"><div className="text-right"><p className="text-xs text-slate-400">Tanggal Hari Ini</p><p className="text-sm font-bold text-white">{new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p></div></div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-6 md:p-8">
+        <main className="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth">
+          <AnimatePresence mode="wait">
+          
+          {/* === DASHBOARD TAB === */}
           {activeTab === 'dashboard' && (
-            <div className="space-y-8 animate-fade-in">
-               <div><h2 className="text-2xl font-bold text-slate-800 mb-1">Ringkasan Statistik</h2><p className="text-slate-500 text-sm font-medium">Pantau status laporan pengaduan masyarakat secara real-time.</p></div>
-               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                  <StatCard title="Total Laporan" count={stats.total} icon={BarChart3} colorBg="bg-slate-800" colorText="text-white" />
-                  <StatCard title="Menunggu" count={stats.menunggu} icon={Clock} colorBg="bg-amber-100" colorText="text-amber-600" />
-                  <StatCard title="Diproses" count={stats.diproses} icon={Settings} colorBg="bg-blue-100" colorText="text-blue-600" />
-                  <StatCard title="Selesai" count={stats.selesai} icon={CheckCircle} colorBg="bg-emerald-100" colorText="text-emerald-600" />
-                  <StatCard title="Ditolak" count={stats.ditolak} icon={XCircle} colorBg="bg-red-100" colorText="text-red-600" />
+            <motion.div key="dashboard" variants={pageVariants} initial="initial" animate="animate" exit="exit" className="space-y-6 md:space-y-8">
+               
+               {/* HERO BOX ADMIN (HITAM) DENGAN PARTIKEL */}
+               <div className="relative">
+                 <div className="bg-[#0f172a] p-6 md:p-8 rounded-2xl shadow-lg border border-slate-700 relative overflow-hidden text-white">
+                    {/* Partikel Jatuh di dalam Box */}
+                    <AdminParticles /> 
+                    
+                    <div className="relative z-10">
+                      <h2 className="text-2xl font-bold mb-1">Ringkasan Statistik</h2>
+                      <p className="text-slate-400 text-sm font-medium">Pantau status laporan pengaduan masyarakat secara real-time.</p>
+                    </div>
+                 </div>
                </div>
-               <div className="bg-white/90 backdrop-blur-md rounded-xl shadow-lg border border-white/60 flex flex-col">
-                  <div className="p-6 border-b border-slate-100 flex justify-between items-center"><div><h3 className="font-bold text-slate-800 text-lg">Laporan Masuk Terbaru</h3><p className="text-sm text-slate-500">Pengaduan terakhir yang diterima sistem.</p></div><button onClick={() => setActiveTab('complaints')} className="text-sm font-medium text-emerald-600 hover:text-emerald-700 flex items-center">Lihat Semua <ArrowLeft className="ml-1 rotate-180" size={16}/></button></div>
+
+               {/* GRID STATISTIK MENGAMBANG (RESPONSIF) */}
+               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
+                  <StatCard title="Total Laporan" count={stats.total} icon={BarChart3} colorBg="bg-slate-800" colorText="text-white" delay={0} />
+                  <StatCard title="Menunggu" count={stats.menunggu} icon={Clock} colorBg="bg-amber-100" colorText="text-amber-600" delay={0.5} />
+                  <StatCard title="Diproses" count={stats.diproses} icon={Settings} colorBg="bg-blue-100" colorText="text-blue-600" delay={1} />
+                  <StatCard title="Selesai" count={stats.selesai} icon={CheckCircle} colorBg="bg-emerald-100" colorText="text-emerald-600" delay={1.5} />
+                  <StatCard title="Ditolak" count={stats.ditolak} icon={XCircle} colorBg="bg-red-100" colorText="text-red-600" delay={2} />
+               </div>
+
+               {/* TABEL LAPORAN TERBARU */}
+               <div className="bg-white/90 backdrop-blur-md rounded-xl shadow-lg border border-white/60 flex flex-col overflow-hidden">
+                  <div className="p-4 md:p-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                    <div><h3 className="font-bold text-slate-800 text-lg">Laporan Masuk Terbaru</h3><p className="text-sm text-slate-500">Pengaduan terakhir yang diterima sistem.</p></div>
+                    <button onClick={() => setActiveTab('complaints')} className="text-sm font-medium text-emerald-600 hover:text-emerald-700 flex items-center bg-emerald-50 px-3 py-1.5 rounded-lg transition-colors w-full md:w-auto justify-center">Lihat Semua Data <ArrowLeft className="ml-1 rotate-180" size={16}/></button>
+                  </div>
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left">
-                       <thead className="bg-slate-50/50 text-slate-500 uppercase text-xs font-bold"><tr><th className="px-6 py-4">Tanggal</th><th className="px-6 py-4">Pelapor</th><th className="px-6 py-4">Judul & Lokasi</th><th className="px-6 py-4">Status</th></tr></thead>
+                       <thead className="bg-slate-50/50 text-slate-500 uppercase text-xs font-bold border-b border-slate-200"><tr><th className="px-4 md:px-6 py-3 md:py-4">Tanggal</th><th className="px-4 md:px-6 py-3 md:py-4">Pelapor</th><th className="px-4 md:px-6 py-3 md:py-4">Judul & Lokasi</th><th className="px-4 md:px-6 py-3 md:py-4">Status</th></tr></thead>
                        <tbody className="divide-y divide-slate-100">
                           {laporan.slice(0, 5).map((item) => (
-                             <tr key={item.id} className="hover:bg-slate-50/50 transition-colors"><td className="px-6 py-4 text-slate-600 whitespace-nowrap"><div className="flex items-center"><Clock size={14} className="mr-2 text-slate-400"/> {item.tanggalKejadian}</div></td><td className="px-6 py-4"><div className="font-medium text-slate-800">{item.nama_pelapor || "Anonim"}</div><div className="text-xs text-slate-400">{item.emailPelapor}</div></td><td className="px-6 py-4 max-w-xs"><div className="font-bold text-slate-800 truncate">{item.judul}</div><div className="text-xs text-slate-500 flex items-center mt-1"><MapPin size={10} className="mr-1"/> {item.lokasi}</div></td><td className="px-6 py-4"><span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${getStatusBadge(item.status)}`}>{item.status || "Menunggu"}</span></td></tr>
+                             <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">
+                               <td className="px-4 md:px-6 py-3 md:py-4 text-slate-600 whitespace-nowrap"><div className="flex items-center"><Clock size={14} className="mr-2 text-slate-400"/> {item.tanggalKejadian}</div></td>
+                               <td className="px-4 md:px-6 py-3 md:py-4"><div className="font-medium text-slate-800">{item.nama_pelapor || "Anonim"}</div><div className="text-xs text-slate-400 truncate max-w-[120px]">{item.emailPelapor}</div></td>
+                               <td className="px-4 md:px-6 py-3 md:py-4 max-w-xs"><div className="font-bold text-slate-800 truncate">{item.judul}</div><div className="text-xs text-slate-500 flex items-center mt-1 truncate"><MapPin size={10} className="mr-1 flex-shrink-0"/> {item.lokasi}</div></td>
+                               <td className="px-4 md:px-6 py-3 md:py-4"><span className={`px-2 py-1 md:px-3 md:py-1 rounded-full text-[10px] md:text-xs font-bold uppercase ${getStatusBadge(item.status)}`}>{item.status || "Menunggu"}</span></td>
+                             </tr>
                           ))}
                           {laporan.length === 0 && <tr><td colSpan="4" className="text-center py-12 text-slate-400">Belum ada data pengaduan.</td></tr>}
                        </tbody>
                     </table>
                   </div>
                </div>
-            </div>
+            </motion.div>
           )}
 
+          {/* === DATA PENGADUAN TAB === */}
           {activeTab === 'complaints' && (
-             <div className="space-y-6 animate-fade-in">
+             <motion.div key="complaints" variants={pageVariants} initial="initial" animate="animate" exit="exit" className="space-y-6">
                 <div className="flex flex-col gap-4">
-                   <div className="flex justify-between items-center"><div><h2 className="text-2xl font-bold text-slate-800 mb-1">Data Pengaduan Masuk</h2><p className="text-slate-500 text-sm">Kelola semua data laporan yang masuk dari masyarakat.</p></div><button onClick={resetFilters} className="text-sm text-red-500 hover:text-red-700 flex items-center font-bold bg-red-50/80 px-3 py-2 rounded-lg backdrop-blur-sm border border-red-100"><RefreshCcw size={14} className="mr-2"/> Reset Filter</button></div>
-                   <div className="bg-white/90 backdrop-blur-md p-4 rounded-xl border border-white/60 shadow-sm grid grid-cols-1 md:grid-cols-5 gap-4">
+                   <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                     <div><h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-1">Data Pengaduan Masuk</h2><p className="text-slate-500 text-sm">Kelola semua data laporan yang masuk dari masyarakat.</p></div>
+                     <button onClick={resetFilters} className="text-sm text-red-500 hover:text-red-700 flex items-center font-bold bg-red-50/80 px-3 py-2 rounded-lg backdrop-blur-sm border border-red-100 w-full md:w-auto justify-center"><RefreshCcw size={14} className="mr-2"/> Reset Filter</button>
+                   </div>
+                   
+                   {/* FILTER GRID RESPONSIF */}
+                   <div className="bg-white/90 backdrop-blur-md p-4 rounded-xl border border-white/60 shadow-sm grid grid-cols-1 md:grid-cols-5 gap-3">
                       <div className="relative md:col-span-2"><Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" /><input type="text" placeholder="Cari Judul, Pelapor..." className="pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg w-full text-sm focus:ring-2 focus:ring-emerald-500 outline-none bg-white/50" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}/></div>
                       <div className="relative"><Filter className="absolute left-3 top-3 h-4 w-4 text-slate-400" /><select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg w-full text-sm focus:ring-2 focus:ring-emerald-500 outline-none appearance-none bg-white/50"><option value="Semua">Semua Status</option><option value="Menunggu">Menunggu</option><option value="Diproses">Diproses</option><option value="Selesai">Selesai</option><option value="Ditolak">Ditolak</option></select></div>
                       <div className="grid grid-cols-2 gap-2"><select value={filterYear} onChange={(e) => setFilterYear(e.target.value)} className="px-3 py-2.5 border border-slate-300 rounded-lg w-full text-sm focus:ring-2 focus:ring-emerald-500 outline-none bg-white/50"><option value="">Tahun</option><option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option></select><select value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)} className="px-3 py-2.5 border border-slate-300 rounded-lg w-full text-sm focus:ring-2 focus:ring-emerald-500 outline-none bg-white/50"><option value="">Bulan</option><option value="1">Januari</option><option value="2">Februari</option><option value="3">Maret</option><option value="4">April</option><option value="5">Mei</option><option value="6">Juni</option><option value="7">Juli</option><option value="8">Agustus</option><option value="9">September</option><option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option></select></div>
                       <div className="relative"><Calendar className="absolute left-3 top-3 h-4 w-4 text-slate-400" /><input type="date" value={filterDate} onChange={(e) => setFilterDate(e.target.value)} className="pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg w-full text-sm focus:ring-2 focus:ring-emerald-500 outline-none text-slate-500 bg-white/50"/></div>
                    </div>
                 </div>
+
+                {/* TABEL DATA PENGADUAN */}
                 <div className="bg-white/90 backdrop-blur-md rounded-xl shadow-lg border border-white/60 overflow-hidden">
                    <div className="overflow-x-auto">
                      <table className="w-full text-sm text-left">
-                        <thead className="bg-slate-50/50 text-slate-500 uppercase text-xs font-bold border-b border-slate-200"><tr><th className="px-6 py-4 text-center w-16">No</th><th className="px-6 py-4">Tanggal</th><th className="px-6 py-4">Pelapor</th><th className="px-6 py-4">Judul & Kategori</th><th className="px-6 py-4">Lokasi</th><th className="px-6 py-4 text-center">Status</th><th className="px-6 py-4 text-center">Aksi</th></tr></thead>
+                        <thead className="bg-slate-50/50 text-slate-500 uppercase text-xs font-bold border-b border-slate-200"><tr><th className="px-4 md:px-6 py-4 text-center w-12">No</th><th className="px-4 md:px-6 py-4">Tanggal</th><th className="px-4 md:px-6 py-4">Pelapor</th><th className="px-4 md:px-6 py-4">Judul & Kategori</th><th className="px-4 md:px-6 py-4">Lokasi</th><th className="px-4 md:px-6 py-4 text-center">Status</th><th className="px-4 md:px-6 py-4 text-center">Aksi</th></tr></thead>
                         <tbody className="divide-y divide-slate-100">
                            {filteredLaporan.map((item, index) => (
                               <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">
-                                 <td className="px-6 py-4 text-center text-slate-500">{index + 1}</td>
-                                 <td className="px-6 py-4 text-slate-600 whitespace-nowrap"><div className="flex items-center"><Clock size={14} className="mr-2 text-slate-400"/> {item.tanggalKejadian}</div></td>
-                                 <td className="px-6 py-4"><div className="font-medium text-slate-800">{item.nama_pelapor || "Anonim"}</div><div className="text-xs text-slate-400">{item.emailPelapor}</div></td>
-                                 <td className="px-6 py-4 max-w-xs">
-                                    <div className="font-bold text-slate-800">{item.judul}</div>
+                                 <td className="px-4 md:px-6 py-4 text-center text-slate-500">{index + 1}</td>
+                                 <td className="px-4 md:px-6 py-4 text-slate-600 whitespace-nowrap"><div className="flex items-center"><Clock size={14} className="mr-2 text-slate-400"/> {item.tanggalKejadian}</div></td>
+                                 <td className="px-4 md:px-6 py-4"><div className="font-medium text-slate-800">{item.nama_pelapor || "Anonim"}</div><div className="text-xs text-slate-400 truncate max-w-[150px]">{item.emailPelapor}</div></td>
+                                 <td className="px-4 md:px-6 py-4 max-w-xs">
+                                    <div className="font-bold text-slate-800 truncate">{item.judul}</div>
                                     <span className="inline-block mt-1 px-2 py-0.5 rounded bg-slate-100 text-slate-500 text-[10px] font-bold border border-slate-200 uppercase">{item.kategori}</span>
                                     {item.tanggapanPetugas && <div className="mt-2 text-xs bg-emerald-50 text-emerald-700 px-2 py-1 rounded border border-emerald-100 flex items-center"><MessageSquare size={10} className="mr-1"/> Sudah Ditanggapi</div>}
                                  </td>
-                                 <td className="px-6 py-4 text-slate-600"><div className="flex items-center"><MapPin size={14} className="mr-1 text-slate-400"/> {item.lokasi}</div></td>
-                                 <td className="px-6 py-4 text-center"><span className={`px-3 py-1 rounded-full text-xs font-bold uppercase inline-block shadow-sm ${getStatusBadge(item.status)}`}>{item.status || "Menunggu"}</span></td>
-                                 <td className="px-6 py-4 text-center">
-                                    <div className="flex justify-center items-center space-x-2">
-                                          <button onClick={() => openResponseModal(item.id, item.tanggapanPetugas)} title="Beri Tanggapan" className="w-9 h-9 flex items-center justify-center bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-500 hover:text-white transition-all"><MessageSquare size={16}/></button>
-                                          
-                                          <div className="w-px h-6 bg-slate-300"></div>
-                                          
-                                          <button onClick={() => requestUpdateStatus(item.id, 'Diproses')} title="Proses" className="w-9 h-9 flex items-center justify-center bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-all"><Settings size={16}/></button>
-                                          <button onClick={() => requestUpdateStatus(item.id, 'Selesai')} title="Selesai" className="w-9 h-9 flex items-center justify-center bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-600 hover:text-white transition-all"><CheckCircle size={16}/></button>
-                                          <button onClick={() => requestUpdateStatus(item.id, 'Ditolak')} title="Tolak" className="w-9 h-9 flex items-center justify-center bg-red-50 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition-all"><XCircle size={16}/></button>
-                                          
-                                          <div className="w-px h-6 bg-slate-300"></div>
-                                          
-                                          <button onClick={() => requestDelete(item.id)} title="Hapus" className="w-9 h-9 flex items-center justify-center text-slate-400 hover:bg-red-50 hover:text-red-600 rounded-lg transition-all"><Trash2 size={16}/></button>
+                                 <td className="px-4 md:px-6 py-4 text-slate-600"><div className="flex items-center truncate max-w-[150px]"><MapPin size={14} className="mr-1 text-slate-400 flex-shrink-0"/> {item.lokasi}</div></td>
+                                 <td className="px-4 md:px-6 py-4 text-center"><span className={`px-2 py-1 rounded-full text-[10px] md:text-xs font-bold uppercase inline-block shadow-sm ${getStatusBadge(item.status)}`}>{item.status || "Menunggu"}</span></td>
+                                 <td className="px-4 md:px-6 py-4 text-center">
+                                    <div className="flex justify-center items-center space-x-1 md:space-x-2">
+                                        <button onClick={() => openResponseModal(item.id, item.tanggapanPetugas)} title="Beri Tanggapan" className="w-8 h-8 flex items-center justify-center bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-500 hover:text-white transition-all"><MessageSquare size={14}/></button>
+                                        <div className="w-px h-5 bg-slate-300"></div>
+                                        <button onClick={() => requestUpdateStatus(item.id, 'Diproses')} title="Proses" className="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-all"><Settings size={14}/></button>
+                                        <button onClick={() => requestUpdateStatus(item.id, 'Selesai')} title="Selesai" className="w-8 h-8 flex items-center justify-center bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-600 hover:text-white transition-all"><CheckCircle size={14}/></button>
+                                        <button onClick={() => requestUpdateStatus(item.id, 'Ditolak')} title="Tolak" className="w-8 h-8 flex items-center justify-center bg-red-50 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition-all"><XCircle size={14}/></button>
+                                        <div className="w-px h-5 bg-slate-300"></div>
+                                        <button onClick={() => requestDelete(item.id)} title="Hapus" className="w-8 h-8 flex items-center justify-center text-slate-400 hover:bg-red-50 hover:text-red-600 rounded-lg transition-all"><Trash2 size={14}/></button>
                                     </div>
                                  </td>
                               </tr>
@@ -231,11 +387,14 @@ export default function AdminDashboard({ user }) {
                      </table>
                    </div>
                 </div>
-             </div>
+             </motion.div>
           )}
+          
+          </AnimatePresence>
         </main>
       </div>
 
+      {/* MODALS (RESPONSE, CONFIRM, SUCCESS, LOGOUT) - SAMA SEPERTI SEBELUMNYA */}
       <AnimatePresence>
         {isResponseModalOpen && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
