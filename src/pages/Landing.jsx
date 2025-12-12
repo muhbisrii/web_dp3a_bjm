@@ -14,7 +14,7 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [currentNewsIndex, setCurrentNewsIndex] = useState(0);
   
-  // --- STATE UNTUK LOAD MORE BERITA ---
+  // --- STATE ---
   const [visibleNewsCount, setVisibleNewsCount] = useState(3);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isLoading, setIsLoading] = useState(false); // State Loading Halaman
@@ -38,7 +38,7 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
     setIsDarkMode(!isDarkMode);
   };
 
-  // --- DATA BERITA (HEADER TRENDING) ---
+  // --- DATA BERITA ---
   const newsData = [
     {
       id: 1,
@@ -67,7 +67,6 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
     }
   ];
 
-  // --- DATA BERITA LENGKAP (GRID) ---
   const fullNewsData = [
     {
       id: 1,
@@ -162,20 +161,32 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
     }
   };
 
-  // --- HANDLER NAVIGASI & LOADING ---
-  const handleNavWithDelay = (action) => {
+  // ============================================
+  // --- HANDLER NAVIGASI (LOGIKA BARU) ---
+  // ============================================
+
+  // 1. Navigasi untuk Login/Register (PAKAI LOADING)
+  const handleLoginClick = () => {
     setSidebarOpen(false);
-    setIsLoading(true);
+    setIsLoading(true); // Aktifkan loading wave
     setTimeout(() => {
       setIsLoading(false);
-      if (action) action();
+      onStart(); // Panggil fungsi pindah halaman setelah delay
     }, 2000);
   };
 
-  const handleAbout = () => handleNavWithDelay(onAbout);
-  const handleHelp = () => handleNavWithDelay(onHelp);
-  const handleLogin = () => handleNavWithDelay(onStart);
-  const handleStats = () => handleNavWithDelay(onStats);
+  // 2. Navigasi untuk Menu Header (TANPA LOADING / INSTANT)
+  const handleInstantNav = (action) => {
+    setSidebarOpen(false);
+    if (action) action();
+  };
+
+  // Mapping Fungsi ke Handler
+  const handleAbout = () => handleInstantNav(onAbout);
+  const handleHelp = () => handleInstantNav(onHelp);
+  const handleStats = () => handleInstantNav(onStats);
+  
+  // ============================================
 
   const sidebarVideos = [
     { id: "qOep768DpOg", title: "Kegiatan DP3A" },
@@ -190,7 +201,7 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
   return (
     <div className="landing-container overflow-hidden bg-gray-50 dark:bg-slate-900 transition-colors duration-300">
       
-      {/* LOADING OVERLAY (ANIMASI KOTAK BERGERAK) */}
+      {/* LOADING OVERLAY (Hanya Muncul saat isLoading = true, yaitu saat Login diklik) */}
       {isLoading && (
         <div className="custom-loading-screen">
           <div className="custom-loader-content">
@@ -236,6 +247,7 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
         {/* MENU DESKTOP */}
         <div className="nav-right desktop-menu flex items-center">
           <ul className="nav-links flex gap-4 text-[14px] font-normal mr-5 items-center text-slate-600 dark:text-slate-300">
+            {/* Menu Header pakai handleInstantNav (Tanpa Loading) */}
             <li className="nav-item cursor-pointer hover:text-blue-600 transition-colors" onClick={handleAbout}>Tentang Aplikasi</li>
             <li className="nav-item cursor-pointer hover:text-blue-600 transition-colors" onClick={handleStats}>Statistik Layanan</li>
             <li className="nav-item cursor-pointer hover:text-blue-600 transition-colors" onClick={() => scrollToSection('berita')}>Berita</li>
@@ -248,9 +260,10 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
             <button onClick={toggleTheme} className="theme-toggle-btn p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors" title={isDarkMode ? "Mode Terang" : "Mode Gelap"}>
               {isDarkMode ? <Sun size={18} className="text-yellow-400" /> : <Moon size={18} className="text-slate-600" />}
             </button>
+            {/* Tombol Login pakai handleLoginClick (Ada Loading) */}
             <button 
               className="px-4 py-2 bg-[#00AEEF] hover:bg-sky-600 text-white text-[13px] font-medium rounded-lg shadow-sm transition-all" 
-              onClick={handleLogin}
+              onClick={handleLoginClick}
             >
               Login / Register
             </button>
@@ -282,7 +295,8 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
             <li onClick={() => { scrollToSection('profil'); setSidebarOpen(false); }}><span>Profil Dinas</span><ChevronRight size={16} /></li>
             <li onClick={() => { scrollToSection('kontak'); setSidebarOpen(false); }}><span>Kontak</span><ChevronRight size={16} /></li>
             <li onClick={handleHelp}><span>Bantuan</span><ChevronRight size={16} /></li>
-            <li className="sidebar-btn-container"><button className="sidebar-login-btn" onClick={handleLogin}>Login / Register</button></li>
+            {/* Tombol Login Mobile pakai handleLoginClick (Ada Loading) */}
+            <li className="sidebar-btn-container"><button className="sidebar-login-btn" onClick={handleLoginClick}>Login / Register</button></li>
           </ul>
           <div className="sidebar-footer"><p>© 2025 DPPPA Banjarmasin</p></div>
         </div>
@@ -327,7 +341,7 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
       </div>
 
       {/* ===========================
-          HERO SECTION (ANIMASI FLOATING)
+          HERO SECTION
       =========================== */}
       <section className="landing-hero relative z-0">
         <motion.div 
@@ -335,12 +349,11 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
           initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.3 }} variants={staggerContainer}
         >
           <motion.div className="hero-left-img" variants={fadeInUp}>
-            {/* --- GAMBAR VEKTOR MENGAMBANG --- */}
             <motion.img 
               src="/vektor.png" 
               alt="illustration" 
               className="hero-img"
-              animate={{ y: [0, -20, 0] }} // Gerak naik turun 20px
+              animate={{ y: [0, -20, 0] }}
               transition={{ 
                 duration: 4, 
                 repeat: Infinity, 
@@ -363,9 +376,10 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
             <p className="hero-desc">Layanan Pengaduan Perempuan & Anak Kota Banjarmasin. Bersama kita lindungi perempuan dan anak dari kekerasan.</p>
             
             <div className="flex flex-col sm:flex-row gap-4 mt-6 w-full sm:w-auto items-center sm:items-start justify-center sm:justify-start">
+              {/* Tombol Hero pakai handleLoginClick (Ada Loading) */}
               <motion.button 
                 className="flex items-center justify-center px-8 py-3 rounded-full font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-lg transition-all w-full sm:w-auto min-w-[200px]"
-                onClick={handleLogin} 
+                onClick={handleLoginClick} 
                 whileHover={{ scale: 1.05 }} 
                 whileTap={{ scale: 0.95 }}
               >

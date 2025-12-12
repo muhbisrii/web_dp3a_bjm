@@ -370,3 +370,74 @@ body.dark-mode .loading-link { color: #60a5fa; }
   .loading-text-main { font-size: 12px; max-width: 80%; margin: 0 auto; }
   .loading-link { font-size: 11px; }
 }
+
+/* ===========================
+   FALLING PARTICLES ANIMATION (LOGIN BOX)
+   =========================== */
+.particle-container {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none; /* Agar klik tembus ke bawah */
+  z-index: 0; /* Posisi di belakang konten teks */
+}
+
+.particle-base {
+  position: absolute;
+  top: -50px; /* Mulai dari atas layar yang tidak terlihat */
+  background-color: rgba(255, 255, 255, 0.2); /* Putih transparan */
+  animation-name: fallDown;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+/* Bentuk Bulat */
+.particle-circle {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+/* Bentuk Garis Vertikal */
+.particle-line {
+  width: 2px;
+  height: 25px;
+}
+
+/* Khusus untuk SVG (Icon Sparkles) */
+.particle-svg {
+  position: absolute;
+  top: -50px;
+  color: rgba(255, 255, 255, 0.25); /* Sedikit lebih terang dari bentuk biasa */
+  animation-name: fallDownRotate;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+/* Keyframes: Jatuh lurus ke bawah */
+@keyframes fallDown {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% {
+    transform: translateY(650px); /* Jatuh cukup jauh ke bawah */
+    opacity: 0;
+  }
+}
+
+/* Keyframes: Jatuh sambil berputar (untuk Sparkles) */
+@keyframes fallDownRotate {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% {
+    transform: translateY(650px) rotate(360deg);
+    opacity: 0;
+  }
+}

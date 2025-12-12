@@ -2,7 +2,33 @@ import React, { useState } from 'react';
 import { signInWithEmailAndPassword, sendEmailVerification } from 'firebase/auth'; 
 import { auth } from '../firebase';
 import { motion } from 'framer-motion';
-import { User, Lock, AlertCircle, Send } from 'lucide-react';
+// Tambahkan import 'Sparkles' dari lucide-react
+import { User, Lock, AlertCircle, Send, Sparkles } from 'lucide-react';
+
+// Import CSS Landing agar animasi loader "Wave" dan "Particles" berfungsi
+import "./Landing.css"; 
+
+// --- KOMPONEN KECIL UNTUK PARTIKEL JATUH (Agar tidak duplikat kode) ---
+const FallingParticles = () => (
+  <div className="particle-container">
+    {/* Partikel 1: Bulat Kiri */}
+    <div className="particle-base particle-circle" style={{ left: '10%', animationDuration: '15s', animationDelay: '0s' }}></div>
+    
+    {/* Partikel 2: Sparkles Kiri-Tengah */}
+    <Sparkles className="particle-svg h-5 w-5" style={{ left: '25%', animationDuration: '18s', animationDelay: '2s' }} />
+    
+    {/* Partikel 3: Garis Tengah */}
+    <div className="particle-base particle-line" style={{ left: '50%', animationDuration: '13s', animationDelay: '5s' }}></div>
+    
+    {/* Partikel 4: Bulat Kanan (sedikit lebih besar) */}
+    <div className="particle-base particle-circle" style={{ left: '70%', width: '12px', height: '12px', animationDuration: '16s', animationDelay: '1s' }}></div>
+    
+    {/* Partikel 5: Sparkles Kanan */}
+    <Sparkles className="particle-svg h-6 w-6" style={{ left: '88%', animationDuration: '14s', animationDelay: '4s' }} />
+  </div>
+);
+// -------------------------------------------------------------------
+
 
 export default function Login({ onSwitchToRegister, onBack }) {
   const [email, setEmail] = useState('');
@@ -19,23 +45,25 @@ export default function Login({ onSwitchToRegister, onBack }) {
     setNeedsVerification(false);
     setLoading(true);
 
+    const minLoadingTime = new Promise(resolve => setTimeout(resolve, 1500));
+
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      await minLoadingTime;
       const user = userCredential.user;
 
-      // === LOGIKA BARU: BYPASS UNTUK ADMIN ===
-      // Jika email belum diverifikasi DAN emailnya BUKAN admin, maka tahan.
-      // Artinya: Jika emailnya 'petugas@dp3a.com', dia akan lolos meskipun belum verifikasi.
-      if (!user.emailVerified && user.email !== "petugas@dp3a.com") {
+      const isVerified = user.emailVerified;
+      const isAdminBypass = user.email === "petugas@dp3a.com";
+
+      if (!isVerified && !isAdminBypass) {
         setError("Akun belum aktif. Klik tombol di bawah untuk mendapatkan link verifikasi.");
         setNeedsVerification(true);
         setLoading(false);
         return; 
       }
       
-      // Jika lolos (Verified User atau Admin), App.jsx akan menangani sisanya
-      
     } catch (err) {
+      await minLoadingTime;
       if (err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found') {
         setError("Email atau password salah.");
       } else if (err.code === 'auth/too-many-requests') {
@@ -49,13 +77,16 @@ export default function Login({ onSwitchToRegister, onBack }) {
 
   const handleResendVerification = async () => {
     setLoading(true);
+    const minLoadingTime = new Promise(resolve => setTimeout(resolve, 1500));
     try {
       if (auth.currentUser) {
         await sendEmailVerification(auth.currentUser);
+        await minLoadingTime;
         setVerificationSent(true);
         setError(""); 
       }
     } catch (err) {
+      await minLoadingTime;
       setError("Gagal mengirim email. Coba lagi nanti.");
     } finally {
       setLoading(false);
@@ -64,6 +95,22 @@ export default function Login({ onSwitchToRegister, onBack }) {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-white p-4 py-10 font-sans overflow-y-auto">
+
+      {/* LOADING OVERLAY */}
+      {loading && (
+        <div className="custom-loading-screen">
+          <div className="custom-loader-content">
+            <div className="sipd-loader">
+              <div className="sipd-rect sipd-shape"></div>
+              <div className="sipd-square sipd-shape"></div>
+              <div className="sipd-square sipd-shape"></div>
+            </div>
+            <p className="loading-text-main">
+              Mohon tunggu... Sedang memproses akun.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* CARD LOGIN */}
       <div className="bg-white w-full max-w-4xl h-auto min-h-[550px] md:h-[550px] rounded-[30px] shadow-2xl overflow-hidden flex flex-row border border-slate-100">
@@ -74,27 +121,41 @@ export default function Login({ onSwitchToRegister, onBack }) {
           animate={{ x: 0 }}
           transition={{ duration: 0.6 }}
           className="hidden md:flex w-[50%] h-full bg-gradient-to-br from-[#4f46e5] to-[#6366f1] 
-          text-white flex-col items-center justify-center text-center p-12 relative"
+          text-white flex-col items-center justify-center text-center p-12 relative overflow-hidden" // Tambahkan overflow-hidden di sini
           style={{ borderTopRightRadius: '100px', borderBottomRightRadius: '100px' }}
         >
+          {/* MASUKKAN PARTIKEL JATUH DI SINI */}
+          <FallingParticles />
+
+          {/* Konten Teks (Diberi z-10 dan relative agar di atas partikel) */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.5 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
+            className="w-full relative z-10" 
           >
-            <div className="bg-white p-4 rounded-2xl shadow-lg mb-6 flex items-center justify-center w-full max-w-[200px] mx-auto">
-              <img 
-                src="/logo-dp3a.png" 
-                className="h-20 w-auto object-contain" 
-                alt="Logo DP3A" 
-                onError={(e) => e.target.src='/pemkot.png'} 
-              />
-            </div>
-            <h2 className="text-3xl font-extrabold mb-3">Portal DP3A</h2>
-            <p className="text-indigo-100 text-lg">Layanan Pengaduan Masyarakat<br />Kota Banjarmasin</p>
-            <p className="text-indigo-200 text-sm italic mt-4 max-w-xs mx-auto">
-              "Melindungi Perempuan, Menjaga Anak, Membangun Keluarga Sejahtera."
-            </p>
+            <motion.div
+              animate={{ y: [0, -10, 0] }} 
+              transition={{ 
+                duration: 4, 
+                repeat: Infinity, 
+                ease: "easeInOut" 
+              }}
+            >
+              <div className="bg-white p-4 rounded-2xl shadow-lg mb-6 flex items-center justify-center w-full max-w-[200px] mx-auto">
+                <img 
+                  src="/logo-dp3a.png" 
+                  className="h-20 w-auto object-contain" 
+                  alt="Logo DP3A" 
+                  onError={(e) => e.target.src='/pemkot.png'} 
+                />
+              </div>
+              <h2 className="text-3xl font-extrabold mb-3">Portal DP3A</h2>
+              <p className="text-indigo-100 text-lg">Layanan Pengaduan Masyarakat<br />Kota Banjarmasin</p>
+              <p className="text-indigo-200 text-sm italic mt-4 max-w-xs mx-auto">
+                "Melindungi Perempuan, Menjaga Anak, Membangun Keluarga Sejahtera."
+              </p>
+            </motion.div>
           </motion.div>
         </motion.div>
 
@@ -107,31 +168,41 @@ export default function Login({ onSwitchToRegister, onBack }) {
             className="w-full"
           >
             
-            {/* === HEADER MOBILE (BOX BIRU) === */}
-            <div className="w-full bg-gradient-to-br from-[#4f46e5] to-[#6366f1] p-6 rounded-2xl shadow-lg mb-4 md:hidden flex flex-col items-center text-center">
-                <div className="bg-white p-3 rounded-xl shadow-sm mb-3">
-                  <img 
-                    src="/logo-dp3a.png" 
-                    alt="Logo DP3A" 
-                    className="h-14 w-auto object-contain" 
-                    onError={(e) => e.target.src='/pemkot.png'} 
-                  />
+            {/* === HEADER MOBILE (BOX BIRU MENGAMBANG) === */}
+            <motion.div 
+              animate={{ y: [0, -8, 0] }} 
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+              // Tambahkan relative dan overflow-hidden
+              className="w-full bg-gradient-to-br from-[#4f46e5] to-[#6366f1] p-6 rounded-2xl shadow-lg mb-8 md:hidden flex flex-col items-center text-center relative overflow-hidden"
+            >
+                {/* MASUKKAN PARTIKEL JATUH DI SINI JUGA UNTUK MOBILE */}
+                <FallingParticles />
+
+                {/* Konten Teks Mobile (Diberi z-10 dan relative) */}
+                <div className="relative z-10 flex flex-col items-center">
+                  <div className="bg-white p-3 rounded-xl shadow-sm mb-3">
+                    <img 
+                      src="/logo-dp3a.png" 
+                      alt="Logo DP3A" 
+                      className="h-14 w-auto object-contain" 
+                      onError={(e) => e.target.src='/pemkot.png'} 
+                    />
+                  </div>
+                  <h3 className="text-xl font-bold text-white tracking-wide">Portal DP3A</h3>
+                  <p className="text-xs text-indigo-100 font-medium mt-1">Layanan Pengaduan Kota Banjarmasin</p>
                 </div>
-                <h3 className="text-xl font-bold text-white tracking-wide">Portal DP3A</h3>
-                <p className="text-xs text-indigo-100 font-medium mt-1">Layanan Pengaduan Kota Banjarmasin</p>
-            </div>
+            </motion.div>
 
             <h2 className="text-2xl font-bold text-slate-800 mb-1 text-center md:text-left">Halo, Warga!</h2>
             <p className="text-slate-500 mb-5 text-center md:text-left text-sm">Silakan masuk ke akun Anda.</p>
 
-            {/* === AREA PESAN ERROR / SUKSES === */}
+            {/* AREA PESAN ERROR / SUKSES */}
             {error && (
               <div className="mb-4 bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded text-sm flex flex-col animate-pulse">
                 <span className="flex items-center gap-2 font-semibold">
                   <AlertCircle size={16} /> Perhatian:
                 </span>
                 <span>{error}</span>
-                
                 {needsVerification && (
                   <button 
                     onClick={handleResendVerification}
@@ -150,6 +221,7 @@ export default function Login({ onSwitchToRegister, onBack }) {
               </div>
             )}
 
+            {/* FORM */}
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="relative">
                 <User className="absolute left-4 top-3.5 text-slate-400 h-5 w-5" />
@@ -162,7 +234,6 @@ export default function Login({ onSwitchToRegister, onBack }) {
                   required
                 />
               </div>
-
               <div className="relative">
                 <Lock className="absolute left-4 top-3.5 text-slate-400 h-5 w-5" />
                 <input
@@ -174,7 +245,6 @@ export default function Login({ onSwitchToRegister, onBack }) {
                   required
                 />
               </div>
-
               <div className="flex justify-between items-center text-sm">
                 <button type="button" onClick={onBack} className="text-slate-400 hover:text-slate-600">
                   ← Kembali
@@ -183,7 +253,6 @@ export default function Login({ onSwitchToRegister, onBack }) {
                   Lupa Password?
                 </button>
               </div>
-
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
@@ -191,7 +260,7 @@ export default function Login({ onSwitchToRegister, onBack }) {
                 disabled={loading}
                 className="w-full bg-[#4f46e5] hover:bg-[#4338ca] text-white font-bold py-3.5 rounded-xl shadow-lg mt-2 transition-all"
               >
-                {loading ? "Memuat..." : "MASUK"}
+                MASUK
               </motion.button>
             </form>
 
@@ -207,9 +276,7 @@ export default function Login({ onSwitchToRegister, onBack }) {
 
           </motion.div>
         </div>
-
       </div>
-
     </div>
   );
 }
