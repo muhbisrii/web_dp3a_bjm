@@ -45,12 +45,6 @@ const TypewriterText = ({ text }) => {
           {char}
         </motion.span>
       ))}
-      <motion.span
-        initial={{ opacity: 0 }}
-        animate={{ opacity: [0, 1, 0] }}
-        transition={{ duration: 0.8, repeat: Infinity }}
-        className="inline-block w-[2px] h-[14px] bg-emerald-400 ml-1 align-middle"
-      />
     </motion.div>
   );
 };
@@ -239,7 +233,7 @@ export default function AdminDashboard({ user }) {
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#475569 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
 
       {/* SIDEBAR */}
-      <aside className={`fixed md:relative z-50 w-64 h-full bg-[#0f172a] text-white flex flex-col transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} shadow-2xl`}>
+      <aside className={`fixed md:relative z-50 w-64 h-full bg-gradient-to-b from-[#7C4DFF] to-[#5B3BFF] text-white flex flex-col transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} shadow-2xl`}>
         <div className="p-6 border-b border-slate-800">
            <div className="flex items-center space-x-3 bg-slate-800/50 p-3 rounded-xl border border-slate-700/50 backdrop-blur-sm">
               <div className="h-10 w-10 rounded-full bg-slate-700 flex items-center justify-center text-emerald-400 font-bold border border-slate-600"><User size={20} /></div>
@@ -247,13 +241,13 @@ export default function AdminDashboard({ user }) {
            </div>
         </div>
         <nav className="flex-1 p-4 space-y-2">
-          <p className="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Menu Utama</p>
-          <button onClick={() => {setActiveTab('dashboard'); setSidebarOpen(false);}} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'dashboard' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}><LayoutDashboard size={20} /><span className="text-sm font-medium">Ringkasan Statistik</span></button>
-          <button onClick={() => {setActiveTab('complaints'); setSidebarOpen(false);}} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'complaints' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}><FileText size={20} /><span className="text-sm font-medium">Data Pengaduan</span></button>
+          <p className="px-4 text-[10px] font-bold text-slate-200 uppercase tracking-wider mb-2">Menu Utama</p>
+          <button onClick={() => {setActiveTab('dashboard'); setSidebarOpen(false);}} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'dashboard' ? 'bg-white/10 text-white shadow-lg ring-1 ring-white/20 backdrop-blur-sm' : 'bg-slate-800/50 rounded-xl border border-slate-700/50 backdrop-blur-sm text-white/80 hover:bg-slate-700 hover:text-white'}`}><LayoutDashboard size={20} /><span className="text-sm font-medium">Ringkasan Statistik</span></button>
+          <button onClick={() => {setActiveTab('complaints'); setSidebarOpen(false);}} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'complaints' ? 'bg-white/10 text-white shadow-lg ring-1 ring-white/20 backdrop-blur-sm' : 'bg-slate-800/50 rounded-xl border border-slate-700/50 backdrop-blur-sm text-white/80 hover:bg-slate-700 hover:text-white'}`}><FileText size={20} /><span className="text-sm font-medium">Data Pengaduan</span></button>
         </nav>
-        <div className="p-4 border-t border-slate-800">
-           <button onClick={handleLogoutClick} className="w-full flex items-center space-x-3 px-4 py-3 text-red-400 hover:bg-red-900/20 rounded-xl transition-colors"><LogOut size={20} /><span className="text-sm font-medium">Keluar Sistem</span></button>
-        </div>
+          <div className="p-4 border-t border-slate-800">
+            <button onClick={handleLogoutClick} className="w-full flex items-center space-x-3 px-4 py-3 bg-slate-800/50 rounded-xl border border-slate-700/50 backdrop-blur-sm text-[#FF3B3B] hover:bg-slate-700 transition-colors"><LogOut size={20} /><span className="text-sm font-medium">Keluar Sistem</span></button>
+          </div>
       </aside>
 
       {/* OVERLAY MOBILE */}
@@ -261,21 +255,24 @@ export default function AdminDashboard({ user }) {
 
       {/* MAIN CONTENT AREA */}
       <div className="flex-1 flex flex-col h-full overflow-hidden relative z-10">
-        <header className="h-16 md:h-20 bg-[#0f172a] border-b border-slate-800 flex items-center justify-between px-4 md:px-6 shadow-md z-10 text-white">
+        <header className="h-16 md:h-20 bg-gradient-to-br from-[#7C4DFF] to-[#5B3BFF] border-b border-slate-800 flex items-center justify-between px-4 md:px-6 shadow-md z-10 text-white">
            <div className="flex items-center gap-4">
-             <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="md:hidden text-white hover:text-emerald-400"><Menu/></button>
-             <div className="flex items-center gap-3">
+             <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="md:hidden text-white p-2 bg-slate-800/50 rounded-md border border-slate-700/50 backdrop-blur-sm hover:bg-slate-700 transition-colors"><Menu/></button>
+             <div className="flex items-center gap-3 bg-slate-800/50 p-2 md:p-3 rounded-xl border border-slate-700/50 backdrop-blur-sm">
                 <img src="/logo-dp3a.png" alt="Logo" onError={(e) => e.target.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Coat_of_arms_of_South_Kalimantan.svg/1200px-Coat_of_arms_of_South_Kalimantan.svg.png"} className="h-8 md:h-10 w-auto object-contain hidden sm:block" />
-                <div>
-                  {/* --- ANIMASI MENGETIK DI SINI --- */}
+                <div className="pl-1">
                   <TypewriterText text="Dinas Pemberdayaan Perempuan dan Perlindungan Anak" />
-                  
                   <h1 className="text-sm font-bold text-white sm:hidden">Admin Panel DP3A</h1>
-                  <p className="text-xs text-slate-400 hidden sm:block mt-0.5">Kota Banjarmasin - Panel Manajemen Petugas</p>
+                  <p className="text-xs text-slate-200 hidden sm:block mt-0.5">Kota Banjarmasin - Panel Manajemen Petugas</p>
                 </div>
              </div>
            </div>
-           <div className="hidden md:flex items-center space-x-4"><div className="text-right"><p className="text-xs text-slate-400">Tanggal Hari Ini</p><p className="text-sm font-bold text-white">{new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p></div></div>
+           <div className="hidden md:flex items-center space-x-4">
+             <div className="text-right bg-slate-800/50 p-3 rounded-xl border border-slate-700/50 backdrop-blur-sm">
+               <p className="text-xs text-white/80">Tanggal Hari Ini</p>
+               <p className="text-sm font-bold text-white">{new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+             </div>
+           </div>
         </header>
 
         <main className="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth">
@@ -287,14 +284,14 @@ export default function AdminDashboard({ user }) {
                
                {/* HERO BOX ADMIN (HITAM) DENGAN PARTIKEL */}
                <div className="relative">
-                 <div className="bg-[#0f172a] p-6 md:p-8 rounded-2xl shadow-lg border border-slate-700 relative overflow-hidden text-white">
+                 <div className="bg-gradient-to-br from-[#7C4DFF] to-[#5B3BFF] p-6 md:p-8 rounded-2xl shadow-lg border border-white/30 relative overflow-hidden text-white">
                     {/* Partikel Jatuh di dalam Box */}
                     <AdminParticles /> 
                     
-                    <div className="relative z-10">
-                      <h2 className="text-2xl font-bold mb-1">Ringkasan Statistik</h2>
-                      <p className="text-slate-400 text-sm font-medium">Pantau status laporan pengaduan masyarakat secara real-time.</p>
-                    </div>
+                          <div className="relative z-10">
+                            <h2 className="text-2xl font-bold mb-1 text-white">Ringkasan Statistik</h2>
+                            <p className="text-white/90 text-sm font-medium">Pantau status laporan pengaduan masyarakat secara real-time.</p>
+                          </div>
                  </div>
                </div>
 
