@@ -387,7 +387,7 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
               </motion.button>
 
               <motion.a 
-                href="https://drive.google.com/file/d/15GuXvNhx7lSRfRu8hL-BIAnLBYBmqoM7/view?usp=drivesdk"
+                href="https://drive.google.com/file/d/15vC_2c12vtBVYgCO84n_kTiUYo-JaxUS/view?usp=drivesdk"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 px-8 py-3 rounded-full font-bold bg-green-600 hover:bg-green-700 text-white shadow-lg transition-all w-full sm:w-auto min-w-[200px]"
