@@ -6,37 +6,56 @@ import { User, Lock, AlertCircle, Send, ArrowLeft, Mail, Sparkles } from 'lucide
 
 import "./Landing.css"; 
 
-// --- DEFINISI ANIMASI DI LUAR KOMPONEN (PENTING AGAR TIDAK BERKEDIP SAAT KETIK) ---
+// --- DEFINISI ANIMASI DI LUAR KOMPONEN ---
+
+// 1. Animasi Floating (Mengambang Halus)
 const floatingAnimation = {
-  y: [0, -12, 0], // Jarak floating sedikit ditambah biar kerasa tapi halus
+  y: [0, -12, 0],
   transition: { 
-    duration: 6, // Diperlambat jadi 6 detik biar smooth banget
+    duration: 6, 
     repeat: Infinity, 
     ease: "easeInOut" 
   }
 };
 
-// --- KOMPONEN PARTIKEL (UKURAN BESAR) ---
-// Dibuat React.memo agar tidak re-render saat ngetik
+// 2. VARIANT BARU: Container untuk mengatur urutan muncul (Stagger)
+const staggerContainerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      delayChildren: 0.3, // Tunggu sebentar sebelum mulai
+      staggerChildren: 0.2 // Jeda 0.2 detik antar elemen anak
+    }
+  }
+};
+
+// 3. VARIANT BARU: Animasi Fade In Up untuk setiap elemen
+const fadeInUpVariants = {
+  hidden: { y: 30, opacity: 0 }, // Mulai dari bawah sedikit dan transparan
+  visible: { 
+    y: 0, 
+    opacity: 1,
+    transition: {
+      type: "spring", // Menggunakan physics spring biar modern
+      damping: 20,
+      stiffness: 100,
+      duration: 0.8
+    }
+  }
+};
+
+// --- KOMPONEN PARTIKEL (Memi) ---
 const FallingParticles = React.memo(() => (
   <div className="particle-container pointer-events-none">
-    {/* Circle Kiri - Besar */}
     <div className="particle-base particle-circle bg-white/20" 
          style={{ left: '10%', width: '20px', height: '20px', animationDuration: '20s', animationDelay: '0s' }}></div>
-    
-    {/* Bintang 1 - Besar */}
     <Sparkles className="particle-svg h-8 w-8 text-white/40 absolute" 
               style={{ left: '25%', top: '-10%', animation: 'float-down 18s linear infinite', animationDelay: '2s' }} />
-    
-    {/* Garis Tengah - Panjang */}
     <div className="particle-base particle-line bg-white/20" 
          style={{ left: '50%', width: '4px', height: '80px', animationDuration: '15s', animationDelay: '5s' }}></div>
-    
-    {/* Circle Kanan - Besar */}
     <div className="particle-base particle-circle bg-white/30" 
          style={{ left: '70%', width: '30px', height: '30px', animationDuration: '22s', animationDelay: '1s' }}></div>
-    
-    {/* Bintang 2 - Lebih Besar */}
     <Sparkles className="particle-svg h-12 w-12 text-white/50 absolute" 
               style={{ left: '85%', top: '-20%', animation: 'float-down 14s linear infinite', animationDelay: '4s' }} />
   </div>
@@ -178,19 +197,37 @@ export default function Login({ onSwitchToRegister, onBack }) {
           {/* BACKGROUND PARTICLES */}
           <FallingParticles />
           
-          {/* LOGO & TEKS (ANIMASI FLOATING) */}
+          {/* WRAPPER UTAMA: Menangani Floating */}
           <motion.div
-            animate={floatingAnimation} // Menggunakan variabel luar, DIJAMIN tidak berkedip
+            animate={floatingAnimation} 
             className="w-full relative z-10" 
           >
-            <div className="bg-white p-4 rounded-2xl shadow-lg mb-6 flex items-center justify-center w-full max-w-[200px] mx-auto">
-              <img src="/logo-dp3a.png" className="h-20 w-auto object-contain" alt="Logo DP3A" onError={(e) => e.target.src='/pemkot.png'} />
-            </div>
-            <h2 className="text-3xl font-extrabold mb-3">Portal DP3A</h2>
-            <p className="text-indigo-100 text-lg">Layanan Pengaduan Masyarakat<br />Kota Banjarmasin</p>
-            <p className="text-indigo-200 text-sm italic mt-4 max-w-xs mx-auto">
-              "Melindungi Perempuan, Menjaga Anak, Membangun Keluarga Sejahtera."
-            </p>
+            {/* INNER WRAPPER: Menangani urutan Fade In (Stagger) */}
+            <motion.div
+              variants={staggerContainerVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              {/* Elemen 1: Box Logo */}
+              <motion.div variants={fadeInUpVariants} className="bg-white p-4 rounded-2xl shadow-lg mb-6 flex items-center justify-center w-full max-w-[200px] mx-auto">
+                <img src="/logo-dp3a.png" className="h-20 w-auto object-contain" alt="Logo DP3A" onError={(e) => e.target.src='/pemkot.png'} />
+              </motion.div>
+              
+              {/* Elemen 2: Judul */}
+              <motion.h2 variants={fadeInUpVariants} className="text-3xl font-extrabold mb-3">
+                Portal DP3A
+              </motion.h2>
+              
+              {/* Elemen 3: Subjudul */}
+              <motion.p variants={fadeInUpVariants} className="text-indigo-100 text-lg">
+                Layanan Pengaduan Masyarakat<br />Kota Banjarmasin
+              </motion.p>
+              
+              {/* Elemen 4: Quote */}
+              <motion.p variants={fadeInUpVariants} className="text-indigo-200 text-sm italic mt-4 max-w-xs mx-auto">
+                "Melindungi Perempuan, Menjaga Anak, Membangun Keluarga Sejahtera."
+              </motion.p>
+            </motion.div>
           </motion.div>
         </div>
 
@@ -203,22 +240,32 @@ export default function Login({ onSwitchToRegister, onBack }) {
             className="w-full"
           >
             {/* Header Mobile (BOX BIRU MENGAMBANG) */}
+            {/* Juga diterapkan animasi stagger di sini agar konsisten */}
             <motion.div 
-              animate={floatingAnimation} // Menggunakan variabel luar juga
+              animate={floatingAnimation}
               className="w-full bg-gradient-to-br from-[#4f46e5] to-[#6366f1] p-6 rounded-2xl shadow-lg mb-8 md:hidden flex flex-col items-center text-center relative overflow-hidden"
             >
                 <FallingParticles />
 
-                <div className="relative z-10 flex flex-col items-center">
-                  <div className="bg-white p-3 rounded-xl shadow-sm mb-3">
+                <motion.div 
+                  variants={staggerContainerVariants}
+                  initial="hidden"
+                  animate="visible"
+                  className="relative z-10 flex flex-col items-center"
+                >
+                  <motion.div variants={fadeInUpVariants} className="bg-white p-3 rounded-xl shadow-sm mb-3">
                     <img src="/logo-dp3a.png" alt="Logo DP3A" className="h-14 w-auto object-contain" onError={(e) => e.target.src='/pemkot.png'} />
-                  </div>
-                  <h3 className="text-xl font-bold text-white tracking-wide">Portal DP3A</h3>
-                  <p className="text-xs text-indigo-100 font-medium mt-1">Layanan Pengaduan Kota Banjarmasin</p>
-                </div>
+                  </motion.div>
+                  <motion.h3 variants={fadeInUpVariants} className="text-xl font-bold text-white tracking-wide">
+                    Portal DP3A
+                  </motion.h3>
+                  <motion.p variants={fadeInUpVariants} className="text-xs text-indigo-100 font-medium mt-1">
+                    Layanan Pengaduan Kota Banjarmasin
+                  </motion.p>
+                </motion.div>
             </motion.div>
 
-            {/* HEADER JUDUL */}
+            {/* HEADER JUDUL FORM */}
             <h2 className="text-2xl font-bold text-slate-800 mb-1 text-center md:text-left">
               {isForgotPassword ? "Lupa Kata Sandi?" : "Halo, Warga!"}
             </h2>
