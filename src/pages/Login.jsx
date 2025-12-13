@@ -388,7 +388,7 @@ export default function Login({ onSwitchToRegister, onBack }) {
                         onClick={() => { setIsForgotPassword(false); setError(""); setResetEmailSent(false); }}
                         className="text-slate-500 text-sm hover:text-[#4f46e5] flex items-center justify-center gap-1 mx-auto"
                     >
-                        <ArrowLeft size={14} /> Batal, kembali ke Login
+                        <ArrowLeft size={14} /> Kembali ke Login
                     </button>
                 </div>
               </form>
