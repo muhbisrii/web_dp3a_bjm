@@ -1,23 +1,46 @@
 import React, { useState } from 'react';
-import { signInWithEmailAndPassword, sendEmailVerification } from 'firebase/auth'; 
+import { signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail } from 'firebase/auth'; 
 import { auth } from '../firebase';
 import { motion } from 'framer-motion';
-// Tambahkan import 'Sparkles' dari lucide-react
-import { User, Lock, AlertCircle, Send, Sparkles } from 'lucide-react';
+import { User, Lock, AlertCircle, Send, ArrowLeft, Mail, Sparkles } from 'lucide-react';
 
-// Import CSS Landing agar animasi loader "Wave" dan "Particles" berfungsi
 import "./Landing.css"; 
 
-// --- KOMPONEN KECIL UNTUK PARTIKEL JATUH ---
-const FallingParticles = () => (
-  <div className="particle-container">
-    <div className="particle-base particle-circle" style={{ left: '10%', animationDuration: '15s', animationDelay: '0s' }}></div>
-    <Sparkles className="particle-svg h-5 w-5" style={{ left: '25%', animationDuration: '18s', animationDelay: '2s' }} />
-    <div className="particle-base particle-line" style={{ left: '50%', animationDuration: '13s', animationDelay: '5s' }}></div>
-    <div className="particle-base particle-circle" style={{ left: '70%', width: '12px', height: '12px', animationDuration: '16s', animationDelay: '1s' }}></div>
-    <Sparkles className="particle-svg h-6 w-6" style={{ left: '88%', animationDuration: '14s', animationDelay: '4s' }} />
+// --- DEFINISI ANIMASI DI LUAR KOMPONEN (PENTING AGAR TIDAK BERKEDIP SAAT KETIK) ---
+const floatingAnimation = {
+  y: [0, -12, 0], // Jarak floating sedikit ditambah biar kerasa tapi halus
+  transition: { 
+    duration: 6, // Diperlambat jadi 6 detik biar smooth banget
+    repeat: Infinity, 
+    ease: "easeInOut" 
+  }
+};
+
+// --- KOMPONEN PARTIKEL (UKURAN BESAR) ---
+// Dibuat React.memo agar tidak re-render saat ngetik
+const FallingParticles = React.memo(() => (
+  <div className="particle-container pointer-events-none">
+    {/* Circle Kiri - Besar */}
+    <div className="particle-base particle-circle bg-white/20" 
+         style={{ left: '10%', width: '20px', height: '20px', animationDuration: '20s', animationDelay: '0s' }}></div>
+    
+    {/* Bintang 1 - Besar */}
+    <Sparkles className="particle-svg h-8 w-8 text-white/40 absolute" 
+              style={{ left: '25%', top: '-10%', animation: 'float-down 18s linear infinite', animationDelay: '2s' }} />
+    
+    {/* Garis Tengah - Panjang */}
+    <div className="particle-base particle-line bg-white/20" 
+         style={{ left: '50%', width: '4px', height: '80px', animationDuration: '15s', animationDelay: '5s' }}></div>
+    
+    {/* Circle Kanan - Besar */}
+    <div className="particle-base particle-circle bg-white/30" 
+         style={{ left: '70%', width: '30px', height: '30px', animationDuration: '22s', animationDelay: '1s' }}></div>
+    
+    {/* Bintang 2 - Lebih Besar */}
+    <Sparkles className="particle-svg h-12 w-12 text-white/50 absolute" 
+              style={{ left: '85%', top: '-20%', animation: 'float-down 14s linear infinite', animationDelay: '4s' }} />
   </div>
-);
+));
 
 export default function Login({ onSwitchToRegister, onBack }) {
   const [email, setEmail] = useState('');
@@ -27,6 +50,10 @@ export default function Login({ onSwitchToRegister, onBack }) {
   
   const [needsVerification, setNeedsVerification] = useState(false);
   const [verificationSent, setVerificationSent] = useState(false);
+
+  // State Lupa Password
+  const [isForgotPassword, setIsForgotPassword] = useState(false); 
+  const [resetEmailSent, setResetEmailSent] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -53,26 +80,52 @@ export default function Login({ onSwitchToRegister, onBack }) {
       
     } catch (err) {
       await minLoadingTime;
-      
-      console.error("Login Error Code:", err.code); // Debugging code di console
+      console.error("Login Error:", err.code);
 
-      // === LOGIKA ERROR HANDLING YANG DIPERBARUI ===
       if (err.code === 'auth/user-not-found') {
-        // Khusus jika email benar-benar tidak ada
-        setError("Email ini belum terdaftar. Silakan daftar terlebih dahulu.");
+        setError("Email ini belum terdaftar.");
       } else if (err.code === 'auth/invalid-credential') {
-        // Firebase versi baru sering melempar ini untuk email salah ATAU password salah (biar aman)
-        // Kita bisa buat pesan umum atau spesifik
-        setError("Email belum terdaftar atau password salah.");
+        setError("Email atau password salah.");
       } else if (err.code === 'auth/wrong-password') {
-        setError("Password salah. Silakan coba lagi.");
+        setError("Password salah.");
       } else if (err.code === 'auth/too-many-requests') {
-        setError("Terlalu banyak percobaan. Silakan coba lagi nanti.");
+        setError("Terlalu banyak percobaan. Coba lagi nanti.");
       } else if (err.code === 'auth/invalid-email') {
         setError("Format email tidak valid.");
       } else {
         setError("Gagal Login: " + err.message);
       }
+      setLoading(false);
+    }
+  };
+
+  const handleResetPassword = async (e) => {
+    e.preventDefault();
+    if (!email) {
+      setError("Harap masukkan email Anda terlebih dahulu.");
+      return;
+    }
+    
+    setLoading(true);
+    setError("");
+    setResetEmailSent(false);
+    
+    const minLoadingTime = new Promise(resolve => setTimeout(resolve, 1500));
+
+    try {
+      await sendPasswordResetEmail(auth, email);
+      await minLoadingTime;
+      setResetEmailSent(true);
+    } catch (err) {
+      await minLoadingTime;
+      if (err.code === 'auth/user-not-found') {
+        setError("Email tidak ditemukan.");
+      } else if (err.code === 'auth/invalid-email') {
+        setError("Format email tidak valid.");
+      } else {
+        setError("Gagal: " + err.message);
+      }
+    } finally {
       setLoading(false);
     }
   };
@@ -89,19 +142,9 @@ export default function Login({ onSwitchToRegister, onBack }) {
       }
     } catch (err) {
       await minLoadingTime;
-      setError("Gagal mengirim email. Coba lagi nanti.");
+      setError("Gagal mengirim email.");
     } finally {
       setLoading(false);
-    }
-  };
-
-  // Animasi Floating untuk Box
-  const floatingAnimation = {
-    y: [0, -8, 0],
-    transition: {
-      duration: 3,
-      repeat: Infinity,
-      ease: "easeInOut"
     }
   };
 
@@ -118,7 +161,7 @@ export default function Login({ onSwitchToRegister, onBack }) {
               <div className="sipd-square sipd-shape"></div>
             </div>
             <p className="loading-text-main">
-              Mohon tunggu... Sedang memproses akun.
+              {isForgotPassword ? "Mengirim link reset..." : "Mohon tunggu..."}
             </p>
           </div>
         </div>
@@ -128,36 +171,20 @@ export default function Login({ onSwitchToRegister, onBack }) {
       <div className="bg-white w-full max-w-4xl h-auto min-h-[550px] md:h-[550px] rounded-[30px] shadow-2xl overflow-hidden flex flex-row border border-slate-100">
 
         {/* PANEL KIRI (DESKTOP ONLY) */}
-        <motion.div
-          initial={{ x: '-100%' }}
-          animate={{ x: 0 }}
-          transition={{ duration: 0.6 }}
-          className="hidden md:flex w-[50%] h-full bg-gradient-to-br from-[#4f46e5] to-[#6366f1] 
+        <div className="hidden md:flex w-[50%] h-full bg-gradient-to-br from-[#4f46e5] to-[#6366f1] 
           text-white flex-col items-center justify-center text-center p-12 relative overflow-hidden"
           style={{ borderTopRightRadius: '100px', borderBottomRightRadius: '100px' }}
         >
-          {/* Partikel Jatuh */}
+          {/* BACKGROUND PARTICLES */}
           <FallingParticles />
-
+          
+          {/* LOGO & TEKS (ANIMASI FLOATING) */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ 
-              opacity: 1, 
-              ...floatingAnimation 
-            }}
-            transition={{
-               opacity: { delay: 0.3, duration: 0.5 },
-               y: floatingAnimation.transition 
-            }}
+            animate={floatingAnimation} // Menggunakan variabel luar, DIJAMIN tidak berkedip
             className="w-full relative z-10" 
           >
             <div className="bg-white p-4 rounded-2xl shadow-lg mb-6 flex items-center justify-center w-full max-w-[200px] mx-auto">
-              <img 
-                src="/logo-dp3a.png" 
-                className="h-20 w-auto object-contain" 
-                alt="Logo DP3A" 
-                onError={(e) => e.target.src='/pemkot.png'} 
-              />
+              <img src="/logo-dp3a.png" className="h-20 w-auto object-contain" alt="Logo DP3A" onError={(e) => e.target.src='/pemkot.png'} />
             </div>
             <h2 className="text-3xl font-extrabold mb-3">Portal DP3A</h2>
             <p className="text-indigo-100 text-lg">Layanan Pengaduan Masyarakat<br />Kota Banjarmasin</p>
@@ -165,9 +192,9 @@ export default function Login({ onSwitchToRegister, onBack }) {
               "Melindungi Perempuan, Menjaga Anak, Membangun Keluarga Sejahtera."
             </p>
           </motion.div>
-        </motion.div>
+        </div>
 
-        {/* PANEL FORM (MOBILE & DESKTOP KANAN) */}
+        {/* PANEL KANAN (FORM AREA) */}
         <div className="w-full md:w-[50%] h-full flex flex-col justify-center p-6 md:p-12 bg-white relative overflow-y-auto">
           <motion.div
             initial={{ opacity: 0, x: 50 }}
@@ -175,44 +202,44 @@ export default function Login({ onSwitchToRegister, onBack }) {
             transition={{ delay: 0.2, duration: 0.5 }}
             className="w-full"
           >
-            
-            {/* === HEADER MOBILE (BOX BIRU MENGAMBANG) === */}
+            {/* Header Mobile (BOX BIRU MENGAMBANG) */}
             <motion.div 
-              animate={floatingAnimation} 
+              animate={floatingAnimation} // Menggunakan variabel luar juga
               className="w-full bg-gradient-to-br from-[#4f46e5] to-[#6366f1] p-6 rounded-2xl shadow-lg mb-8 md:hidden flex flex-col items-center text-center relative overflow-hidden"
             >
                 <FallingParticles />
 
                 <div className="relative z-10 flex flex-col items-center">
                   <div className="bg-white p-3 rounded-xl shadow-sm mb-3">
-                    <img 
-                      src="/logo-dp3a.png" 
-                      alt="Logo DP3A" 
-                      className="h-14 w-auto object-contain" 
-                      onError={(e) => e.target.src='/pemkot.png'} 
-                    />
+                    <img src="/logo-dp3a.png" alt="Logo DP3A" className="h-14 w-auto object-contain" onError={(e) => e.target.src='/pemkot.png'} />
                   </div>
                   <h3 className="text-xl font-bold text-white tracking-wide">Portal DP3A</h3>
                   <p className="text-xs text-indigo-100 font-medium mt-1">Layanan Pengaduan Kota Banjarmasin</p>
                 </div>
             </motion.div>
 
-            <h2 className="text-2xl font-bold text-slate-800 mb-1 text-center md:text-left">Halo, Warga!</h2>
-            <p className="text-slate-500 mb-5 text-center md:text-left text-sm">Silakan masuk ke akun Anda.</p>
+            {/* HEADER JUDUL */}
+            <h2 className="text-2xl font-bold text-slate-800 mb-1 text-center md:text-left">
+              {isForgotPassword ? "Lupa Kata Sandi?" : "Halo, Warga!"}
+            </h2>
+            <p className="text-slate-500 mb-5 text-center md:text-left text-sm">
+              {isForgotPassword 
+                ? "Masukkan email Anda untuk reset password." 
+                : "Silakan masuk ke akun Anda."}
+            </p>
 
-            {/* === AREA PESAN ERROR / SUKSES === */}
+            {/* ALERT BOXES */}
             {error && (
-              <div className="mb-4 bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded text-sm flex flex-col animate-pulse">
+              <div className="mb-4 bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded text-sm flex flex-col">
                 <span className="flex items-center gap-2 font-semibold">
                   <AlertCircle size={16} /> Perhatian:
                 </span>
                 <span>{error}</span>
-                
                 {needsVerification && (
                   <button 
                     onClick={handleResendVerification}
                     disabled={loading}
-                    className="mt-3 bg-red-100 hover:bg-red-200 text-red-800 py-2 px-4 rounded-md text-xs font-bold w-fit transition-colors flex items-center gap-2 shadow-sm"
+                    className="mt-3 bg-red-100 hover:bg-red-200 text-red-800 py-2 px-4 rounded-md text-xs font-bold w-fit transition-colors flex items-center gap-2"
                   >
                     {loading ? "Mengirim..." : <> <Send size={12}/> Kirim Link Verifikasi!</>}
                   </button>
@@ -222,70 +249,119 @@ export default function Login({ onSwitchToRegister, onBack }) {
 
             {verificationSent && (
               <div className="mb-4 bg-green-50 border-l-4 border-green-500 text-green-700 px-4 py-3 rounded text-sm">
-                <strong>Berhasil!</strong> Link verifikasi telah dikirim ke <b>{email}</b>. Silakan cek Inbox atau folder Spam Anda.
+                Link verifikasi terkirim ke <b>{email}</b>.
+              </div>
+            )}
+            
+            {resetEmailSent && (
+              <div className="mb-4 bg-green-50 border-l-4 border-green-500 text-green-700 px-4 py-3 rounded text-sm">
+                Link reset password telah dikirim ke <b>{email}</b>. Cek inbox/spam.
               </div>
             )}
 
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div className="relative">
-                <User className="absolute left-4 top-3.5 text-slate-400 h-5 w-5" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#4f46e5] outline-none transition-all"
-                  placeholder="Email Pengguna"
-                  required
-                />
-              </div>
+            {/* --- FORM AREA --- */}
+            {!isForgotPassword ? (
+              // FORM LOGIN
+              <form onSubmit={handleLogin} className="space-y-4">
+                <div className="relative">
+                  <User className="absolute left-4 top-3.5 text-slate-400 h-5 w-5" />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#4f46e5] outline-none transition-all"
+                    placeholder="Email Pengguna"
+                    required
+                  />
+                </div>
 
-              <div className="relative">
-                <Lock className="absolute left-4 top-3.5 text-slate-400 h-5 w-5" />
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#4f46e5] outline-none transition-all"
-                  placeholder="Kata Sandi"
-                  required
-                />
-              </div>
+                <div className="relative">
+                  <Lock className="absolute left-4 top-3.5 text-slate-400 h-5 w-5" />
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#4f46e5] outline-none transition-all"
+                    placeholder="Kata Sandi"
+                    required
+                  />
+                </div>
 
-              <div className="flex justify-between items-center text-sm">
-                <button type="button" onClick={onBack} className="text-slate-400 hover:text-slate-600">
-                  ← Kembali
-                </button>
-                <button type="button" className="text-[#4f46e5] font-medium hover:underline">
-                  Lupa Password?
-                </button>
-              </div>
+                <div className="flex justify-between items-center text-sm">
+                  <button type="button" onClick={onBack} className="text-slate-400 hover:text-slate-600">
+                    ← Kembali
+                  </button>
+                  <button 
+                    type="button" 
+                    onClick={() => { setIsForgotPassword(true); setError(""); setResetEmailSent(false); }}
+                    className="text-[#4f46e5] font-medium hover:underline"
+                  >
+                    Lupa Password?
+                  </button>
+                </div>
 
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                type="submit"
-                disabled={loading}
-                className="w-full bg-[#4f46e5] hover:bg-[#4338ca] text-white font-bold py-3.5 rounded-xl shadow-lg mt-2 transition-all"
-              >
-                MASUK
-              </motion.button>
-            </form>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-[#4f46e5] hover:bg-[#4338ca] text-white font-bold py-3.5 rounded-xl shadow-lg mt-2 transition-all"
+                >
+                  MASUK
+                </motion.button>
+              </form>
+            ) : (
+              // FORM LUPA PASSWORD
+              <form onSubmit={handleResetPassword} className="space-y-4">
+                <div className="relative">
+                  <Mail className="absolute left-4 top-3.5 text-slate-400 h-5 w-5" />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#4f46e5] outline-none transition-all"
+                    placeholder="Masukkan Email Terdaftar"
+                    required
+                  />
+                </div>
 
-            <div className="mt-6 text-center pt-4 border-t border-slate-100 pb-2">
-              <p className="text-slate-500 text-sm mb-2">Belum punya akun?</p>
-              <button
-                onClick={onSwitchToRegister}
-                className="text-[#4f46e5] font-bold border border-[#4f46e5] px-6 py-2 rounded-lg hover:bg-indigo-50 transition-all w-full md:w-auto text-sm"
-              >
-                Daftar Sekarang
-              </button>
-            </div>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="submit"
+                  disabled={loading || resetEmailSent}
+                  className="w-full bg-[#4f46e5] hover:bg-[#4338ca] text-white font-bold py-3.5 rounded-xl shadow-lg mt-2 transition-all"
+                >
+                   {loading ? "Mengirim..." : "Kirim Link Reset"}
+                </motion.button>
+
+                <div className="text-center pt-2">
+                    <button 
+                        type="button"
+                        onClick={() => { setIsForgotPassword(false); setError(""); setResetEmailSent(false); }}
+                        className="text-slate-500 text-sm hover:text-[#4f46e5] flex items-center justify-center gap-1 mx-auto"
+                    >
+                        <ArrowLeft size={14} /> Batal, kembali ke Login
+                    </button>
+                </div>
+              </form>
+            )}
+
+            {!isForgotPassword && (
+                <div className="mt-6 text-center pt-4 border-t border-slate-100 pb-2">
+                    <p className="text-slate-500 text-sm mb-2">Belum punya akun?</p>
+                    <button
+                        onClick={onSwitchToRegister}
+                        className="text-[#4f46e5] font-bold border border-[#4f46e5] px-6 py-2 rounded-lg hover:bg-indigo-50 transition-all w-full md:w-auto text-sm"
+                    >
+                        Daftar Sekarang
+                    </button>
+                </div>
+            )}
 
           </motion.div>
         </div>
-
       </div>
-
     </div>
   );
 }
