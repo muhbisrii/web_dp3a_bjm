@@ -91,7 +91,7 @@ const AdminParticles = () => {
   );
 };
 
-export default function AdminDashboard({ user, site }) {
+export default function AdminDashboard({ user, site, onRequestLogoutRedirect }) {
   const [activeTab, setActiveTab] = useState('dashboard'); 
   const [laporan, setLaporan] = useState([]);
   const [stats, setStats] = useState({ total: 0, menunggu: 0, diproses: 0, selesai: 0, ditolak: 0 });
@@ -151,7 +151,17 @@ export default function AdminDashboard({ user, site }) {
   });
 
   const handleLogoutClick = () => setShowLogoutConfirm(true);
-  const confirmLogout = () => signOut(auth);
+  const confirmLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (err) {
+      console.error('Admin sign out error:', err);
+    }
+    try {
+      if (typeof onRequestLogoutRedirect === 'function') onRequestLogoutRedirect();
+      else window.history.replaceState(null, '', '/login');
+    } catch (e) {}
+  };
 
   const requestUpdateStatus = (id, newStatus) => {
     setConfirmModal({ isOpen: true, type: 'status', id: id, data: newStatus, title: 'Konfirmasi Ubah Status', message: `Apakah Anda yakin ingin mengubah status laporan ini menjadi "${newStatus}"?` });

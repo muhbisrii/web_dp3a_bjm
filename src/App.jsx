@@ -207,7 +207,7 @@ function App() {
     }
 
     if (userData?.role === "admin" || userData?.role === "Admin") {
-      return <AdminDashboard key="admin" user={userData} site={site} />;
+      return <AdminDashboard key="admin" user={userData} site={site} onRequestLogoutRedirect={() => { setPublicView('auth'); setIsRegistering(false); try { window.history.replaceState(null, '', '/login'); } catch(e){} }} />;
     }
 
     return (
@@ -215,6 +215,12 @@ function App() {
         key="user"
         user={userData || { uid: user.uid, email: user.email }}
         site={site}
+        onRequestLogoutRedirect={() => {
+          // Ensure the public view becomes the auth (login) page after logout
+          setPublicView('auth');
+          setIsRegistering(false);
+          try { window.history.replaceState(null, '', '/login'); } catch (e) {}
+        }}
       />
     );
   };

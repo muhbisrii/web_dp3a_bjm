@@ -55,7 +55,7 @@ const TypewriterText = ({ text }) => {
   );
 };
 
-export default function UserHome({ user, site }) {
+export default function UserHome({ user, site, onRequestLogoutRedirect }) {
   const [view, setView] = useState('home');
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [stats, setStats] = useState({ total: 0, menunggu: 0, diproses: 0, selesai: 0 });
@@ -260,7 +260,21 @@ export default function UserHome({ user, site }) {
   };
 
   const handleLogoutClick = () => setShowLogoutConfirm(true);
-  const confirmLogout = () => signOut(auth);
+  const confirmLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (err) {
+      console.error('Error signing out:', err);
+    }
+    // After sign out, request App to show the auth/login page (if provided)
+    try {
+      if (typeof onRequestLogoutRedirect === 'function') {
+        onRequestLogoutRedirect();
+      } else {
+        window.history.replaceState(null, '', '/login');
+      }
+    } catch (e) { /* ignore */ }
+  };
 
   const SidebarItem = ({ id, icon: Icon, label }) => {
     const isActive = view === id;
