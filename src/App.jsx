@@ -85,6 +85,58 @@ function App() {
     return () => unsubscribe();
   }, []);
 
+  // === Deep-linking support: baca path awal dan set view yang sesuai ===
+  useEffect(() => {
+    try {
+      const path = window.location.pathname.replace(/\/+$/, ''); // hapus trailing slash
+      if (path === '' || path === '/') {
+        setPublicView('landing');
+      } else if (path === '/login') {
+        setPublicView('auth');
+        setIsRegistering(false);
+      } else if (path === '/register') {
+        setPublicView('auth');
+        setIsRegistering(true);
+      } else if (path === '/help') {
+        setPublicView('help');
+      } else if (path === '/about') {
+        setPublicView('about');
+      } else if (path === '/stats' || path === '/statistik') {
+        setPublicView('stats');
+      } else if (path === '/dashboard') {
+        // Jika user belum terautentikasi, arahkan ke auth (login),
+        // listener auth akan mengganti state ketika user terdeteksi.
+        setPublicView('auth');
+      }
+    } catch (e) {
+      // ignore in non-browser env
+    }
+  }, []);
+
+  // === Sinkronisasi URL dengan state internal agar navigasi/history bekerja ===
+  useEffect(() => {
+    try {
+      if (publicView === 'landing') {
+        window.history.replaceState(null, '', '/');
+      } else if (publicView === 'help') {
+        window.history.replaceState(null, '', '/help');
+      } else if (publicView === 'about') {
+        window.history.replaceState(null, '', '/about');
+      } else if (publicView === 'stats') {
+        window.history.replaceState(null, '', '/stats');
+      } else if (publicView === 'auth') {
+        // auth area: login vs register
+        if (isRegistering) {
+          window.history.replaceState(null, '', '/register');
+        } else {
+          window.history.replaceState(null, '', '/login');
+        }
+      }
+    } catch (e) {
+      // ignore (SSR tests etc.)
+    }
+  }, [publicView, isRegistering]);
+
   if (loading) {
     return (
       <div className="h-screen flex items-center justify-center bg-slate-50">
