@@ -15,6 +15,7 @@ import About from './pages/About';
 
 // Components
 import Statistik from './components/Statistik'; 
+import siteConfig from './siteConfig';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -180,6 +181,9 @@ function App() {
 
   // ================= LOGIKA UTAMA (Login/Register/Dashboard) =================
   const renderContent = () => {
+    const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+    const site = siteConfig[hostname] || siteConfig.default;
+
     if (!user) {
       if (isRegistering) {
         return (
@@ -189,24 +193,26 @@ function App() {
           />
         );
       }
-      return (
+        return (
         <Login
           key="login"
           onSwitchToRegister={() => setIsRegistering(true)}
           // Tombol Kembali ke Landing Page
-          onBack={() => setPublicView('landing')} 
+          onBack={() => setPublicView('landing')}
+          site={site}
         />
       );
     }
 
     if (userData?.role === "admin" || userData?.role === "Admin") {
-      return <AdminDashboard key="admin" user={userData} />;
+      return <AdminDashboard key="admin" user={userData} site={site} />;
     }
 
     return (
       <UserHome
         key="user"
         user={userData || { uid: user.uid, email: user.email }}
+        site={site}
       />
     );
   };

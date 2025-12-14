@@ -91,7 +91,7 @@ const AdminParticles = () => {
   );
 };
 
-export default function AdminDashboard({ user }) {
+export default function AdminDashboard({ user, site }) {
   const [activeTab, setActiveTab] = useState('dashboard'); 
   const [laporan, setLaporan] = useState([]);
   const [stats, setStats] = useState({ total: 0, menunggu: 0, diproses: 0, selesai: 0, ditolak: 0 });
@@ -259,11 +259,11 @@ export default function AdminDashboard({ user }) {
            <div className="flex items-center gap-4">
              <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="md:hidden text-white p-2 bg-slate-800/50 rounded-md border border-slate-700/50 backdrop-blur-sm hover:bg-slate-700 transition-colors"><Menu/></button>
              <div className="flex items-center gap-3 bg-slate-800/50 p-2 md:p-3 rounded-xl border border-slate-700/50 backdrop-blur-sm">
-                <img src="/logo-dp3a.png" alt="Logo" onError={(e) => e.target.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Coat_of_arms_of_South_Kalimantan.svg/1200px-Coat_of_arms_of_South_Kalimantan.svg.png"} className="h-8 md:h-10 w-auto object-contain hidden sm:block" />
+                <img src={site?.logo || "/logo-dp3a.png"} alt="Logo" onError={(e) => e.target.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Coat_of_arms_of_South_Kalimantan.svg/1200px-Coat_of_arms_of_South_Kalimantan.svg.png"} className="h-8 md:h-10 w-auto object-contain hidden sm:block" />
                 <div className="pl-1">
-                  <TypewriterText text="Dinas Pemberdayaan Perempuan dan Perlindungan Anak" />
-                  <h1 className="text-sm font-bold text-white sm:hidden">Admin Panel DP3A</h1>
-                  <p className="text-xs text-slate-200 hidden sm:block mt-0.5">Kota Banjarmasin - Panel Manajemen Petugas</p>
+                  <TypewriterText text={site?.name || "Dinas Pemberdayaan Perempuan dan Perlindungan Anak"} />
+                  <h1 className="text-sm font-bold text-white sm:hidden">Admin Panel {site?.short || 'DP3A'}</h1>
+                  <p className="text-xs text-slate-200 hidden sm:block mt-0.5">{site?.subtitle || 'Kota Banjarmasin'} - Panel Manajemen Petugas</p>
                 </div>
              </div>
            </div>

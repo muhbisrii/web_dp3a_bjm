@@ -55,7 +55,7 @@ const TypewriterText = ({ text }) => {
   );
 };
 
-export default function UserHome({ user }) {
+export default function UserHome({ user, site }) {
   const [view, setView] = useState('home'); 
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [stats, setStats] = useState({ total: 0, menunggu: 0, diproses: 0, selesai: 0 });
@@ -270,9 +270,9 @@ export default function UserHome({ user }) {
            <div className="flex items-center gap-3">
              <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="md:hidden text-white p-2 bg-slate-800/50 rounded-md border border-slate-700/50 backdrop-blur-sm hover:bg-slate-700 transition-colors"><Menu size={24}/></button>
              <div className="flex items-center gap-2 md:gap-3 bg-slate-800/50 p-2 md:p-3 rounded-xl border border-slate-700/50 backdrop-blur-sm">
-                <img src="/logo-dp3a.png" alt="Logo" onError={(e) => e.target.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Coat_of_arms_of_South_Kalimantan.svg/1200px-Coat_of_arms_of_South_Kalimantan.svg.png"} className="h-8 md:h-10 w-auto object-contain" />
-                <div className="pl-1"><TypewriterText text="Dinas Pemberdayaan Perempuan dan Perlindungan Anak" /><p className="text-[10px] md:text-xs text-slate-200 mt-0.5">Kota Banjarmasin</p></div>
-             </div>
+             <img src={site?.logo || "/logo-dp3a.png"} alt="Logo" onError={(e) => e.target.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Coat_of_arms_of_South_Kalimantan.svg/1200px-Coat_of_arms_of_South_Kalimantan.svg.png"} className="h-8 md:h-10 w-auto object-contain" />
+             <div className="pl-1"><TypewriterText text={site?.name || "Dinas Pemberdayaan Perempuan dan Perlindungan Anak"} /><p className="text-[10px] md:text-xs text-slate-200 mt-0.5">{site?.subtitle || "Kota Banjarmasin"}</p></div>
+           </div>
            </div>
            <div className="hidden md:flex items-center space-x-4">
              <div className="text-right bg-slate-800/50 p-3 rounded-xl border border-slate-700/50 backdrop-blur-sm">
