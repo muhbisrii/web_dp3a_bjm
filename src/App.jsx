@@ -78,6 +78,14 @@ function App() {
         }
         
         setPublicView('auth'); 
+        // setelah login sukses, arahkan URL ke dashboard agar aplikasi user menampilkan halaman dashboard
+        try {
+          if (isAdminBypass) {
+            window.history.replaceState(null, '', '/dashboard');
+          } else {
+            window.history.replaceState(null, '', '/dashboard');
+          }
+        } catch (e) {}
 
       } else if (currentUser && !isVerified && !isAdminBypass) {
         // 2. LOGIN TAPI BELUM VERIFIKASI
@@ -123,6 +131,11 @@ function App() {
   // === Sinkronisasi URL dengan state internal agar navigasi/history bekerja ===
   useEffect(() => {
     try {
+      // Jangan timpa URL auth (login/register) ketika user sudah login
+      if (publicView === 'auth' && user) {
+        return;
+      }
+
       if (publicView === 'landing') {
         window.history.replaceState(null, '', '/');
       } else if (publicView === 'help') {
