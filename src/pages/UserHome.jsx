@@ -56,7 +56,7 @@ const TypewriterText = ({ text }) => {
 };
 
 export default function UserHome({ user, site }) {
-  const [view, setView] = useState('home'); 
+  const [view, setView] = useState('home');
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [stats, setStats] = useState({ total: 0, menunggu: 0, diproses: 0, selesai: 0 });
   const [laporanUser, setLaporanUser] = useState([]); 
@@ -89,6 +89,41 @@ export default function UserHome({ user, site }) {
       setProfileForm({ name: user.name || '', phone: user.phone || '', nik: user.nik || '' });
     }
   }, [user]);
+
+  // --- ROUTING: sync view <-> URL for user pages ---
+  const pathForView = (v) => {
+    switch (v) {
+      case 'home': return '/dashboard';
+      case 'profile': return '/profile';
+      case 'form': return '/form';
+      case 'history': return '/history';
+      case 'tracking': return '/tracking';
+      case 'contact': return '/contact';
+      default: return '/dashboard';
+    }
+  };
+
+  const navigateTo = (v, { replace = true } = {}) => {
+    setView(v);
+    try {
+      const path = pathForView(v);
+      if (replace) window.history.replaceState(null, '', path);
+      else window.history.pushState(null, '', path);
+    } catch (e) { /* ignore */ }
+  };
+
+  // initialize view from pathname when component mounts (user pages)
+  useEffect(() => {
+    try {
+      const path = window.location.pathname.replace(/\/+$/, '');
+      if (path === '/dashboard' || path === '/home') navigateTo('home');
+      else if (path === '/profile') navigateTo('profile');
+      else if (path === '/form') navigateTo('form');
+      else if (path === '/history') navigateTo('history');
+      else if (path === '/tracking') navigateTo('tracking');
+      else if (path === '/contact') navigateTo('contact');
+    } catch (e) {}
+  }, []);
 
   useEffect(() => {
      if (!user || !user.uid) return;
@@ -198,7 +233,7 @@ export default function UserHome({ user, site }) {
     } catch (err) { alert('Gagal: ' + err.message); }
   };
 
-  const closeSuccessModal = () => { setSuccessModal({ isOpen: false, token: '' }); setIsCopied(false); setView('history'); };
+  const closeSuccessModal = () => { setSuccessModal({ isOpen: false, token: '' }); setIsCopied(false); navigateTo('history'); };
   const handleCopyToken = () => { navigator.clipboard.writeText(successModal.token); setIsCopied(true); setTimeout(() => setIsCopied(false), 2000); };
   
   const handleLacak = async (e) => {
@@ -230,7 +265,7 @@ export default function UserHome({ user, site }) {
   const SidebarItem = ({ id, icon: Icon, label }) => {
     const isActive = view === id;
     return (
-    <button onClick={() => {setView(id); setSidebarOpen(false);}} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${isActive ? 'bg-white/10 text-white shadow-lg ring-1 ring-white/20 backdrop-blur-sm' : 'bg-slate-800/50 rounded-xl border border-slate-700/50 backdrop-blur-sm text-white/80 hover:bg-slate-700 hover:text-white'}`}>
+    <button onClick={() => {navigateTo(id); setSidebarOpen(false);}} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${isActive ? 'bg-white/10 text-white shadow-lg ring-1 ring-white/20 backdrop-blur-sm' : 'bg-slate-800/50 rounded-xl border border-slate-700/50 backdrop-blur-sm text-white/80 hover:bg-slate-700 hover:text-white'}`}>
       <Icon size={20} /> <span className="text-sm font-medium">{label}</span>
     </button>
   )};
@@ -245,7 +280,7 @@ export default function UserHome({ user, site }) {
 
       <aside className={`fixed md:relative z-30 w-64 h-full bg-gradient-to-b from-[#7C4DFF] to-[#5B3BFF] text-white flex flex-col transition-transform duration-300 shadow-xl ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
         <div className="p-6 border-b border-slate-800">
-           <div onClick={() => { setView('profile'); setSidebarOpen(false); }} className="flex items-center space-x-3 bg-slate-800/50 p-3 rounded-xl border border-slate-700/50 backdrop-blur-sm cursor-pointer hover:bg-slate-700 transition-colors group">
+           <div onClick={() => { navigateTo('profile'); setSidebarOpen(false); }} className="flex items-center space-x-3 bg-slate-800/50 p-3 rounded-xl border border-slate-700/50 backdrop-blur-sm cursor-pointer hover:bg-slate-700 transition-colors group">
               <div className="h-10 w-10 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold border border-slate-600 group-hover:border-white transition-colors"><User size={20} /></div>
               <div className="overflow-hidden"><p className="text-white text-sm font-semibold truncate group-hover:text-white/90 transition-colors">{user.name}</p><p className="text-[10px] text-white/80 font-medium uppercase tracking-wider">Edit Profil</p></div>
            </div>
@@ -294,7 +329,7 @@ export default function UserHome({ user, site }) {
                     <div className="relative z-10 max-w-3xl">
                       <h2 className="text-2xl md:text-4xl font-bold mb-3 md:mb-4 flex items-center gap-2">Halo, {user.name} <motion.span style={{ originX: 0.7, originY: 0.7 }} animate={{ rotate: [0, 14, -8, 14, -4, 10, 0, 0] }} transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 1, ease: "easeInOut" }} className="inline-block">👋</motion.span></h2>
                       <p className="text-white/90 text-sm md:text-lg mb-6 md:mb-8 leading-relaxed">Suara Anda berharga. Kami hadir untuk mendampingi dan memastikan setiap laporan ditindaklanjuti dengan aman.</p>
-                      <button onClick={() => setView('form')} className="w-full md:w-auto px-6 py-3 bg-slate-800/50 rounded-xl border border-slate-700/50 backdrop-blur-sm hover:bg-slate-700 text-white font-bold shadow-lg transition-colors flex items-center justify-center">Buat Laporan Baru <ChevronRight className="ml-2 w-5 h-5"/></button>
+                      <button onClick={() => navigateTo('form')} className="w-full md:w-auto px-6 py-3 bg-slate-800/50 rounded-xl border border-slate-700/50 backdrop-blur-sm hover:bg-slate-700 text-white font-bold shadow-lg transition-colors flex items-center justify-center">Buat Laporan Baru <ChevronRight className="ml-2 w-5 h-5"/></button>
                     </div>
                  </motion.div>
                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
@@ -392,7 +427,7 @@ export default function UserHome({ user, site }) {
                       <div className="space-y-2"><label className="text-sm font-bold text-slate-700">Lokasi Kejadian</label><input value={form.lokasi} onChange={(e)=>setForm({...form, lokasi:e.target.value})} className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#5B3BFF] outline-none bg-white/50 text-sm" placeholder="Nama Jalan, Gedung, dll..." required/></div>
                       <div className="space-y-2"><label className="text-sm font-bold text-slate-700">Kronologi Lengkap</label><textarea value={form.kronologi} onChange={(e)=>setForm({...form, kronologi:e.target.value})} className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#5B3BFF] outline-none h-32 resize-none bg-white/50 text-sm" placeholder="Ceritakan detail kejadian..." required></textarea></div>
                       <div className="pt-4 flex flex-col md:flex-row items-center justify-end gap-3">
-                        <button type="button" onClick={() => setView('home')} className="w-full md:w-auto px-6 py-2.5 bg-slate-800/50 rounded-lg border border-slate-700/50 backdrop-blur-sm text-white font-bold hover:bg-slate-700 transition text-sm">Batal</button>
+                        <button type="button" onClick={() => navigateTo('home')} className="w-full md:w-auto px-6 py-2.5 bg-slate-800/50 rounded-lg border border-slate-700/50 backdrop-blur-sm text-white font-bold hover:bg-slate-700 transition text-sm">Batal</button>
                         <button type="submit" className="w-full md:w-auto px-6 py-2.5 bg-slate-800/50 rounded-lg border border-slate-700/50 backdrop-blur-sm text-white font-bold shadow-md transition flex items-center justify-center text-sm"><Send size={18} className="mr-2"/> Kirim Laporan</button>
                       </div>
                     </form>
@@ -402,9 +437,9 @@ export default function UserHome({ user, site }) {
             
             {view === 'history' && (
                <motion.div key="history" variants={pageVariants} initial="initial" animate="animate" exit="exit" className="space-y-6">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-2"><div><h2 className="text-2xl font-bold text-slate-800">Pengaduan Saya</h2><p className="text-slate-500 text-sm">Daftar laporan yang pernah Anda kirimkan.</p></div><button onClick={() => setView('form')} className="w-full md:w-auto px-4 py-2 bg-slate-800/50 rounded-lg border border-slate-700/50 backdrop-blur-sm hover:bg-slate-700 text-white text-sm font-bold transition shadow-sm flex items-center justify-center"><FileText size={16} className="mr-2"/> Buat Baru</button></div>
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-2"><div><h2 className="text-2xl font-bold text-slate-800">Pengaduan Saya</h2><p className="text-slate-500 text-sm">Daftar laporan yang pernah Anda kirimkan.</p></div><button onClick={() => navigateTo('form')} className="w-full md:w-auto px-4 py-2 bg-slate-800/50 rounded-lg border border-slate-700/50 backdrop-blur-sm hover:bg-slate-700 text-white text-sm font-bold transition shadow-sm flex items-center justify-center"><FileText size={16} className="mr-2"/> Buat Baru</button></div>
                             {laporanUser.length === 0 ? (
-                              <div className="flex flex-col items-center justify-center py-20 bg-white/80 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm text-center px-4"><div className="bg-slate-100 p-6 rounded-full mb-4"><Search size={40} className="text-slate-400"/></div><h3 className="text-xl font-bold text-slate-700">Belum Ada Riwayat</h3><p className="text-slate-500 mt-2 text-sm">Anda belum mengirimkan pengaduan apapun.</p><button onClick={() => setView('form')} className="mt-6 px-4 py-2 bg-slate-800/50 rounded-xl border border-slate-700/50 backdrop-blur-sm text-[#5B3BFF] font-bold hover:bg-slate-700 transition text-sm">Buat Pengaduan Pertama</button></div>
+                              <div className="flex flex-col items-center justify-center py-20 bg-white/80 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm text-center px-4"><div className="bg-slate-100 p-6 rounded-full mb-4"><Search size={40} className="text-slate-400"/></div><h3 className="text-xl font-bold text-slate-700">Belum Ada Riwayat</h3><p className="text-slate-500 mt-2 text-sm">Anda belum mengirimkan pengaduan apapun.</p><button onClick={() => navigateTo('form')} className="mt-6 px-4 py-2 bg-slate-800/50 rounded-xl border border-slate-700/50 backdrop-blur-sm text-[#5B3BFF] font-bold hover:bg-slate-700 transition text-sm">Buat Pengaduan Pertama</button></div>
                  ) : (
                     <div className="grid grid-cols-1 gap-4">
                         {laporanUser.map((item) => (
