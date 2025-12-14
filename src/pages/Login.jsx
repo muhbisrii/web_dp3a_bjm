@@ -62,6 +62,19 @@ const FallingParticles = React.memo(() => (
 ));
 
 export default function Login({ onSwitchToRegister, onBack }) {
+  // Jika pengguna membuka langsung `/register`, panggil callback untuk
+  // beralih ke form pendaftaran. Ini menangani kasus ketika App masih
+  // merender Login dan belum sempat menginisialisasi isRegistering.
+  React.useEffect(() => {
+    try {
+      const path = window.location.pathname.replace(/\/+$/, '');
+      if (path === '/register' && typeof onSwitchToRegister === 'function') {
+        onSwitchToRegister();
+      }
+    } catch (e) {
+      // ignore non-browser
+    }
+  }, [onSwitchToRegister]);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
