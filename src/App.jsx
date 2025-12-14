@@ -24,6 +24,8 @@ function App() {
   const [isRegistering, setIsRegistering] = useState(false);
   // REF untuk melacak status register secara real-time di dalam listener auth
   const isRegisteringRef = useRef(false);
+  // REF untuk menyimpan view awal yang dideteksi dari URL (deep-link)
+  const initialViewRef = useRef(null);
 
   // STATE HALAMAN PUBLIK
   const [publicView, setPublicView] = useState('landing');
@@ -65,16 +67,25 @@ function App() {
         // 3. USER LOGOUT (currentUser == null)
         setUser(null);
         setUserData(null);
-        
+
         // === LOGIKA PERBAIKAN UTAMA ===
-        // Jika logout terjadi saat sedang proses Register (isRegisteringRef.current == true),
-        // berarti user baru saja selesai daftar -> Arahkan ke Login ('auth').
-        // Jika tidak, berarti user logout dari Dashboard -> Arahkan ke Landing ('landing').
-        
+        // Prioritaskan situasi register (jika proses registrasi sedang berlangsung)
         if (isRegisteringRef.current) {
           setPublicView('auth');
           setIsRegistering(false); // Kembalikan ke form Login
+
+        // Jika ada deep-link awal yang meminta area auth atau halaman spesifik,
+        // hormati initialViewRef yang sudah diisi pada mount.
+        } else if (initialViewRef.current) {
+          if (initialViewRef.current === 'auth' || initialViewRef.current === 'auth-register') {
+            setPublicView('auth');
+            setIsRegistering(initialViewRef.current === 'auth-register');
+          } else {
+            setPublicView(initialViewRef.current);
+          }
+
         } else {
+          // default: landing
           setPublicView('landing');
         }
       }
@@ -90,22 +101,28 @@ function App() {
     try {
       const path = window.location.pathname.replace(/\/+$/, ''); // hapus trailing slash
       if (path === '' || path === '/') {
+        initialViewRef.current = 'landing';
         setPublicView('landing');
       } else if (path === '/login') {
+        initialViewRef.current = 'auth';
         setPublicView('auth');
         setIsRegistering(false);
       } else if (path === '/register') {
+        initialViewRef.current = 'auth-register';
         setPublicView('auth');
         setIsRegistering(true);
       } else if (path === '/help') {
+        initialViewRef.current = 'help';
         setPublicView('help');
       } else if (path === '/about') {
+        initialViewRef.current = 'about';
         setPublicView('about');
       } else if (path === '/stats' || path === '/statistik') {
+        initialViewRef.current = 'stats';
         setPublicView('stats');
       } else if (path === '/dashboard') {
+        initialViewRef.current = 'auth';
         // Jika user belum terautentikasi, arahkan ke auth (login),
-        // listener auth akan mengganti state ketika user terdeteksi.
         setPublicView('auth');
       }
     } catch (e) {
