@@ -22,14 +22,35 @@ function App() {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   
-  const [isRegistering, setIsRegistering] = useState(false);
+  // === Detect initial path synchronously so auth listener won't override it ===
+  const initialPath = (typeof window !== 'undefined') ? window.location.pathname.replace(/\/+$/, '') : '/';
+  const initialIsRegistering = initialPath === '/register';
+  const initialPublicView = (function () {
+    if (initialPath === '' || initialPath === '/') return 'landing';
+    if (initialPath === '/login' || initialPath === '/register' || initialPath === '/dashboard') return 'auth';
+    if (initialPath === '/help') return 'help';
+    if (initialPath === '/about') return 'about';
+    if (initialPath === '/stats' || initialPath === '/statistik') return 'stats';
+    return 'landing';
+  })();
+
+  const [isRegistering, setIsRegistering] = useState(initialIsRegistering);
   // REF untuk melacak status register secara real-time di dalam listener auth
-  const isRegisteringRef = useRef(false);
+  const isRegisteringRef = useRef(initialIsRegistering);
   // REF untuk menyimpan view awal yang dideteksi dari URL (deep-link)
-  const initialViewRef = useRef(null);
+  const initialViewRef = useRef((function () {
+    if (initialPath === '' || initialPath === '/') return 'landing';
+    if (initialPath === '/login') return 'auth';
+    if (initialPath === '/register') return 'auth-register';
+    if (initialPath === '/help') return 'help';
+    if (initialPath === '/about') return 'about';
+    if (initialPath === '/stats' || initialPath === '/statistik') return 'stats';
+    if (initialPath === '/dashboard') return 'auth';
+    return null;
+  })());
 
   // STATE HALAMAN PUBLIK
-  const [publicView, setPublicView] = useState('landing');
+  const [publicView, setPublicView] = useState(initialPublicView);
 
   // Sinkronisasi State ke Ref
   useEffect(() => {
@@ -97,39 +118,7 @@ function App() {
     return () => unsubscribe();
   }, []);
 
-  // === Deep-linking support: baca path awal dan set view yang sesuai ===
-  useEffect(() => {
-    try {
-      const path = window.location.pathname.replace(/\/+$/, ''); // hapus trailing slash
-      if (path === '' || path === '/') {
-        initialViewRef.current = 'landing';
-        setPublicView('landing');
-      } else if (path === '/login') {
-        initialViewRef.current = 'auth';
-        setPublicView('auth');
-        setIsRegistering(false);
-      } else if (path === '/register') {
-        initialViewRef.current = 'auth-register';
-        setPublicView('auth');
-        setIsRegistering(true);
-      } else if (path === '/help') {
-        initialViewRef.current = 'help';
-        setPublicView('help');
-      } else if (path === '/about') {
-        initialViewRef.current = 'about';
-        setPublicView('about');
-      } else if (path === '/stats' || path === '/statistik') {
-        initialViewRef.current = 'stats';
-        setPublicView('stats');
-      } else if (path === '/dashboard') {
-        initialViewRef.current = 'auth';
-        // Jika user belum terautentikasi, arahkan ke auth (login),
-        setPublicView('auth');
-      }
-    } catch (e) {
-      // ignore in non-browser env
-    }
-  }, []);
+  // deep-link handled synchronously above; no on-mount effect needed
 
   // === Sinkronisasi URL dengan state internal agar navigasi/history bekerja ===
   useEffect(() => {
