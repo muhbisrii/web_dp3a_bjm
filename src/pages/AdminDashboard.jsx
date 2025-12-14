@@ -113,6 +113,34 @@ export default function AdminDashboard({ user, site, onRequestLogoutRedirect }) 
   const [isProcessing, setIsProcessing] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
+  // --- ROUTING: sync activeTab <-> URL for admin pages ---
+  const pathForTab = (t) => {
+    switch (t) {
+      case 'dashboard': return '/admin';
+      case 'complaints': return '/admin/complaints';
+      default: return '/admin';
+    }
+  };
+
+  const navigateTo = (t, { replace = true } = {}) => {
+    setActiveTab(t);
+    setSidebarOpen(false);
+    try {
+      const p = pathForTab(t);
+      if (replace) window.history.replaceState(null, '', p);
+      else window.history.pushState(null, '', p);
+    } catch (e) { /* ignore */ }
+  };
+
+  // initialize activeTab from pathname when component mounts
+  useEffect(() => {
+    try {
+      const path = window.location.pathname.replace(/\/+$/, '');
+      if (path === '/admin' || path === '/admin/dashboard') navigateTo('dashboard');
+      else if (path === '/admin/complaints') navigateTo('complaints');
+    } catch (e) {}
+  }, []);
+
   useEffect(() => {
     const q = query(collection(db, "laporan"), orderBy("dibuatPada", "desc")); 
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -252,8 +280,8 @@ export default function AdminDashboard({ user, site, onRequestLogoutRedirect }) 
         </div>
         <nav className="flex-1 p-4 space-y-2">
           <p className="px-4 text-[10px] font-bold text-slate-200 uppercase tracking-wider mb-2">Menu Utama</p>
-          <button onClick={() => {setActiveTab('dashboard'); setSidebarOpen(false);}} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'dashboard' ? 'bg-white/10 text-white shadow-lg ring-1 ring-white/20 backdrop-blur-sm' : 'bg-slate-800/50 rounded-xl border border-slate-700/50 backdrop-blur-sm text-white/80 hover:bg-slate-700 hover:text-white'}`}><LayoutDashboard size={20} /><span className="text-sm font-medium">Ringkasan Statistik</span></button>
-          <button onClick={() => {setActiveTab('complaints'); setSidebarOpen(false);}} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'complaints' ? 'bg-white/10 text-white shadow-lg ring-1 ring-white/20 backdrop-blur-sm' : 'bg-slate-800/50 rounded-xl border border-slate-700/50 backdrop-blur-sm text-white/80 hover:bg-slate-700 hover:text-white'}`}><FileText size={20} /><span className="text-sm font-medium">Data Pengaduan</span></button>
+          <button onClick={() => navigateTo('dashboard')} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'dashboard' ? 'bg-white/10 text-white shadow-lg ring-1 ring-white/20 backdrop-blur-sm' : 'bg-slate-800/50 rounded-xl border border-slate-700/50 backdrop-blur-sm text-white/80 hover:bg-slate-700 hover:text-white'}`}><LayoutDashboard size={20} /><span className="text-sm font-medium">Ringkasan Statistik</span></button>
+          <button onClick={() => navigateTo('complaints')} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'complaints' ? 'bg-white/10 text-white shadow-lg ring-1 ring-white/20 backdrop-blur-sm' : 'bg-slate-800/50 rounded-xl border border-slate-700/50 backdrop-blur-sm text-white/80 hover:bg-slate-700 hover:text-white'}`}><FileText size={20} /><span className="text-sm font-medium">Data Pengaduan</span></button>
         </nav>
           <div className="p-4 border-t border-slate-800">
             <button onClick={handleLogoutClick} className="w-full flex items-center space-x-3 px-4 py-3 bg-slate-800/50 rounded-xl border border-slate-700/50 backdrop-blur-sm text-[#FF3B3B] hover:bg-slate-700 transition-colors"><LogOut size={20} /><span className="text-sm font-medium">Keluar Sistem</span></button>
@@ -318,7 +346,7 @@ export default function AdminDashboard({ user, site, onRequestLogoutRedirect }) 
                <div className="bg-white/90 backdrop-blur-md rounded-xl shadow-lg border border-white/60 flex flex-col overflow-hidden">
                   <div className="p-4 md:p-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
                     <div><h3 className="font-bold text-slate-800 text-lg">Laporan Masuk Terbaru</h3><p className="text-sm text-slate-500">Pengaduan terakhir yang diterima sistem.</p></div>
-                    <button onClick={() => setActiveTab('complaints')} className="text-sm font-medium text-emerald-600 hover:text-emerald-700 flex items-center bg-emerald-50 px-3 py-1.5 rounded-lg transition-colors w-full md:w-auto justify-center">Lihat Semua Data <ArrowLeft className="ml-1 rotate-180" size={16}/></button>
+                    <button onClick={() => navigateTo('complaints')} className="text-sm font-medium text-emerald-600 hover:text-emerald-700 flex items-center bg-emerald-50 px-3 py-1.5 rounded-lg transition-colors w-full md:w-auto justify-center">Lihat Semua Data <ArrowLeft className="ml-1 rotate-180" size={16}/></button>
                   </div>
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left">

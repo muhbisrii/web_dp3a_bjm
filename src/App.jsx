@@ -81,7 +81,7 @@ function App() {
         // setelah login sukses, arahkan URL ke dashboard agar aplikasi user menampilkan halaman dashboard
         try {
           if (isAdminBypass) {
-            window.history.replaceState(null, '', '/dashboard');
+            window.history.replaceState(null, '', '/admin');
           } else {
             window.history.replaceState(null, '', '/dashboard');
           }
