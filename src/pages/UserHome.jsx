@@ -71,6 +71,9 @@ export default function UserHome({ user, site, onRequestLogoutRedirect }) {
   const [isCopied, setIsCopied] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showDeleteLaporanConfirm, setShowDeleteLaporanConfirm] = useState(false);
+  const [laporanToDelete, setLaporanToDelete] = useState(null);
+  const [detailLaporan, setDetailLaporan] = useState({ isOpen: false, data: null });
 
   // States Profile
   const [profileForm, setProfileForm] = useState({ name: '', phone: '', nik: '' });
@@ -276,6 +279,23 @@ export default function UserHome({ user, site, onRequestLogoutRedirect }) {
     } catch (e) { /* ignore */ }
   };
 
+  const openDetailLaporan = (item) => { setDetailLaporan({ isOpen: true, data: item }); };
+  const closeDetailLaporan = () => { setDetailLaporan({ isOpen: false, data: null }); };
+
+  const requestDeleteLaporan = (id) => { setLaporanToDelete(id); setShowDeleteLaporanConfirm(true); };
+  const cancelDeleteLaporan = () => { setLaporanToDelete(null); setShowDeleteLaporanConfirm(false); };
+
+  const confirmDeleteLaporan = async () => {
+    if (!laporanToDelete) return;
+    try {
+      await deleteDoc(doc(db, "laporan", laporanToDelete));
+      setShowDeleteLaporanConfirm(false);
+      setLaporanToDelete(null);
+    } catch (err) {
+      alert('Gagal menghapus pengaduan: ' + err.message);
+    }
+  };
+
   const SidebarItem = ({ id, icon: Icon, label }) => {
     const isActive = view === id;
     return (
@@ -473,6 +493,10 @@ export default function UserHome({ user, site, onRequestLogoutRedirect }) {
                                             <p className="text-xs md:text-sm text-slate-700">{item.tanggapanPetugas}</p>
                                         </div>
                                     )}
+                                    <div className="mt-4 flex items-center gap-3">
+                                      <button onClick={() => openDetailLaporan(item)} className="px-3 py-2 bg-slate-800/50 rounded-lg border border-slate-700/50 text-white text-sm font-medium hover:bg-slate-700 transition">Detail</button>
+                                      <button onClick={() => requestDeleteLaporan(item.id)} className="px-3 py-2 bg-red-50 rounded-lg border border-red-100 text-red-600 text-sm font-medium hover:bg-red-100 transition flex items-center"><Trash2 size={14} className="mr-2"/> Tarik Pengaduan</button>
+                                    </div>
                                 </div>
                             </div>
                         ))}
@@ -545,6 +569,50 @@ export default function UserHome({ user, site, onRequestLogoutRedirect }) {
         </motion.div>
       )}
       </AnimatePresence>
+
+        <AnimatePresence>
+        {detailLaporan.isOpen && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden">
+            <div className="p-6 bg-gradient-to-br from-[#7C4DFF] to-[#5B3BFF] text-white">
+              <h3 className="text-xl font-bold">Detail Pengaduan</h3>
+              <p className="text-sm text-white/80 mt-1">ID: {detailLaporan.data?.id}</p>
+            </div>
+            <div className="p-6 space-y-3">
+              <h4 className="text-lg font-bold text-slate-800">{detailLaporan.data?.judul}</h4>
+              <div className="text-sm text-slate-600 space-y-2">
+                <div><strong>Kategori:</strong> {detailLaporan.data?.kategori}</div>
+                <div><strong>Tanggal Kejadian:</strong> {detailLaporan.data?.tanggalKejadian || detailLaporan.data?.tanggal}</div>
+                <div><strong>Lokasi:</strong> {detailLaporan.data?.lokasi}</div>
+                <div><strong>Kronologi:</strong><div className="mt-1 p-3 bg-slate-50 rounded-md border border-slate-100 text-sm text-slate-700">{detailLaporan.data?.kronologi}</div></div>
+                {detailLaporan.data?.tanggapanPetugas && (<div className="mt-2 bg-[#F3EDFF] p-3 rounded-xl border border-[#E1D8FF]"><p className="text-xs font-bold text-[#1B6BFF]">Tanggapan Petugas</p><p className="text-sm text-slate-700 mt-1">{detailLaporan.data?.tanggapanPetugas}</p></div>)}
+              </div>
+              <div className="pt-4 flex justify-end gap-3">
+                <button onClick={closeDetailLaporan} className="px-4 py-2 bg-slate-800/50 rounded-lg border border-slate-700/50 text-white font-medium">Tutup</button>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+        )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+        {showDeleteLaporanConfirm && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-red-900/80 backdrop-blur-sm">
+          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="bg-white w-full max-w-xs rounded-3xl shadow-2xl overflow-hidden">
+            <div className="p-6 text-center bg-red-50">
+              <div className="h-14 w-14 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm"><Trash2 size={28} strokeWidth={2.5} /></div>
+              <h3 className="text-lg font-bold text-red-700 mb-1">Tarik Pengaduan?</h3>
+              <p className="text-slate-600 text-xs md:text-sm px-2">Apakah Anda yakin ingin menarik pengaduan ini? Tindakan ini akan menghapus laporan dari sistem.</p>
+            </div>
+            <div className="p-4 bg-white flex flex-col gap-3">
+              <button onClick={confirmDeleteLaporan} className="w-full py-2.5 bg-red-50 rounded-xl border border-red-100 text-red-600 font-bold hover:bg-red-100">Ya, Tarik Pengaduan</button>
+              <button onClick={cancelDeleteLaporan} className="w-full py-2.5 bg-slate-800/50 rounded-xl border border-slate-700/50 text-white font-bold hover:bg-slate-700">Batal</button>
+            </div>
+          </motion.div>
+        </motion.div>
+        )}
+        </AnimatePresence>
 
       <AnimatePresence>
       {showLogoutConfirm && (
