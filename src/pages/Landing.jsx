@@ -8,6 +8,8 @@ import {
 } from "lucide-react"; 
 import { motion, AnimatePresence } from "framer-motion"; 
 import BannerSlider from "../components/BannerSlider"; 
+// --- 1. IMPORT WIDGET AI DI SINI ---
+import AiChatWidget from "../components/AiChatWidget"; 
 import "./Landing.css";
 
 export default function Landing({ onStart, onAbout, onHelp, onStats }) {
@@ -526,6 +528,9 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
         </div>
         <div className="footer-bottom"><p>© 2025 Pemerintah Kota Banjarmasin - Portal DP3A</p></div>
       </motion.footer>
+
+      {/* --- 2. WIDGET AI DITAMPILKAN DI SINI --- */}
+      <AiChatWidget /> 
     </div>
   );
 }

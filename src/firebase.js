@@ -3,7 +3,10 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyA_717QoIkhbnoqjBaHNytJq8U1SXZ5o30",
+  // BAGIAN INI SUDAH DIAMANKAN (Mengambil dari .env)
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  
+  // Bagian di bawah ini aman untuk publik (bukan rahasia)
   authDomain: "pengaduan-dpppa-bjm.firebaseapp.com",
   projectId: "pengaduan-dpppa-bjm",
   storageBucket: "pengaduan-dpppa-bjm.firebasestorage.app",
