@@ -305,7 +305,14 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
       </motion.nav>
 
       {/* BANNER SLIDER */}
-      <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: false }} transition={{ duration: 0.8 }} className="relative z-0">
+      {/* UPDATE: viewport={{ once: true }} agar animasi hanya 1x */}
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95 }} 
+        whileInView={{ opacity: 1, scale: 1 }} 
+        viewport={{ once: true }} 
+        transition={{ duration: 0.8 }} 
+        className="relative z-0"
+      >
         <BannerSlider />
       </motion.div>
 
@@ -348,7 +355,8 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
       <section className="landing-hero relative z-0">
         <motion.div 
           className="hero-box-container"
-          initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.3 }} variants={staggerContainer}
+          // UPDATE: viewport={{ once: true, amount: 0.3 }}
+          initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }} variants={staggerContainer}
         >
           <motion.div className="hero-left-img" variants={fadeInUp}>
             <motion.img 
@@ -412,7 +420,8 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
       {/* BERITA SECTION */}
       <motion.section 
         className="news-section relative z-0" id="berita" 
-        initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.2 }} variants={fadeInUp}
+        // UPDATE: viewport={{ once: true, amount: 0.2 }}
+        initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={fadeInUp}
       >
         <div className="profile-container">
           <div className="section-header text-center mb-10">
@@ -457,7 +466,8 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
       {/* PROFIL & SIDEBAR */}
       <motion.section 
         className="profile-section relative z-0" id="profil"
-        initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.2 }} transition={{ duration: 0.8 }} variants={fadeInUp}
+        // UPDATE: viewport={{ once: true, amount: 0.2 }}
+        initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.8 }} variants={fadeInUp}
       >
         <div className="profile-container">
           <div className="profile-layout">
@@ -505,7 +515,8 @@ export default function Landing({ onStart, onAbout, onHelp, onStats }) {
       {/* FOOTER */}
       <motion.footer 
         className="landing-footer relative z-0" id="kontak"
-        initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.1 }} variants={fadeInUp}
+        // UPDATE: viewport={{ once: true, amount: 0.1 }}
+        initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.1 }} variants={fadeInUp}
       >
         <div className="footer-content">
           <div className="footer-map"><iframe title="Lokasi Kantor DP3A Banjarmasin" src="https://maps.google.com/maps?q=Dinas%20Pemberdayaan%20Perempuan%20dan%20Perlindungan%20Anak%20Kota%20Banjarmasin&t=&z=15&ie=UTF8&iwloc=&output=embed" width="100%" height="250" style={{ border: 0, borderRadius: "12px" }} allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade"></iframe></div>
