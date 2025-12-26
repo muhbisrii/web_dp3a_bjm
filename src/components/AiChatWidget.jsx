@@ -3,12 +3,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, User, Bot, Loader2, Zap } from 'lucide-react';
 import './AiChatWidget.css';
 
-// --- KONFIGURASI GROQ ---
-// Pastikan VITE_GROQ_API_KEY ada di file .env dan di Dashboard Vercel
+// --- KONFIGURASI GROQ (GRATIS & CEPAT) ---
 const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
 const GROQ_MODEL = "llama-3.3-70b-versatile"; 
 
-// --- OTAK AI (TETAP SAMA) ---
+// --- OTAK AI (UPGRADE: WAWASAN LUAS + KONSULTAN PSIKOLOGIS) ---
 const SYSTEM_PROMPT = `
 Kamu adalah "Si-PENA", asisten virtual cerdas & profesional dari DP3A (Dinas Pemberdayaan Perempuan dan Perlindungan Anak) Kota Banjarmasin.
 
@@ -48,18 +47,14 @@ CONTOH JAWABAN GABUNGAN (Psikologis + Info):
 const AiChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
 
-  // --- STATE (DENGAN MEMORI SESSION STORAGE) ---
-  const [messages, setMessages] = useState(() => {
-    // Cek apakah ada chat tersimpan sebelumnya
-    const savedChat = sessionStorage.getItem("sipena_chat_history");
-    return savedChat ? JSON.parse(savedChat) : [
-      {
-        id: 1,
-        sender: 'bot',
-        text: "Halo! Saya Si-PENA. 👋\n\nSaya memiliki wawasan seputar **DP3A, PUSPAGA, UPTD PPA**, serta hukum Perlindungan Anak & Perempuan.\n\nSilakan tanya tentang profil dinas atau panduan pelaporan via aplikasi."
-      }
-    ];
-  });
+  // Chat awal tetap sesuai permintaan Anda
+  const [messages, setMessages] = useState([
+    {
+      id: 1,
+      sender: 'bot',
+      text: "Halo! Saya Si-PENA. 👋\n\nSaya memiliki wawasan seputar **DP3A, PUSPAGA, UPTD PPA**, serta hukum Perlindungan Anak & Perempuan.\n\nSilakan tanya tentang profil dinas atau panduan pelaporan via aplikasi."
+    }
+  ]);
 
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -70,32 +65,13 @@ const AiChatWidget = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Simpan ke Session Storage setiap ada pesan baru
   useEffect(() => {
-    sessionStorage.setItem("sipena_chat_history", JSON.stringify(messages));
     scrollToBottom();
   }, [messages, isOpen]);
 
-  // --- FUNGSI PANGGIL GROQ AI (DENGAN MEMORI) ---
-  const generateGroqResponse = async (userQuestion, chatHistory) => {
-    // Cek Ketersediaan API Key
-    if (!GROQ_API_KEY) {
-      console.error("API KEY HILANG/TIDAK TERBACA. Cek file .env atau Vercel Settings.");
-      return "Error: Invalid API Key. Hubungi admin.";
-    }
-
+  // --- FUNGSI PANGGIL GROQ AI ---
+  const generateGroqResponse = async (userQuestion) => {
     try {
-      // 1. SIAPKAN MEMORI CHAT (PENTING!)
-      // Kita ambil pesan lama, TAPI buang pesan pertama (ID: 1) karena itu sapaan bot otomatis.
-      // Jika pesan pertama dikirim ke AI, bisa menyebabkan error karena urutannya salah.
-      const formattedHistory = chatHistory
-        .filter(msg => msg.id !== 1) // Hapus pesan 'Halo' awal dari memori AI
-        .slice(-10) // Ambil 10 pesan terakhir saja agar tidak overload
-        .map(msg => ({
-          role: msg.sender === 'user' ? 'user' : 'assistant',
-          content: msg.text
-        }));
-
       const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -106,10 +82,9 @@ const AiChatWidget = () => {
           model: GROQ_MODEL,
           messages: [
             { role: "system", content: SYSTEM_PROMPT },
-            ...formattedHistory, // Masukkan ingatan masa lalu
-            { role: "user", content: userQuestion } // Pertanyaan baru
+            { role: "user", content: userQuestion }
           ],
-          temperature: 0.7, 
+          temperature: 0.7, // Sedikit dinaikkan (0.7) agar lebih luwes saat memberi konseling/empati
           max_tokens: 600 
         })
       });
@@ -118,7 +93,7 @@ const AiChatWidget = () => {
 
       if (data.error) {
         console.error("Groq Error:", data.error);
-        return `Maaf, ada gangguan teknis: ${data.error.message}`;
+        return `Maaf, sistem sedang sibuk (${data.error.message}). Silakan coba lagi.`;
       }
 
       return data.choices[0]?.message?.content || "Maaf, saya tidak dapat menjawab saat ini.";
@@ -133,15 +108,11 @@ const AiChatWidget = () => {
     if (!input.trim()) return;
 
     const userMessage = { id: Date.now(), sender: 'user', text: input };
-    
-    // Update UI dulu
-    const newMessages = [...messages, userMessage];
-    setMessages(newMessages);
+    setMessages(prev => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
 
-    // Kirim pesan ke AI beserta riwayat (messages saat ini)
-    const aiResponseText = await generateGroqResponse(userMessage.text, messages);
+    const aiResponseText = await generateGroqResponse(userMessage.text);
 
     const botMessage = { id: Date.now() + 1, sender: 'bot', text: aiResponseText };
     setMessages(prev => [...prev, botMessage]);
