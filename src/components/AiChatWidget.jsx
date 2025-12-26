@@ -1,13 +1,14 @@
 // src/components/AiChatWidget.jsx
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, User, Bot, Loader2, Zap, Trash2 } from 'lucide-react'; // Tambah Icon Trash2
+import { MessageCircle, X, Send, User, Bot, Loader2, Zap, Trash2 } from 'lucide-react';
 import './AiChatWidget.css';
 
 // --- KONFIGURASI GROQ ---
+// Pastikan variabel ini ada di file .env Anda: VITE_GROQ_API_KEY=gsk_...
 const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
 const GROQ_MODEL = "llama-3.3-70b-versatile"; 
 
-// --- OTAK AI ---
+// --- OTAK AI (SYSTEM PROMPT TETAP SAMA) ---
 const SYSTEM_PROMPT = `
 Kamu adalah "Si-PENA", asisten virtual cerdas & profesional dari DP3A Kota Banjarmasin.
 
@@ -32,8 +33,7 @@ Selain info pemerintahan, kamu juga bertindak sebagai **SAHABAT KONSELOR**.
 const AiChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
 
-  // --- 1. MODIFIKASI STATE UNTUK LOAD DARI SESSION STORAGE ---
-  // Agar chat tidak hilang saat navigasi, tapi hilang saat Refresh (Tab Baru)
+  // --- STATE DENGAN SESSION STORAGE (Agar chat tidak hilang saat pindah menu) ---
   const [messages, setMessages] = useState(() => {
     const savedChat = sessionStorage.getItem("sipena_chat_history");
     return savedChat ? JSON.parse(savedChat) : [
@@ -53,22 +53,32 @@ const AiChatWidget = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // --- 2. SIMPAN KE SESSION STORAGE SETIAP ADA PESAN BARU ---
   useEffect(() => {
     sessionStorage.setItem("sipena_chat_history", JSON.stringify(messages));
     scrollToBottom();
   }, [messages, isOpen]);
 
-  // --- 3. LOGIKA AI MEMORI (CONTEXT AWARENESS) ---
+  // --- LOGIKA AI (DIPERBAIKI AGAR TIDAK ERROR) ---
   const generateGroqResponse = async (userQuestion, currentHistory) => {
-    try {
-      // Format riwayat chat agar dimengerti oleh AI (User vs Assistant)
-      // Kita ambil 10 pesan terakhir saja agar tidak terlalu berat (Token limit)
-      const formattedHistory = currentHistory.slice(-10).map(msg => ({
-        role: msg.sender === 'user' ? 'user' : 'assistant',
-        content: msg.text
-      }));
+    if (!GROQ_API_KEY) {
+      console.error("API Key hilang! Pastikan .env sudah benar.");
+      return "Maaf, konfigurasi sistem belum lengkap (API Key Missing).";
+    }
 
+    try {
+      // 1. FILTER HISTORY: 
+      // Kita HAPUS pesan pertama (id: 1) dari memori yang dikirim ke AI.
+      // Mengapa? Karena pesan pertama adalah 'assistant' tanpa 'user' sebelumnya.
+      // Ini sering menyebabkan Error 400 pada model Llama.
+      const cleanHistory = currentHistory
+        .filter(msg => msg.id !== 1) // Hapus sapaan awal
+        .slice(-6) // Hanya ingat 6 pesan terakhir agar ringan
+        .map(msg => ({
+          role: msg.sender === 'user' ? 'user' : 'assistant',
+          content: msg.text
+        }));
+
+      // 2. REQUEST KE GROQ
       const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -78,9 +88,9 @@ const AiChatWidget = () => {
         body: JSON.stringify({
           model: GROQ_MODEL,
           messages: [
-            { role: "system", content: SYSTEM_PROMPT },
-            ...formattedHistory, // Sisipkan riwayat obrolan sebelumnya
-            { role: "user", content: userQuestion } // Pertanyaan baru
+            { role: "system", content: SYSTEM_PROMPT }, // Instruksi otak utama
+            ...cleanHistory,                             // Memori percakapan sebelumnya
+            { role: "user", content: userQuestion }      // Pertanyaan baru user
           ],
           temperature: 0.7, 
           max_tokens: 600 
@@ -89,16 +99,18 @@ const AiChatWidget = () => {
 
       const data = await response.json();
 
+      // Cek Error spesifik dari API
       if (data.error) {
-        console.error("Groq Error:", data.error);
-        return `Maaf, sistem sedang sibuk. Silakan coba lagi.`;
+        console.error("Groq API Error:", data.error); 
+        // Kembalikan pesan error yang lebih spesifik untuk debugging (opsional)
+        return `Maaf, ada gangguan teknis: ${data.error.message}`;
       }
 
       return data.choices[0]?.message?.content || "Maaf, saya tidak dapat menjawab saat ini.";
 
     } catch (error) {
       console.error("Fetch Error:", error);
-      return "Maaf, koneksi internet bermasalah.";
+      return "Maaf, koneksi internet Anda terputus atau server sibuk.";
     }
   };
 
@@ -107,13 +119,14 @@ const AiChatWidget = () => {
 
     const userMessage = { id: Date.now(), sender: 'user', text: input };
     
-    // Update UI langsung
-    const updatedMessages = [...messages, userMessage];
+    // Update UI dulu agar user melihat pertanyaannya
+    const updatedMessages = [...messages, userMessage]; 
     setMessages(updatedMessages);
     setInput("");
     setIsLoading(true);
 
-    // Kirim pesan + riwayat chat ke AI
+    // Kirim pesan + riwayat (messages yg lama) ke fungsi AI
+    // Note: kita kirim 'messages' (state lama) karena userMessage baru ditambahkan manual di dalam payload generateGroqResponse
     const aiResponseText = await generateGroqResponse(userMessage.text, messages);
 
     const botMessage = { id: Date.now() + 1, sender: 'bot', text: aiResponseText };
@@ -121,10 +134,9 @@ const AiChatWidget = () => {
     setIsLoading(false);
   };
 
-  // Fungsi Reset Chat Manual
   const handleResetChat = () => {
     const defaultMsg = [{
-      id: Date.now(),
+      id: 1, // Reset ke ID 1 agar konsisten
       sender: 'bot',
       text: "Obrolan telah dihapus. Halo lagi! Ada yang ingin ditanyakan, Kak?"
     }];
@@ -146,7 +158,7 @@ const AiChatWidget = () => {
       {/* Jendela Chat */}
       <div className={`ai-chat-box ${isOpen ? 'open' : ''}`}>
 
-        {/* Header */}
+        {/* Header Biru */}
         <div className="ai-header" style={{background: 'linear-gradient(135deg, #2563eb, #1e40af)'}}> 
           <div className="header-info">
             <div className="bot-avatar">
@@ -200,7 +212,7 @@ const AiChatWidget = () => {
         <div className="ai-input-area">
           <input 
             type="text" 
-            placeholder="Ketik pesan..." 
+            placeholder="Tanya tentang DP3A atau curhat..." 
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
