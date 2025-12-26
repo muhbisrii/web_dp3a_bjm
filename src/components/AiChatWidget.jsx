@@ -1,77 +1,74 @@
 // src/components/AiChatWidget.jsx
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, User, Bot, Loader2, Zap } from 'lucide-react';
+import { MessageCircle, X, Send, User, Bot, Loader2, Zap, Trash2 } from 'lucide-react'; // Tambah Icon Trash2
 import './AiChatWidget.css';
 
-// --- KONFIGURASI GROQ (GRATIS & CEPAT) ---
+// --- KONFIGURASI GROQ ---
 const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
 const GROQ_MODEL = "llama-3.3-70b-versatile"; 
 
-// --- OTAK AI (UPGRADE: WAWASAN LUAS + KONSULTAN PSIKOLOGIS) ---
+// --- OTAK AI ---
 const SYSTEM_PROMPT = `
-Kamu adalah "Si-PENA", asisten virtual cerdas & profesional dari DP3A (Dinas Pemberdayaan Perempuan dan Perlindungan Anak) Kota Banjarmasin.
+Kamu adalah "Si-PENA", asisten virtual cerdas & profesional dari DP3A Kota Banjarmasin.
 
 ***PERAN BARU (KONSULTAN PSIKOLOGIS & EMPATI)***:
-Selain info pemerintahan, kamu juga bertindak sebagai **SAHABAT KONSELOR** bagi perempuan dan anak.
-1. **ACTIVE LISTENING**: Jika pengguna curhat/sedih, validasi perasaan mereka dulu. Contoh: "Saya mengerti situasi itu sangat berat bagi Kakak..." atau "Perasaan takut itu wajar, Kak."
-2. **NON-JUDGMENTAL**: Jangan menghakimi korban kekerasan atau masalah keluarga.
-3. **SARAN PENENANG**: Berikan saran psikologis ringan (tarik napas, menenangkan diri) jika pengguna emosi/panik.
-4. **PEMBATASAN**: Kamu bukan Psikolog Klinis. Untuk terapi mendalam, sarankan ke layanan **PUSPAGA** atau **UPTD PPA**.
+Selain info pemerintahan, kamu juga bertindak sebagai **SAHABAT KONSELOR**.
+1. **ACTIVE LISTENING**: Validasi perasaan pengguna.
+2. **NON-JUDGMENTAL**: Jangan menghakimi.
+3. **SARAN PENENANG**: Berikan saran psikologis ringan jika perlu.
+4. **PEMBATASAN**: Kamu bukan Psikolog Klinis. Sarankan ke PUSPAGA atau UPTD PPA untuk kasus berat.
 
-***PENGETAHUAN WAJIB (KNOWLEDGE BASE)***:
-1. **TENTANG DP3A**: Instansi pemerintah yang bertanggung jawab atas pemberdayaan perempuan, perlindungan anak, dan pemenuhan hak anak di Kota Banjarmasin. Di tingkat nasional, kami berafiliasi dengan Kementerian PPPA RI.
-2. **LAYANAN UTAMA**:
-   - **UPTD PPA**: Unit teknis untuk penanganan kasus kekerasan (pendampingan hukum, psikologis, visum).
-   - **PUSPAGA (Pusat Pembelajaran Keluarga)**: Layanan konseling keluarga preventif (sebelum terjadi kekerasan).
-   - **Kota Layak Anak (KLA)**: Program pemenuhan hak anak.
-3. **LOKASI**: Kantor DP3A Banjarmasin beralamat di Jl. Sultan Adam No.18, Surgi Mufti, Kec. Banjarmasin Utara.
-4. **PEJABAT/STRUKTUR**:
-   - DP3A dipimpin oleh seorang **Kepala Dinas** yang bertanggung jawab langsung kepada Walikota Banjarmasin.
-   - Jika ditanya "Siapa nama Kepala Dinas?", Jawablah: "Saat ini DP3A Banjarmasin dipimpin oleh Kepala Dinas yang ditunjuk oleh Walikota. Karena adanya kemungkinan rotasi jabatan, untuk nama pejabat definitif terbaru silakan cek di menu 'Profil' atau website resmi Pemko Banjarmasin. Namun, beliau bertugas memimpin perumusan kebijakan teknis perlindungan perempuan dan anak."
+***PENGETAHUAN WAJIB***:
+1. **DP3A**: Dinas Pemberdayaan Perempuan dan Perlindungan Anak Banjarmasin.
+2. **LAYANAN**: UPTD PPA (Penanganan Kasus), PUSPAGA (Konseling Keluarga), KLA (Kota Layak Anak).
+3. **LOKASI**: Jl. Sultan Adam No.18, Surgi Mufti.
+4. **PEJABAT**: Jika ditanya nama Kepala Dinas, jawab secara umum bahwa dipimpin pejabat yang ditunjuk Walikota.
 
-***INSTRUKSI ALUR PELAPORAN (SOP)***:
-Jika pengguna bertanya cara melapor:
-1. "Login/Register" dulu (Wajib punya akun).
-2. Setelah masuk, klik menu "Pengaduan".
-3. Isi formulir kronologi. Jelaskan bahwa melapor lewat aplikasi lebih **Aman, Cepat, dan Terdata** dibanding manual.
-
-***GAYA BAHASA & SAPAAN***:
-1. Gunakan sapaan **"Kak"** (Netral & Sopan) atau **"Anda"**.
-2. **DILARANG** memanggil "Bunda/Ibu/Bapak" kecuali user menyebutkan identitasnya.
-3. Gaya bicara: Hangat, Mengayomi (seperti Konselor), namun tetap Informatif dan Cerdas.
-
-CONTOH JAWABAN GABUNGAN (Psikologis + Info):
-"Saya turut prihatin mendengar hal itu, Kak. Tidak ada yang pantas diperlakukan kasar. (Validasi). Jika Kakak butuh perlindungan hukum, Kakak bisa melapor lewat menu 'Pengaduan' di aplikasi ini setelah Login. Kami juga punya psikolog di UPTD PPA untuk mendampingi Kakak."
+***GAYA BAHASA***:
+1. Panggil "Kak" atau "Anda". Jangan "Bunda" kecuali diminta.
+2. Hangat, Mengayomi, Informatif.
 `;
 
 const AiChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
-  
-  // Chat awal tetap sesuai permintaan Anda
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      sender: 'bot',
-      text: "Halo! Saya Si-PENA. 👋\n\nSaya memiliki wawasan seputar **DP3A, PUSPAGA, UPTD PPA**, serta hukum Perlindungan Anak & Perempuan.\n\nSilakan tanya tentang profil dinas atau panduan pelaporan via aplikasi."
-    }
-  ]);
+
+  // --- 1. MODIFIKASI STATE UNTUK LOAD DARI SESSION STORAGE ---
+  // Agar chat tidak hilang saat navigasi, tapi hilang saat Refresh (Tab Baru)
+  const [messages, setMessages] = useState(() => {
+    const savedChat = sessionStorage.getItem("sipena_chat_history");
+    return savedChat ? JSON.parse(savedChat) : [
+      {
+        id: 1,
+        sender: 'bot',
+        text: "Halo! Saya Si-PENA. 👋\n\nSaya siap menjadi teman cerita atau memberikan informasi seputar **DP3A & Layanan Pengaduan**.\n\nApa yang bisa saya bantu hari ini, Kak?"
+      }
+    ];
+  });
 
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // --- 2. SIMPAN KE SESSION STORAGE SETIAP ADA PESAN BARU ---
   useEffect(() => {
+    sessionStorage.setItem("sipena_chat_history", JSON.stringify(messages));
     scrollToBottom();
   }, [messages, isOpen]);
 
-  // --- FUNGSI PANGGIL GROQ AI ---
-  const generateGroqResponse = async (userQuestion) => {
+  // --- 3. LOGIKA AI MEMORI (CONTEXT AWARENESS) ---
+  const generateGroqResponse = async (userQuestion, currentHistory) => {
     try {
+      // Format riwayat chat agar dimengerti oleh AI (User vs Assistant)
+      // Kita ambil 10 pesan terakhir saja agar tidak terlalu berat (Token limit)
+      const formattedHistory = currentHistory.slice(-10).map(msg => ({
+        role: msg.sender === 'user' ? 'user' : 'assistant',
+        content: msg.text
+      }));
+
       const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -82,9 +79,10 @@ const AiChatWidget = () => {
           model: GROQ_MODEL,
           messages: [
             { role: "system", content: SYSTEM_PROMPT },
-            { role: "user", content: userQuestion }
+            ...formattedHistory, // Sisipkan riwayat obrolan sebelumnya
+            { role: "user", content: userQuestion } // Pertanyaan baru
           ],
-          temperature: 0.7, // Sedikit dinaikkan (0.7) agar lebih luwes saat memberi konseling/empati
+          temperature: 0.7, 
           max_tokens: 600 
         })
       });
@@ -93,14 +91,14 @@ const AiChatWidget = () => {
 
       if (data.error) {
         console.error("Groq Error:", data.error);
-        return `Maaf, sistem sedang sibuk (${data.error.message}). Silakan coba lagi.`;
+        return `Maaf, sistem sedang sibuk. Silakan coba lagi.`;
       }
 
       return data.choices[0]?.message?.content || "Maaf, saya tidak dapat menjawab saat ini.";
 
     } catch (error) {
       console.error("Fetch Error:", error);
-      return "Maaf, koneksi internet Anda terputus. Periksa jaringan Anda.";
+      return "Maaf, koneksi internet bermasalah.";
     }
   };
 
@@ -108,15 +106,30 @@ const AiChatWidget = () => {
     if (!input.trim()) return;
 
     const userMessage = { id: Date.now(), sender: 'user', text: input };
-    setMessages(prev => [...prev, userMessage]);
+    
+    // Update UI langsung
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
     setInput("");
     setIsLoading(true);
 
-    const aiResponseText = await generateGroqResponse(userMessage.text);
+    // Kirim pesan + riwayat chat ke AI
+    const aiResponseText = await generateGroqResponse(userMessage.text, messages);
 
     const botMessage = { id: Date.now() + 1, sender: 'bot', text: aiResponseText };
     setMessages(prev => [...prev, botMessage]);
     setIsLoading(false);
+  };
+
+  // Fungsi Reset Chat Manual
+  const handleResetChat = () => {
+    const defaultMsg = [{
+      id: Date.now(),
+      sender: 'bot',
+      text: "Obrolan telah dihapus. Halo lagi! Ada yang ingin ditanyakan, Kak?"
+    }];
+    setMessages(defaultMsg);
+    sessionStorage.removeItem("sipena_chat_history");
   };
 
   return (
@@ -132,8 +145,8 @@ const AiChatWidget = () => {
 
       {/* Jendela Chat */}
       <div className={`ai-chat-box ${isOpen ? 'open' : ''}`}>
-        
-        {/* Header Biru */}
+
+        {/* Header */}
         <div className="ai-header" style={{background: 'linear-gradient(135deg, #2563eb, #1e40af)'}}> 
           <div className="header-info">
             <div className="bot-avatar">
@@ -142,13 +155,18 @@ const AiChatWidget = () => {
             <div>
               <h3>Si-PENA (AI)</h3>
               <div style={{display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', opacity: 0.9}}>
-                <Zap size={12} fill="white" /> <span>Online • Cerdas</span>
+                <Zap size={12} fill="white" /> <span>Online • Memori Aktif</span>
               </div>
             </div>
           </div>
-          <button onClick={() => setIsOpen(false)} className="close-chat">
-            <X size={20} />
-          </button>
+          <div className="header-actions" style={{display:'flex', gap:'8px'}}>
+            <button onClick={handleResetChat} className="close-chat" title="Hapus Riwayat" style={{background:'rgba(255,255,255,0.2)'}}>
+               <Trash2 size={16} />
+            </button>
+            <button onClick={() => setIsOpen(false)} className="close-chat">
+              <X size={20} />
+            </button>
+          </div>
         </div>
 
         <div className="ai-messages">
@@ -167,7 +185,7 @@ const AiChatWidget = () => {
               {msg.sender === 'user' && <div className="msg-avatar"><User size={16} /></div>}
             </div>
           ))}
-          
+
           {isLoading && (
             <div className="message bot">
                <div className="msg-avatar"><Bot size={16} /></div>
@@ -182,7 +200,7 @@ const AiChatWidget = () => {
         <div className="ai-input-area">
           <input 
             type="text" 
-            placeholder="Tanya tentang DP3A atau Hukum..." 
+            placeholder="Ketik pesan..." 
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
