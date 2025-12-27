@@ -3,7 +3,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, User, Bot, Loader2, Zap } from 'lucide-react';
 import './AiChatWidget.css';
 
-// --- KONFIGURASI GROQ (GRATIS & CEPAT) ---
+// --- KONFIGURASI GROQ (AMAN) ---
+// Key diambil dari file .env agar tidak diblokir GitHub
 const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
 const GROQ_MODEL = "llama-3.3-70b-versatile"; 
 
@@ -47,7 +48,7 @@ CONTOH JAWABAN GABUNGAN (Psikologis + Info):
 const AiChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   
-  // Chat awal tetap sesuai permintaan Anda
+  // Chat awal
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -69,9 +70,16 @@ const AiChatWidget = () => {
     scrollToBottom();
   }, [messages, isOpen]);
 
-  // --- FUNGSI PANGGIL GROQ AI ---
+  // --- FUNGSI PANGGIL GROQ AI (DENGAN MEMORI) ---
   const generateGroqResponse = async (userQuestion) => {
     try {
+      // 1. SIAPKAN RIWAYAT CHAT (HISTORY)
+      const conversationHistory = messages.slice(-10).map(msg => ({
+        role: msg.sender === 'bot' ? 'assistant' : 'user',
+        content: msg.text
+      }));
+
+      // 2. FETCH API
       const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -82,9 +90,10 @@ const AiChatWidget = () => {
           model: GROQ_MODEL,
           messages: [
             { role: "system", content: SYSTEM_PROMPT },
+            ...conversationHistory, // Masukkan riwayat chat agar nyambung
             { role: "user", content: userQuestion }
           ],
-          temperature: 0.7, // Sedikit dinaikkan (0.7) agar lebih luwes saat memberi konseling/empati
+          temperature: 0.7, 
           max_tokens: 600 
         })
       });
@@ -121,7 +130,6 @@ const AiChatWidget = () => {
 
   return (
     <div className="ai-widget-wrapper">
-      {/* Tombol Floating */}
       <div className={`ai-toggle-btn ${isOpen ? 'hide' : ''}`} onClick={() => setIsOpen(true)}>
         <div className="btn-content">
           <MessageCircle size={28} />
@@ -130,15 +138,10 @@ const AiChatWidget = () => {
         <div className="btn-pulse"></div>
       </div>
 
-      {/* Jendela Chat */}
       <div className={`ai-chat-box ${isOpen ? 'open' : ''}`}>
-        
-        {/* Header Biru */}
         <div className="ai-header" style={{background: 'linear-gradient(135deg, #2563eb, #1e40af)'}}> 
           <div className="header-info">
-            <div className="bot-avatar">
-              <Bot size={20} />
-            </div>
+            <div className="bot-avatar"><Bot size={20} /></div>
             <div>
               <h3>Si-PENA (AI)</h3>
               <div style={{display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', opacity: 0.9}}>
@@ -146,9 +149,7 @@ const AiChatWidget = () => {
               </div>
             </div>
           </div>
-          <button onClick={() => setIsOpen(false)} className="close-chat">
-            <X size={20} />
-          </button>
+          <button onClick={() => setIsOpen(false)} className="close-chat"><X size={20} /></button>
         </div>
 
         <div className="ai-messages">
@@ -158,7 +159,7 @@ const AiChatWidget = () => {
               <div className="bubble">
                 {msg.text.split('\n').map((line, i) => (
                   <p key={i} style={{marginBottom: line ? '8px' : '0'}}>
-                     {line.split("**").map((chunk, j) => 
+                      {line.split("**").map((chunk, j) => 
                         j % 2 === 1 ? <strong key={j}>{chunk}</strong> : chunk
                       )}
                   </p>
@@ -167,7 +168,6 @@ const AiChatWidget = () => {
               {msg.sender === 'user' && <div className="msg-avatar"><User size={16} /></div>}
             </div>
           ))}
-          
           {isLoading && (
             <div className="message bot">
                <div className="msg-avatar"><Bot size={16} /></div>
@@ -181,15 +181,11 @@ const AiChatWidget = () => {
 
         <div className="ai-input-area">
           <input 
-            type="text" 
-            placeholder="Tanya tentang DP3A atau Hukum..." 
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
+            type="text" placeholder="Tanya tentang DP3A atau Hukum..." 
+            value={input} onChange={(e) => setInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
           />
-          <button onClick={handleSendMessage} disabled={!input.trim() || isLoading}>
-            <Send size={18} />
-          </button>
+          <button onClick={handleSendMessage} disabled={!input.trim() || isLoading}><Send size={18} /></button>
         </div>
       </div>
     </div>
