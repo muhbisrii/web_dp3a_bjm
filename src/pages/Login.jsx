@@ -203,7 +203,8 @@ export default function Login({ onSwitchToRegister, onBack }) {
       <div className="bg-white w-full max-w-4xl h-auto min-h-[550px] md:h-[550px] rounded-[30px] shadow-2xl overflow-hidden flex flex-row border border-slate-100">
 
         {/* PANEL KIRI (DESKTOP ONLY) */}
-        <div className="hidden md:flex w-[50%] h-full bg-gradient-to-br from-[#4f46e5] to-[#6366f1] 
+        {/* UPDATED: Menggunakan warna #4338ca (Primary Hover) sebagai base gradient */}
+        <div className="hidden md:flex w-[50%] h-full bg-gradient-to-br from-[#4338ca] to-[#4f46e5] 
           text-white flex-col items-center justify-center text-center p-12 relative overflow-hidden"
           style={{ borderTopRightRadius: '100px', borderBottomRightRadius: '100px' }}
         >
@@ -253,10 +254,10 @@ export default function Login({ onSwitchToRegister, onBack }) {
             className="w-full"
           >
             {/* Header Mobile (BOX BIRU MENGAMBANG) */}
-            {/* Juga diterapkan animasi stagger di sini agar konsisten */}
+            {/* UPDATED: Menggunakan warna #4338ca sebagai base gradient */}
             <motion.div 
               animate={floatingAnimation}
-              className="w-full bg-gradient-to-br from-[#4f46e5] to-[#6366f1] p-6 rounded-2xl shadow-lg mb-8 md:hidden flex flex-col items-center text-center relative overflow-hidden"
+              className="w-full bg-gradient-to-br from-[#4338ca] to-[#4f46e5] p-6 rounded-2xl shadow-lg mb-8 md:hidden flex flex-col items-center text-center relative overflow-hidden"
             >
                 <FallingParticles />
 
@@ -329,7 +330,8 @@ export default function Login({ onSwitchToRegister, onBack }) {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#4f46e5] outline-none transition-all"
+                    // UPDATED: focus:ring menggunakan #4338ca
+                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#4338ca] outline-none transition-all"
                     placeholder="Email Pengguna"
                     required
                   />
@@ -341,7 +343,8 @@ export default function Login({ onSwitchToRegister, onBack }) {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#4f46e5] outline-none transition-all"
+                    // UPDATED: focus:ring menggunakan #4338ca
+                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#4338ca] outline-none transition-all"
                     placeholder="Kata Sandi"
                     required
                   />
@@ -354,7 +357,8 @@ export default function Login({ onSwitchToRegister, onBack }) {
                   <button 
                     type="button" 
                     onClick={() => { setIsForgotPassword(true); setError(""); setResetEmailSent(false); }}
-                    className="text-[#4f46e5] font-medium hover:underline"
+                    // UPDATED: text color menggunakan #4338ca
+                    className="text-[#4338ca] font-medium hover:underline"
                   >
                     Lupa Password?
                   </button>
@@ -365,7 +369,8 @@ export default function Login({ onSwitchToRegister, onBack }) {
                   whileTap={{ scale: 0.98 }}
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-[#4f46e5] hover:bg-[#4338ca] text-white font-bold py-3.5 rounded-xl shadow-lg mt-2 transition-all"
+                  // UPDATED: bg-color menggunakan #4338ca, hover menggunakan darker shade #312e81
+                  className="w-full bg-[#4338ca] hover:bg-[#312e81] text-white font-bold py-3.5 rounded-xl shadow-lg mt-2 transition-all"
                 >
                   MASUK
                 </motion.button>
@@ -379,7 +384,8 @@ export default function Login({ onSwitchToRegister, onBack }) {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#4f46e5] outline-none transition-all"
+                    // UPDATED: focus:ring menggunakan #4338ca
+                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#4338ca] outline-none transition-all"
                     placeholder="Masukkan Email Terdaftar"
                     required
                   />
@@ -390,16 +396,18 @@ export default function Login({ onSwitchToRegister, onBack }) {
                   whileTap={{ scale: 0.98 }}
                   type="submit"
                   disabled={loading || resetEmailSent}
-                  className="w-full bg-[#4f46e5] hover:bg-[#4338ca] text-white font-bold py-3.5 rounded-xl shadow-lg mt-2 transition-all"
+                  // UPDATED: bg-color menggunakan #4338ca
+                  className="w-full bg-[#4338ca] hover:bg-[#312e81] text-white font-bold py-3.5 rounded-xl shadow-lg mt-2 transition-all"
                 >
-                   {loading ? "Mengirim..." : "Kirim Link Reset"}
+                    {loading ? "Mengirim..." : "Kirim Link Reset"}
                 </motion.button>
 
                 <div className="text-center pt-2">
                     <button 
                         type="button"
                         onClick={() => { setIsForgotPassword(false); setError(""); setResetEmailSent(false); }}
-                        className="text-slate-500 text-sm hover:text-[#4f46e5] flex items-center justify-center gap-1 mx-auto"
+                        // UPDATED: hover text color menggunakan #4338ca
+                        className="text-slate-500 text-sm hover:text-[#4338ca] flex items-center justify-center gap-1 mx-auto"
                     >
                         <ArrowLeft size={14} /> Kembali ke Login
                     </button>
@@ -412,7 +420,8 @@ export default function Login({ onSwitchToRegister, onBack }) {
                     <p className="text-slate-500 text-sm mb-2">Belum punya akun?</p>
                     <button
                         onClick={onSwitchToRegister}
-                        className="text-[#4f46e5] font-bold border border-[#4f46e5] px-6 py-2 rounded-lg hover:bg-indigo-50 transition-all w-full md:w-auto text-sm"
+                        // UPDATED: border dan text color menggunakan #4338ca
+                        className="text-[#4338ca] font-bold border border-[#4338ca] px-6 py-2 rounded-lg hover:bg-indigo-50 transition-all w-full md:w-auto text-sm"
                     >
                         Daftar Sekarang
                     </button>

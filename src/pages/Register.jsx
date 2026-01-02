@@ -153,14 +153,16 @@ export default function Register({ onSwitchToLogin }) {
                                     <label className="text-xs font-bold text-slate-700 ml-1">Nama</label>
                                     <div className="relative">
                                         <User className="absolute left-3 top-2.5 text-slate-400 h-4 w-4" />
-                                        <input name="nama" onChange={handleChange} className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm" required placeholder="Sesuai KTP" />
+                                        {/* Updated Focus Color */}
+                                        <input name="nama" onChange={handleChange} className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#4338ca] outline-none text-sm" required placeholder="Sesuai KTP" />
                                     </div>
                                 </div>
                                 <div>
                                     <label className="text-xs font-bold text-slate-700 ml-1">NIK</label>
                                     <div className="relative">
                                         <CreditCard className="absolute left-3 top-2.5 text-slate-400 h-4 w-4" />
-                                        <input name="nik" type="number" onChange={handleChange} className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm" required placeholder="16 Digit" />
+                                        {/* Updated Focus Color */}
+                                        <input name="nik" type="number" onChange={handleChange} className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#4338ca] outline-none text-sm" required placeholder="16 Digit" />
                                     </div>
                                 </div>
                             </div>
@@ -171,14 +173,16 @@ export default function Register({ onSwitchToLogin }) {
                                     <label className="text-xs font-bold text-slate-700 ml-1">Email</label>
                                     <div className="relative">
                                         <Mail className="absolute left-3 top-2.5 text-slate-400 h-4 w-4" />
-                                        <input name="email" type="email" onChange={handleChange} className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm" required placeholder="email@anda.com" />
+                                        {/* Updated Focus Color */}
+                                        <input name="email" type="email" onChange={handleChange} className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#4338ca] outline-none text-sm" required placeholder="email@anda.com" />
                                     </div>
                                 </div>
                                 <div>
                                     <label className="text-xs font-bold text-slate-700 ml-1">No HP</label>
                                     <div className="relative">
                                         <Phone className="absolute left-3 top-2.5 text-slate-400 h-4 w-4" />
-                                        <input name="noHp" type="number" onChange={handleChange} className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm" required placeholder="08xxx" />
+                                        {/* Updated Focus Color */}
+                                        <input name="noHp" type="number" onChange={handleChange} className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#4338ca] outline-none text-sm" required placeholder="08xxx" />
                                     </div>
                                 </div>
                             </div>
@@ -189,26 +193,30 @@ export default function Register({ onSwitchToLogin }) {
                                     <label className="text-xs font-bold text-slate-700 ml-1">Password</label>
                                     <div className="relative">
                                         <Lock className="absolute left-3 top-2.5 text-slate-400 h-4 w-4" />
-                                        <input name="password" type="password" onChange={handleChange} className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm" required placeholder="Min 6 kar" />
+                                        {/* Updated Focus Color */}
+                                        <input name="password" type="password" onChange={handleChange} className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#4338ca] outline-none text-sm" required placeholder="Min 6 kar" />
                                     </div>
                                 </div>
                                 <div>
                                     <label className="text-xs font-bold text-slate-700 ml-1">Konfirmasi</label>
                                     <div className="relative">
                                         <Lock className="absolute left-3 top-2.5 text-slate-400 h-4 w-4" />
-                                        <input name="confirm" type="password" onChange={handleChange} className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm" required placeholder="Ulangi Pass" />
+                                        {/* Updated Focus Color */}
+                                        <input name="confirm" type="password" onChange={handleChange} className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#4338ca] outline-none text-sm" required placeholder="Ulangi Pass" />
                                     </div>
                                 </div>
                             </div>
 
-                            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="submit" disabled={loading} className="w-full bg-[#4f46e5] hover:bg-[#4338ca] text-white font-bold py-3.5 rounded-xl shadow-lg mt-4 transition-all flex justify-center items-center">
+                            {/* Updated Button Color: BG #4338ca, Hover #312e81 */}
+                            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="submit" disabled={loading} className="w-full bg-[#4338ca] hover:bg-[#312e81] text-white font-bold py-3.5 rounded-xl shadow-lg mt-4 transition-all flex justify-center items-center">
                               {loading ? <span className="animate-pulse">Sedang Memproses...</span> : 'DAFTAR SEKARANG'}
                             </motion.button>
                         </form>
 
                         <div className="mt-4 text-center pt-2 border-t border-slate-100">
                             <span className="text-slate-500 text-sm">Sudah punya akun? </span>
-                            <button onClick={onSwitchToLogin} className="text-[#4f46e5] font-bold hover:underline text-sm">Login di sini</button>
+                            {/* Updated Link Color */}
+                            <button onClick={onSwitchToLogin} className="text-[#4338ca] font-bold hover:underline text-sm">Login di sini</button>
                         </div>
                     </motion.div>
                   )}
@@ -232,7 +240,8 @@ export default function Register({ onSwitchToLogin }) {
                       <p className="text-slate-600 mb-6 text-sm leading-relaxed max-w-sm">
                         Kami telah mengirim email verifikasi ke <strong>{formData.email}</strong>.
                         <br/><br/>
-                        <span className="font-semibold text-indigo-600 bg-indigo-50 px-2 py-1 rounded border border-indigo-200">
+                        {/* Updated Warning Color Text */}
+                        <span className="font-semibold text-[#4338ca] bg-indigo-50 px-2 py-1 rounded border border-indigo-200">
                           Jangan tutup halaman ini.
                         </span>
                         <br/>Silakan buka Tab Baru atau HP Anda, cek Inbox/Spam, lalu klik linknya.
@@ -279,8 +288,9 @@ export default function Register({ onSwitchToLogin }) {
             </div>
         </div>
 
-        {/* --- KONTEN KANAN (BRANDING) - TETAP SAMA --- */}
-        <div className="hidden md:flex w-[40%] h-full bg-gradient-to-br from-[#4f46e5] to-[#6366f1] text-white flex-col items-center justify-center text-center p-12 absolute right-0 top-0 z-20"
+        {/* --- KONTEN KANAN (BRANDING) --- */}
+        {/* Updated Gradient: from #4338ca */}
+        <div className="hidden md:flex w-[40%] h-full bg-gradient-to-br from-[#4338ca] to-[#4f46e5] text-white flex-col items-center justify-center text-center p-12 absolute right-0 top-0 z-20"
           style={{ borderTopLeftRadius: '100px', borderBottomLeftRadius: '100px', boxShadow: '-10px 0 30px rgba(0,0,0,0.1)' }}
         >
             <div className="bg-white p-4 rounded-2xl shadow-lg mb-8 flex items-center justify-center space-x-3 w-full max-w-xs mx-auto">
