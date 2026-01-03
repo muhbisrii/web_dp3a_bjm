@@ -4,7 +4,7 @@ import { signOut } from 'firebase/auth';
 import { db, auth } from '../firebase';
 import { 
   LogOut, LayoutDashboard, FileText, User, Search, Clock, Settings, 
-  CheckCircle, XCircle, Menu, MapPin, BarChart3, Trash2, ArrowLeft, MessageSquare, X, Send, Filter, Calendar, RefreshCcw, AlertTriangle, Check
+  CheckCircle, XCircle, Menu, MapPin, BarChart3, Trash2, ArrowLeft, MessageSquare, X, Send, Filter, Calendar, RefreshCcw, AlertTriangle, Check, Eye, Phone, Mail, FileWarning
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -15,7 +15,7 @@ const TypewriterText = ({ text }) => {
   useEffect(() => {
     const interval = setInterval(() => {
       setKey((prev) => prev + 1); 
-    }, 10000); // Ulangi setiap 10 detik
+    }, 10000); 
     return () => clearInterval(interval);
   }, []);
 
@@ -103,8 +103,11 @@ export default function AdminDashboard({ user, site, onRequestLogoutRedirect }) 
   const [filterMonth, setFilterMonth] = useState('');
   const [filterDate, setFilterDate] = useState('');
 
+  // --- STATES MODAL ---
   const [isResponseModalOpen, setIsResponseModalOpen] = useState(false);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false); // Untuk Detail
   const [selectedLaporanId, setSelectedLaporanId] = useState(null);
+  const [selectedDetailReport, setSelectedDetailReport] = useState(null); // Data Detail
   const [responseText, setResponseText] = useState('');
   const [loadingResponse, setLoadingResponse] = useState(false);
   
@@ -113,7 +116,7 @@ export default function AdminDashboard({ user, site, onRequestLogoutRedirect }) 
   const [isProcessing, setIsProcessing] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
-  // --- ROUTING: sync activeTab <-> URL for admin pages ---
+  // --- ROUTING ---
   const pathForTab = (t) => {
     switch (t) {
       case 'dashboard': return '/admin';
@@ -132,7 +135,6 @@ export default function AdminDashboard({ user, site, onRequestLogoutRedirect }) 
     } catch (e) { /* ignore */ }
   };
 
-  // initialize activeTab from pathname when component mounts
   useEffect(() => {
     try {
       const path = window.location.pathname.replace(/\/+$/, '');
@@ -160,19 +162,42 @@ export default function AdminDashboard({ user, site, onRequestLogoutRedirect }) 
     return () => unsubscribe();
   }, []);
 
+  // --- FILTERING ---
   const filteredLaporan = laporan.filter(item => {
+    // Mapping search ke field yang relevan
     const matchesSearch = (item.judul?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
                           (item.nama_pelapor?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
                           (item.lokasi?.toLowerCase() || "").includes(searchTerm.toLowerCase());
+    
     const matchesStatus = filterStatus === 'Semua' || item.status === filterStatus;
+    
+    // Filter tanggal logic (menggunakan field 'tanggal' atau 'tanggalKejadian')
     let matchesYear = true, matchesMonth = true, matchesDate = true;
-    if (item.tanggalKejadian) {
-        const parts = item.tanggalKejadian.split('/');
-        if (parts.length === 3) {
-            const day = parts[0], month = parts[1], year = parts[2];
+    const tgl = item.tanggal || item.tanggalKejadian; // Handle kedua kemungkinan nama field
+
+    if (tgl) {
+        // Asumsi format DD/MM/YYYY atau YYYY-MM-DD, kita coba split
+        let day, month, year;
+        if (tgl.includes('/')) {
+            [day, month, year] = tgl.split('/');
+        } else if (tgl.includes('-')) {
+             // Jika tersimpan YYYY-MM-DD
+             const parts = tgl.split('-');
+             if(parts[0].length === 4) { [year, month, day] = parts; }
+             else { [day, month, year] = parts; } // DD-MM-YYYY fallback
+        }
+
+        if (year && month) {
             if (filterYear !== '' && year !== filterYear) matchesYear = false;
             if (filterMonth !== '' && parseInt(month) !== parseInt(filterMonth)) matchesMonth = false;
-            if (filterDate !== '') { const [fYear, fMonth, fDay] = filterDate.split('-'); if (item.tanggalKejadian !== `${fDay}/${fMonth}/${fYear}`) matchesDate = false; }
+            if (filterDate !== '') { 
+                // filterDate dari input type="date" formatnya YYYY-MM-DD
+                const [fYear, fMonth, fDay] = filterDate.split('-'); 
+                // Kita bandingkan manual
+                if (parseInt(year) !== parseInt(fYear) || parseInt(month) !== parseInt(fMonth) || parseInt(day) !== parseInt(fDay)) {
+                    matchesDate = false;
+                }
+            }
         }
     }
     return matchesSearch && matchesStatus && matchesYear && matchesMonth && matchesDate;
@@ -180,17 +205,11 @@ export default function AdminDashboard({ user, site, onRequestLogoutRedirect }) 
 
   const handleLogoutClick = () => setShowLogoutConfirm(true);
   const confirmLogout = async () => {
-    try {
-      await signOut(auth);
-    } catch (err) {
-      console.error('Admin sign out error:', err);
-    }
-    try {
-      if (typeof onRequestLogoutRedirect === 'function') onRequestLogoutRedirect();
-      else window.history.replaceState(null, '', '/login');
-    } catch (e) {}
+    try { await signOut(auth); } catch (err) { console.error('Admin sign out error:', err); }
+    try { if (typeof onRequestLogoutRedirect === 'function') onRequestLogoutRedirect(); else window.history.replaceState(null, '', '/login'); } catch (e) {}
   };
 
+  // --- ACTIONS ---
   const requestUpdateStatus = (id, newStatus) => {
     setConfirmModal({ isOpen: true, type: 'status', id: id, data: newStatus, title: 'Konfirmasi Ubah Status', message: `Apakah Anda yakin ingin mengubah status laporan ini menjadi "${newStatus}"?` });
   };
@@ -223,10 +242,17 @@ export default function AdminDashboard({ user, site, onRequestLogoutRedirect }) 
     } catch (err) { alert("Gagal mengirim tanggapan: " + err.message); } finally { setLoadingResponse(false); }
   };
 
+  // --- MODAL HANDLERS ---
   const openResponseModal = (id, currentResponse) => { setSelectedLaporanId(id); setResponseText(currentResponse || ''); setIsResponseModalOpen(true); };
+  
+  const openDetailModal = (report) => {
+    setSelectedDetailReport(report);
+    setIsDetailModalOpen(true);
+  };
+
   const resetFilters = () => { setFilterStatus('Semua'); setFilterYear(''); setFilterMonth(''); setFilterDate(''); setSearchTerm(''); };
 
-  // --- ANIMASI VARIANTS ---
+  // --- UI HELPERS ---
   const pageVariants = { 
     initial: { opacity: 0, y: 15 },
     animate: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } }, 
@@ -235,7 +261,7 @@ export default function AdminDashboard({ user, site, onRequestLogoutRedirect }) 
 
   const cardFloatVariant = (delay) => ({
     animate: {
-      y: [0, -6, 0], // Mengambang 6px
+      y: [0, -6, 0],
       transition: { duration: 4, repeat: Infinity, ease: "easeInOut", delay: delay }
     }
   });
@@ -319,21 +345,16 @@ export default function AdminDashboard({ user, site, onRequestLogoutRedirect }) 
           {/* === DASHBOARD TAB === */}
           {activeTab === 'dashboard' && (
             <motion.div key="dashboard" variants={pageVariants} initial="initial" animate="animate" exit="exit" className="space-y-6 md:space-y-8">
-               
-               {/* HERO BOX ADMIN (HITAM) DENGAN PARTIKEL */}
                <div className="relative">
                  <div className="bg-gradient-to-br from-[#7C4DFF] to-[#5B3BFF] p-6 md:p-8 rounded-2xl shadow-lg border border-white/30 relative overflow-hidden text-white">
-                   {/* Partikel Jatuh di dalam Box */}
                    <AdminParticles /> 
-                   
-                          <div className="relative z-10">
-                            <h2 className="text-2xl font-bold mb-1 text-white">Ringkasan Statistik</h2>
-                            <p className="text-white/90 text-sm font-medium">Pantau status laporan pengaduan masyarakat secara real-time.</p>
-                          </div>
+                   <div className="relative z-10">
+                     <h2 className="text-2xl font-bold mb-1 text-white">Ringkasan Statistik</h2>
+                     <p className="text-white/90 text-sm font-medium">Pantau status laporan pengaduan masyarakat secara real-time.</p>
+                   </div>
                  </div>
                </div>
 
-               {/* GRID STATISTIK MENGAMBANG (RESPONSIF) */}
                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
                   <StatCard title="Total Laporan" count={stats.total} icon={BarChart3} colorBg="bg-slate-800" colorText="text-white" delay={0} />
                   <StatCard title="Menunggu" count={stats.menunggu} icon={Clock} colorBg="bg-amber-100" colorText="text-amber-600" delay={0.5} />
@@ -342,7 +363,6 @@ export default function AdminDashboard({ user, site, onRequestLogoutRedirect }) 
                   <StatCard title="Ditolak" count={stats.ditolak} icon={XCircle} colorBg="bg-red-100" colorText="text-red-600" delay={2} />
                </div>
 
-               {/* TABEL LAPORAN TERBARU */}
                <div className="bg-white/90 backdrop-blur-md rounded-xl shadow-lg border border-white/60 flex flex-col overflow-hidden">
                   <div className="p-4 md:p-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
                     <div><h3 className="font-bold text-slate-800 text-lg">Laporan Masuk Terbaru</h3><p className="text-sm text-slate-500">Pengaduan terakhir yang diterima sistem.</p></div>
@@ -354,7 +374,7 @@ export default function AdminDashboard({ user, site, onRequestLogoutRedirect }) 
                        <tbody className="divide-y divide-slate-100">
                           {laporan.slice(0, 5).map((item) => (
                              <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">
-                               <td className="px-4 md:px-6 py-3 md:py-4 text-slate-600 whitespace-nowrap"><div className="flex items-center"><Clock size={14} className="mr-2 text-slate-400"/> {item.tanggalKejadian}</div></td>
+                               <td className="px-4 md:px-6 py-3 md:py-4 text-slate-600 whitespace-nowrap"><div className="flex items-center"><Clock size={14} className="mr-2 text-slate-400"/> {item.tanggal || item.tanggalKejadian}</div></td>
                                <td className="px-4 md:px-6 py-3 md:py-4"><div className="font-medium text-slate-800">{item.nama_pelapor || "Anonim"}</div><div className="text-xs text-slate-400 truncate max-w-[120px]">{item.emailPelapor}</div></td>
                                <td className="px-4 md:px-6 py-3 md:py-4 max-w-xs"><div className="font-bold text-slate-800 truncate">{item.judul}</div><div className="text-xs text-slate-500 flex items-center mt-1 truncate"><MapPin size={10} className="mr-1 flex-shrink-0"/> {item.lokasi}</div></td>
                                <td className="px-4 md:px-6 py-3 md:py-4"><span className={`px-2 py-1 md:px-3 md:py-1 rounded-full text-[10px] md:text-xs font-bold uppercase ${getStatusBadge(item.status)}`}>{item.status || "Menunggu"}</span></td>
@@ -368,7 +388,7 @@ export default function AdminDashboard({ user, site, onRequestLogoutRedirect }) 
             </motion.div>
           )}
 
-          {/* === DATA PENGADUAN TAB (PERBAIKAN: NO SWIPE) === */}
+          {/* === DATA PENGADUAN TAB === */}
           {activeTab === 'complaints' && (
              <motion.div key="complaints" variants={pageVariants} initial="initial" animate="animate" exit="exit" className="space-y-6">
                 <div className="flex flex-col gap-4">
@@ -377,7 +397,6 @@ export default function AdminDashboard({ user, site, onRequestLogoutRedirect }) 
                      <button onClick={resetFilters} className="text-sm text-red-500 hover:text-red-700 flex items-center font-bold bg-red-50/80 px-3 py-2 rounded-lg backdrop-blur-sm border border-red-100 w-full md:w-auto justify-center"><RefreshCcw size={14} className="mr-2"/> Reset Filter</button>
                    </div>
                    
-                   {/* FILTER GRID RESPONSIF */}
                    <div className="bg-white/90 backdrop-blur-md p-4 rounded-xl border border-white/60 shadow-sm grid grid-cols-1 md:grid-cols-5 gap-3">
                       <div className="relative md:col-span-2"><Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" /><input type="text" placeholder="Cari Judul, Pelapor..." className="pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg w-full text-sm focus:ring-2 focus:ring-emerald-500 outline-none bg-white/50" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}/></div>
                       <div className="relative"><Filter className="absolute left-3 top-3 h-4 w-4 text-slate-400" /><select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg w-full text-sm focus:ring-2 focus:ring-emerald-500 outline-none appearance-none bg-white/50"><option value="Semua">Semua Status</option><option value="Menunggu">Menunggu</option><option value="Diproses">Diproses</option><option value="Selesai">Selesai</option><option value="Ditolak">Ditolak</option></select></div>
@@ -386,7 +405,6 @@ export default function AdminDashboard({ user, site, onRequestLogoutRedirect }) 
                    </div>
                 </div>
 
-                {/* TABEL DATA PENGADUAN - PERBAIKAN FIT LAYAR */}
                 <div className="bg-white/90 backdrop-blur-md rounded-xl shadow-lg border border-white/60 overflow-hidden">
                    <div className="overflow-x-auto">
                      <table className="w-full text-xs md:text-sm text-left">
@@ -398,14 +416,14 @@ export default function AdminDashboard({ user, site, onRequestLogoutRedirect }) 
                               <th className="p-2">Judul & Kategori</th>
                               <th className="p-2 w-32">Lokasi</th>
                               <th className="p-2 text-center w-24">Status</th>
-                              <th className="p-2 text-center w-40">Aksi</th>
+                              <th className="p-2 text-center min-w-[180px]">Aksi</th>
                            </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
                            {filteredLaporan.map((item, index) => (
                               <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">
                                  <td className="p-2 text-center text-slate-500">{index + 1}</td>
-                                 <td className="p-2 text-slate-600"><div className="flex flex-col"><div className="flex items-center"><Clock size={12} className="mr-1 text-slate-400"/> {item.tanggalKejadian}</div></div></td>
+                                 <td className="p-2 text-slate-600"><div className="flex flex-col"><div className="flex items-center"><Clock size={12} className="mr-1 text-slate-400"/> {item.tanggal || item.tanggalKejadian}</div></div></td>
                                  <td className="p-2"><div className="font-medium text-slate-800 break-words">{item.nama_pelapor || "Anonim"}</div><div className="text-[10px] text-slate-400 truncate max-w-[100px]">{item.emailPelapor}</div></td>
                                  <td className="p-2">
                                     <div className="font-bold text-slate-800 line-clamp-2">{item.judul}</div>
@@ -416,6 +434,9 @@ export default function AdminDashboard({ user, site, onRequestLogoutRedirect }) 
                                  <td className="p-2 text-center"><span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase inline-block shadow-sm ${getStatusBadge(item.status)}`}>{item.status || "Menunggu"}</span></td>
                                  <td className="p-2 text-center">
                                     <div className="flex justify-center items-center space-x-1">
+                                         {/* TOMBOL LIHAT DETAIL */}
+                                         <button onClick={() => openDetailModal(item)} title="Lihat Detail & Kronologi" className="w-7 h-7 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded hover:bg-indigo-600 hover:text-white transition-all"><Eye size={14}/></button>
+                                         <div className="w-px h-4 bg-slate-300"></div>
                                          <button onClick={() => openResponseModal(item.id, item.tanggapanPetugas)} title="Beri Tanggapan" className="w-7 h-7 flex items-center justify-center bg-amber-50 text-amber-600 rounded hover:bg-amber-500 hover:text-white transition-all"><MessageSquare size={12}/></button>
                                          <div className="w-px h-4 bg-slate-300"></div>
                                          <button onClick={() => requestUpdateStatus(item.id, 'Diproses')} title="Proses" className="w-7 h-7 flex items-center justify-center bg-blue-50 text-blue-600 rounded hover:bg-blue-600 hover:text-white transition-all"><Settings size={12}/></button>
@@ -439,7 +460,7 @@ export default function AdminDashboard({ user, site, onRequestLogoutRedirect }) 
         </main>
       </div>
 
-      {/* MODALS */}
+      {/* --- MODAL RESPONSE --- */}
       <AnimatePresence>
         {isResponseModalOpen && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
@@ -454,6 +475,91 @@ export default function AdminDashboard({ user, site, onRequestLogoutRedirect }) 
         )}
       </AnimatePresence>
 
+      {/* --- MODAL DETAIL LAPORAN (SESUAI REQUEST: form field user) --- */}
+      <AnimatePresence>
+        {isDetailModalOpen && selectedDetailReport && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+                <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="bg-white w-full max-w-2xl max-h-[90vh] rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+                    {/* Header Modal */}
+                    <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                        <div>
+                            <span className="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-1 block">Detail Pengaduan</span>
+                            {/* JUDUL */}
+                            <h3 className="text-xl font-bold text-slate-800 line-clamp-1">{selectedDetailReport.judul}</h3>
+                        </div>
+                        <button onClick={() => setIsDetailModalOpen(false)} className="p-2 bg-white rounded-full text-slate-400 hover:text-red-500 hover:bg-red-50 shadow-sm border border-slate-200 transition-all"><X size={20}/></button>
+                    </div>
+                    
+                    {/* Content Scrollable */}
+                    <div className="p-6 overflow-y-auto custom-scrollbar space-y-6">
+                        {/* Info Utama Grid (Kategori, Tanggal, Lokasi) */}
+                        <div className="bg-slate-50 p-5 rounded-xl border border-slate-100">
+                             <h4 className="text-xs font-bold text-slate-400 uppercase mb-4 tracking-wider">Informasi Kejadian</h4>
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-6">
+                                <div>
+                                    <p className="text-xs text-slate-500 mb-1">Kategori</p>
+                                    <div className="font-semibold text-slate-800 flex items-center"><FileWarning size={14} className="mr-2 text-indigo-500"/> {selectedDetailReport.kategori}</div>
+                                </div>
+                                <div>
+                                    <p className="text-xs text-slate-500 mb-1">Tanggal Kejadian</p>
+                                    {/* Handle field 'tanggal' atau 'tanggalKejadian' */}
+                                    <div className="font-semibold text-slate-800 flex items-center"><Clock size={14} className="mr-2 text-indigo-500"/> {selectedDetailReport.tanggal || selectedDetailReport.tanggalKejadian || "-"}</div>
+                                </div>
+                                <div className="md:col-span-2">
+                                    <p className="text-xs text-slate-500 mb-1">Lokasi Kejadian</p>
+                                    <div className="font-semibold text-slate-800 flex items-start"><MapPin size={14} className="mr-2 text-indigo-500 mt-0.5 flex-shrink-0"/> {selectedDetailReport.lokasi}</div>
+                                </div>
+                             </div>
+                        </div>
+
+                        {/* Kronologi (INTI LAPORAN) */}
+                        <div>
+                            <h4 className="text-sm font-bold text-slate-800 mb-2 flex items-center"><FileText size={16} className="mr-2 text-indigo-600"/> Kronologi Kejadian</h4>
+                            <div className="p-4 bg-white rounded-xl border border-slate-200 text-sm text-slate-700 leading-relaxed whitespace-pre-wrap shadow-sm h-auto min-h-[100px]">
+                                {selectedDetailReport.kronologi || selectedDetailReport.deskripsi || "Tidak ada deskripsi rinci mengenai kronologi kejadian."}
+                            </div>
+                        </div>
+
+                         {/* Data Pelapor (Optional, jika ada) */}
+                         <div className="border-t border-slate-100 pt-4">
+                            <h4 className="text-xs font-bold text-slate-400 uppercase mb-3">Data Pelapor</h4>
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div className="flex items-center text-sm text-slate-600"><User size={14} className="mr-2 text-slate-400"/> {selectedDetailReport.nama_pelapor || "Anonim"}</div>
+                                <div className="flex items-center text-sm text-slate-600"><Mail size={14} className="mr-2 text-slate-400"/> {selectedDetailReport.emailPelapor || "-"}</div>
+                                <div className="flex items-center text-sm text-slate-600"><Phone size={14} className="mr-2 text-slate-400"/> {selectedDetailReport.noHp || "-"}</div>
+                            </div>
+                         </div>
+
+                        {/* Bukti Lampiran */}
+                        {(selectedDetailReport.lampiran || selectedDetailReport.foto || selectedDetailReport.imageUrl) && (
+                            <div className="border-t border-slate-100 pt-4">
+                                <h4 className="text-sm font-bold text-slate-800 mb-2 flex items-center"><Eye size={16} className="mr-2 text-indigo-600"/> Bukti Lampiran</h4>
+                                <div className="rounded-xl overflow-hidden border border-slate-200 bg-slate-100 relative group">
+                                    <img 
+                                        src={selectedDetailReport.lampiran || selectedDetailReport.foto || selectedDetailReport.imageUrl} 
+                                        alt="Bukti Laporan" 
+                                        className="w-full h-auto max-h-[400px] object-contain mx-auto"
+                                        onError={(e) => e.target.style.display = 'none'}
+                                    />
+                                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                        <a href={selectedDetailReport.lampiran || selectedDetailReport.foto || selectedDetailReport.imageUrl} target="_blank" rel="noreferrer" className="bg-white text-slate-800 px-4 py-2 rounded-full font-bold text-xs hover:bg-slate-100">Buka Gambar Penuh</a>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                        
+                        {/* Footer Status */}
+                         <div className="flex items-center justify-between p-4 bg-indigo-50/50 rounded-xl border border-indigo-100 mt-2">
+                            <span className="text-sm font-semibold text-indigo-900">Status Laporan Saat Ini</span>
+                            <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${getStatusBadge(selectedDetailReport.status)}`}>{selectedDetailReport.status || "Menunggu"}</span>
+                         </div>
+                    </div>
+                </motion.div>
+            </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* --- CONFIRMATION MODAL --- */}
       <AnimatePresence>
       {confirmModal.isOpen && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
@@ -472,6 +578,7 @@ export default function AdminDashboard({ user, site, onRequestLogoutRedirect }) 
       )}
       </AnimatePresence>
 
+      {/* --- SUCCESS MODAL --- */}
       <AnimatePresence>
       {successModal.isOpen && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
@@ -485,6 +592,7 @@ export default function AdminDashboard({ user, site, onRequestLogoutRedirect }) 
       )}
       </AnimatePresence>
 
+      {/* --- LOGOUT CONFIRM --- */}
       <AnimatePresence>
       {showLogoutConfirm && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
