@@ -274,8 +274,8 @@ export default function AdminDashboard({ user, site, onRequestLogoutRedirect }) 
       <aside className={`fixed md:relative z-50 w-64 h-full bg-gradient-to-b from-[#7C4DFF] to-[#5B3BFF] text-white flex flex-col transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} shadow-2xl`}>
         <div className="p-6 border-b border-slate-800">
            <div className="flex items-center space-x-3 bg-slate-800/50 p-3 rounded-xl border border-slate-700/50 backdrop-blur-sm">
-              <div className="h-10 w-10 rounded-full bg-slate-700 flex items-center justify-center text-emerald-400 font-bold border border-slate-600"><User size={20} /></div>
-              <div className="overflow-hidden"><p className="text-white text-sm font-semibold truncate">{user.name || "Petugas"}</p><p className="text-[10px] text-emerald-400 font-medium uppercase tracking-wider">Administrator</p></div>
+             <div className="h-10 w-10 rounded-full bg-slate-700 flex items-center justify-center text-emerald-400 font-bold border border-slate-600"><User size={20} /></div>
+             <div className="overflow-hidden"><p className="text-white text-sm font-semibold truncate">{user.name || "Petugas"}</p><p className="text-[10px] text-emerald-400 font-medium uppercase tracking-wider">Administrator</p></div>
            </div>
         </div>
         <nav className="flex-1 p-4 space-y-2">
@@ -323,9 +323,9 @@ export default function AdminDashboard({ user, site, onRequestLogoutRedirect }) 
                {/* HERO BOX ADMIN (HITAM) DENGAN PARTIKEL */}
                <div className="relative">
                  <div className="bg-gradient-to-br from-[#7C4DFF] to-[#5B3BFF] p-6 md:p-8 rounded-2xl shadow-lg border border-white/30 relative overflow-hidden text-white">
-                    {/* Partikel Jatuh di dalam Box */}
-                    <AdminParticles /> 
-                    
+                   {/* Partikel Jatuh di dalam Box */}
+                   <AdminParticles /> 
+                   
                           <div className="relative z-10">
                             <h2 className="text-2xl font-bold mb-1 text-white">Ringkasan Statistik</h2>
                             <p className="text-white/90 text-sm font-medium">Pantau status laporan pengaduan masyarakat secara real-time.</p>
@@ -368,7 +368,7 @@ export default function AdminDashboard({ user, site, onRequestLogoutRedirect }) 
             </motion.div>
           )}
 
-          {/* === DATA PENGADUAN TAB === */}
+          {/* === DATA PENGADUAN TAB (PERBAIKAN: NO SWIPE) === */}
           {activeTab === 'complaints' && (
              <motion.div key="complaints" variants={pageVariants} initial="initial" animate="animate" exit="exit" className="space-y-6">
                 <div className="flex flex-col gap-4">
@@ -386,33 +386,43 @@ export default function AdminDashboard({ user, site, onRequestLogoutRedirect }) 
                    </div>
                 </div>
 
-                {/* TABEL DATA PENGADUAN */}
+                {/* TABEL DATA PENGADUAN - PERBAIKAN FIT LAYAR */}
                 <div className="bg-white/90 backdrop-blur-md rounded-xl shadow-lg border border-white/60 overflow-hidden">
                    <div className="overflow-x-auto">
-                     <table className="w-full text-sm text-left">
-                        <thead className="bg-slate-50/50 text-slate-500 uppercase text-xs font-bold border-b border-slate-200"><tr><th className="px-4 md:px-6 py-4 text-center w-12">No</th><th className="px-4 md:px-6 py-4">Tanggal</th><th className="px-4 md:px-6 py-4">Pelapor</th><th className="px-4 md:px-6 py-4">Judul & Kategori</th><th className="px-4 md:px-6 py-4">Lokasi</th><th className="px-4 md:px-6 py-4 text-center">Status</th><th className="px-4 md:px-6 py-4 text-center">Aksi</th></tr></thead>
+                     <table className="w-full text-xs md:text-sm text-left">
+                        <thead className="bg-slate-50/50 text-slate-500 uppercase font-bold border-b border-slate-200">
+                           <tr>
+                              <th className="p-2 text-center w-8">No</th>
+                              <th className="p-2 w-24">Tanggal</th>
+                              <th className="p-2 w-32">Pelapor</th>
+                              <th className="p-2">Judul & Kategori</th>
+                              <th className="p-2 w-32">Lokasi</th>
+                              <th className="p-2 text-center w-24">Status</th>
+                              <th className="p-2 text-center w-40">Aksi</th>
+                           </tr>
+                        </thead>
                         <tbody className="divide-y divide-slate-100">
                            {filteredLaporan.map((item, index) => (
                               <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">
-                                 <td className="px-4 md:px-6 py-4 text-center text-slate-500">{index + 1}</td>
-                                 <td className="px-4 md:px-6 py-4 text-slate-600 whitespace-nowrap"><div className="flex items-center"><Clock size={14} className="mr-2 text-slate-400"/> {item.tanggalKejadian}</div></td>
-                                 <td className="px-4 md:px-6 py-4"><div className="font-medium text-slate-800">{item.nama_pelapor || "Anonim"}</div><div className="text-xs text-slate-400 truncate max-w-[150px]">{item.emailPelapor}</div></td>
-                                 <td className="px-4 md:px-6 py-4 max-w-xs">
-                                    <div className="font-bold text-slate-800 truncate">{item.judul}</div>
-                                    <span className="inline-block mt-1 px-2 py-0.5 rounded bg-slate-100 text-slate-500 text-[10px] font-bold border border-slate-200 uppercase">{item.kategori}</span>
-                                    {item.tanggapanPetugas && <div className="mt-2 text-xs bg-emerald-50 text-emerald-700 px-2 py-1 rounded border border-emerald-100 flex items-center"><MessageSquare size={10} className="mr-1"/> Sudah Ditanggapi</div>}
+                                 <td className="p-2 text-center text-slate-500">{index + 1}</td>
+                                 <td className="p-2 text-slate-600"><div className="flex flex-col"><div className="flex items-center"><Clock size={12} className="mr-1 text-slate-400"/> {item.tanggalKejadian}</div></div></td>
+                                 <td className="p-2"><div className="font-medium text-slate-800 break-words">{item.nama_pelapor || "Anonim"}</div><div className="text-[10px] text-slate-400 truncate max-w-[100px]">{item.emailPelapor}</div></td>
+                                 <td className="p-2">
+                                    <div className="font-bold text-slate-800 line-clamp-2">{item.judul}</div>
+                                    <span className="inline-block mt-1 px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 text-[10px] font-bold border border-slate-200 uppercase">{item.kategori}</span>
+                                    {item.tanggapanPetugas && <div className="mt-1 text-[10px] bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded border border-emerald-100 flex items-center w-fit"><MessageSquare size={10} className="mr-1"/> Ditanggapi</div>}
                                  </td>
-                                 <td className="px-4 md:px-6 py-4 text-slate-600"><div className="flex items-center truncate max-w-[150px]"><MapPin size={14} className="mr-1 text-slate-400 flex-shrink-0"/> {item.lokasi}</div></td>
-                                 <td className="px-4 md:px-6 py-4 text-center"><span className={`px-2 py-1 rounded-full text-[10px] md:text-xs font-bold uppercase inline-block shadow-sm ${getStatusBadge(item.status)}`}>{item.status || "Menunggu"}</span></td>
-                                 <td className="px-4 md:px-6 py-4 text-center">
-                                    <div className="flex justify-center items-center space-x-1 md:space-x-2">
-                                        <button onClick={() => openResponseModal(item.id, item.tanggapanPetugas)} title="Beri Tanggapan" className="w-8 h-8 flex items-center justify-center bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-500 hover:text-white transition-all"><MessageSquare size={14}/></button>
-                                        <div className="w-px h-5 bg-slate-300"></div>
-                                        <button onClick={() => requestUpdateStatus(item.id, 'Diproses')} title="Proses" className="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-all"><Settings size={14}/></button>
-                                        <button onClick={() => requestUpdateStatus(item.id, 'Selesai')} title="Selesai" className="w-8 h-8 flex items-center justify-center bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-600 hover:text-white transition-all"><CheckCircle size={14}/></button>
-                                        <button onClick={() => requestUpdateStatus(item.id, 'Ditolak')} title="Tolak" className="w-8 h-8 flex items-center justify-center bg-red-50 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition-all"><XCircle size={14}/></button>
-                                        <div className="w-px h-5 bg-slate-300"></div>
-                                        <button onClick={() => requestDelete(item.id)} title="Hapus" className="w-8 h-8 flex items-center justify-center text-slate-400 hover:bg-red-50 hover:text-red-600 rounded-lg transition-all"><Trash2 size={14}/></button>
+                                 <td className="p-2 text-slate-600"><div className="flex items-start text-xs line-clamp-2"><MapPin size={12} className="mr-1 text-slate-400 flex-shrink-0 mt-0.5"/> {item.lokasi}</div></td>
+                                 <td className="p-2 text-center"><span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase inline-block shadow-sm ${getStatusBadge(item.status)}`}>{item.status || "Menunggu"}</span></td>
+                                 <td className="p-2 text-center">
+                                    <div className="flex justify-center items-center space-x-1">
+                                         <button onClick={() => openResponseModal(item.id, item.tanggapanPetugas)} title="Beri Tanggapan" className="w-7 h-7 flex items-center justify-center bg-amber-50 text-amber-600 rounded hover:bg-amber-500 hover:text-white transition-all"><MessageSquare size={12}/></button>
+                                         <div className="w-px h-4 bg-slate-300"></div>
+                                         <button onClick={() => requestUpdateStatus(item.id, 'Diproses')} title="Proses" className="w-7 h-7 flex items-center justify-center bg-blue-50 text-blue-600 rounded hover:bg-blue-600 hover:text-white transition-all"><Settings size={12}/></button>
+                                         <button onClick={() => requestUpdateStatus(item.id, 'Selesai')} title="Selesai" className="w-7 h-7 flex items-center justify-center bg-emerald-50 text-emerald-600 rounded hover:bg-emerald-600 hover:text-white transition-all"><CheckCircle size={12}/></button>
+                                         <button onClick={() => requestUpdateStatus(item.id, 'Ditolak')} title="Tolak" className="w-7 h-7 flex items-center justify-center bg-red-50 text-red-600 rounded hover:bg-red-600 hover:text-white transition-all"><XCircle size={12}/></button>
+                                         <div className="w-px h-4 bg-slate-300"></div>
+                                         <button onClick={() => requestDelete(item.id)} title="Hapus" className="w-7 h-7 flex items-center justify-center text-slate-400 hover:bg-red-50 hover:text-red-600 rounded transition-all"><Trash2 size={12}/></button>
                                     </div>
                                  </td>
                               </tr>
@@ -429,7 +439,7 @@ export default function AdminDashboard({ user, site, onRequestLogoutRedirect }) 
         </main>
       </div>
 
-      {/* MODALS (RESPONSE, CONFIRM, SUCCESS, LOGOUT) - SAMA SEPERTI SEBELUMNYA */}
+      {/* MODALS */}
       <AnimatePresence>
         {isResponseModalOpen && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
