@@ -105,9 +105,9 @@ export default function AdminDashboard({ user, site, onRequestLogoutRedirect }) 
 
   // --- STATES MODAL ---
   const [isResponseModalOpen, setIsResponseModalOpen] = useState(false);
-  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false); // Untuk Detail
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedLaporanId, setSelectedLaporanId] = useState(null);
-  const [selectedDetailReport, setSelectedDetailReport] = useState(null); // Data Detail
+  const [selectedDetailReport, setSelectedDetailReport] = useState(null);
   const [responseText, setResponseText] = useState('');
   const [loadingResponse, setLoadingResponse] = useState(false);
   
@@ -164,36 +164,30 @@ export default function AdminDashboard({ user, site, onRequestLogoutRedirect }) 
 
   // --- FILTERING ---
   const filteredLaporan = laporan.filter(item => {
-    // Mapping search ke field yang relevan
     const matchesSearch = (item.judul?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
                           (item.nama_pelapor?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
                           (item.lokasi?.toLowerCase() || "").includes(searchTerm.toLowerCase());
     
     const matchesStatus = filterStatus === 'Semua' || item.status === filterStatus;
     
-    // Filter tanggal logic (menggunakan field 'tanggal' atau 'tanggalKejadian')
     let matchesYear = true, matchesMonth = true, matchesDate = true;
-    const tgl = item.tanggal || item.tanggalKejadian; // Handle kedua kemungkinan nama field
+    const tgl = item.tanggal || item.tanggalKejadian; 
 
     if (tgl) {
-        // Asumsi format DD/MM/YYYY atau YYYY-MM-DD, kita coba split
         let day, month, year;
         if (tgl.includes('/')) {
             [day, month, year] = tgl.split('/');
         } else if (tgl.includes('-')) {
-             // Jika tersimpan YYYY-MM-DD
              const parts = tgl.split('-');
              if(parts[0].length === 4) { [year, month, day] = parts; }
-             else { [day, month, year] = parts; } // DD-MM-YYYY fallback
+             else { [day, month, year] = parts; } 
         }
 
         if (year && month) {
             if (filterYear !== '' && year !== filterYear) matchesYear = false;
             if (filterMonth !== '' && parseInt(month) !== parseInt(filterMonth)) matchesMonth = false;
             if (filterDate !== '') { 
-                // filterDate dari input type="date" formatnya YYYY-MM-DD
                 const [fYear, fMonth, fDay] = filterDate.split('-'); 
-                // Kita bandingkan manual
                 if (parseInt(year) !== parseInt(fYear) || parseInt(month) !== parseInt(fMonth) || parseInt(day) !== parseInt(fDay)) {
                     matchesDate = false;
                 }
@@ -374,7 +368,8 @@ export default function AdminDashboard({ user, site, onRequestLogoutRedirect }) 
                        <tbody className="divide-y divide-slate-100">
                           {laporan.slice(0, 5).map((item) => (
                              <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">
-                               <td className="px-4 md:px-6 py-3 md:py-4 text-slate-600 whitespace-nowrap"><div className="flex items-center"><Clock size={14} className="mr-2 text-slate-400"/> {item.tanggal || item.tanggalKejadian}</div></td>
+                               {/* IKON JAM DIHAPUS DISINI */}
+                               <td className="px-4 md:px-6 py-3 md:py-4 text-slate-600 whitespace-nowrap">{item.tanggal || item.tanggalKejadian}</td>
                                <td className="px-4 md:px-6 py-3 md:py-4"><div className="font-medium text-slate-800">{item.nama_pelapor || "Anonim"}</div><div className="text-xs text-slate-400 truncate max-w-[120px]">{item.emailPelapor}</div></td>
                                <td className="px-4 md:px-6 py-3 md:py-4 max-w-xs"><div className="font-bold text-slate-800 truncate">{item.judul}</div><div className="text-xs text-slate-500 flex items-center mt-1 truncate"><MapPin size={10} className="mr-1 flex-shrink-0"/> {item.lokasi}</div></td>
                                <td className="px-4 md:px-6 py-3 md:py-4"><span className={`px-2 py-1 md:px-3 md:py-1 rounded-full text-[10px] md:text-xs font-bold uppercase ${getStatusBadge(item.status)}`}>{item.status || "Menunggu"}</span></td>
@@ -423,7 +418,8 @@ export default function AdminDashboard({ user, site, onRequestLogoutRedirect }) 
                            {filteredLaporan.map((item, index) => (
                               <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">
                                  <td className="p-2 text-center text-slate-500">{index + 1}</td>
-                                 <td className="p-2 text-slate-600"><div className="flex flex-col"><div className="flex items-center"><Clock size={12} className="mr-1 text-slate-400"/> {item.tanggal || item.tanggalKejadian}</div></div></td>
+                                 {/* IKON JAM DIHAPUS DISINI */}
+                                 <td className="p-2 text-slate-600">{item.tanggal || item.tanggalKejadian}</td>
                                  <td className="p-2"><div className="font-medium text-slate-800 break-words">{item.nama_pelapor || "Anonim"}</div><div className="text-[10px] text-slate-400 truncate max-w-[100px]">{item.emailPelapor}</div></td>
                                  <td className="p-2">
                                     <div className="font-bold text-slate-800 line-clamp-2">{item.judul}</div>
@@ -475,7 +471,7 @@ export default function AdminDashboard({ user, site, onRequestLogoutRedirect }) 
         )}
       </AnimatePresence>
 
-      {/* --- MODAL DETAIL LAPORAN (SESUAI REQUEST: form field user) --- */}
+      {/* --- MODAL DETAIL LAPORAN --- */}
       <AnimatePresence>
         {isDetailModalOpen && selectedDetailReport && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
@@ -520,7 +516,7 @@ export default function AdminDashboard({ user, site, onRequestLogoutRedirect }) 
                             </div>
                         </div>
 
-                         {/* Data Pelapor (Optional, jika ada) */}
+                         {/* Data Pelapor */}
                          <div className="border-t border-slate-100 pt-4">
                             <h4 className="text-xs font-bold text-slate-400 uppercase mb-3">Data Pelapor</h4>
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
